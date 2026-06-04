@@ -1,0 +1,32 @@
+{
+  "name": "@taukei/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 56778",
+    "build": "next build",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "e2e": "bun run ../../scripts/smoke-startup.ts"
+  },
+  "dependencies": {
+    "@taukei/env": "workspace:*",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "@taukei/domain": "workspace:*"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "bun-types": "latest",
+    "eslint": "latest",
+    "eslint-config-next": "latest",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.60.1",
+    "vitest": "latest"
+  }
+}
