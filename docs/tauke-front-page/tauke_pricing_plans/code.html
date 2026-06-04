@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tauke - Public Interactive Pricing Tier Matrix</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#8596a1",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#00743a",
+                        "primary-container": "#ff5a5f",
+                        "secondary": "#006d37",
+                        "on-primary-fixed-variant": "#92001b",
+                        "surface-bright": "#f9f9ff",
+                        "on-tertiary-container": "#1e2e37",
+                        "primary-fixed": "#ffdad8",
+                        "secondary-fixed-dim": "#4ae183",
+                        "secondary-container": "#6bfe9c",
+                        "on-surface-variant": "#5a403f",
+                        "secondary-fixed": "#6bfe9c",
+                        "on-surface": "#141b2b",
+                        "inverse-primary": "#ffb3b0",
+                        "on-tertiary-fixed": "#0c1e26",
+                        "tertiary-fixed-dim": "#b7c9d5",
+                        "inverse-surface": "#293040",
+                        "on-background": "#141b2b",
+                        "surface": "#f9f9ff",
+                        "on-primary-container": "#61000e",
+                        "tertiary": "#50616b",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed": "#410007",
+                        "inverse-on-surface": "#edf0ff",
+                        "surface-dim": "#d3daef",
+                        "surface-tint": "#b52330",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "primary": "#b52330",
+                        "outline-variant": "#e2bebc",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed-variant": "#384953",
+                        "surface-container-low": "#f1f3ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e9edff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#005228",
+                        "surface-container-high": "#e1e8fd",
+                        "on-primary": "#ffffff",
+                        "outline": "#8e706f",
+                        "surface-container-highest": "#dce2f7",
+                        "primary-fixed-dim": "#ffb3b0",
+                        "surface-variant": "#dce2f7",
+                        "tertiary-fixed": "#d3e5f1",
+                        "background": "#f9f9ff",
+                        "on-secondary-fixed": "#00210c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "container-margin": "16px",
+                        "xs": "8px",
+                        "base": "4px",
+                        "sm": "12px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "gutter": "12px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Space Grotesk"],
+                        "display-lg": ["Space Grotesk"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Space Grotesk"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Space Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "display-lg": ["40px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pt-16 pb-24 md:pb-8">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-margin h-16 bg-surface dark:bg-on-background border-b-2 border-on-surface dark:border-outline-variant shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] dark:shadow-none transition-all duration-100">
+<div class="flex items-center gap-xs">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-on-primary text-sm" style="font-variation-settings: 'FILL' 1;">storefront</span>
+</div>
+<span class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed">Tauke</span>
+</div>
+<nav class="hidden md:flex items-center gap-md">
+<a class="text-label-md font-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="#">Features</a>
+<a class="text-label-md font-label-md text-primary font-bold border-b-2 border-primary pb-1" href="#">Pricing Plans</a>
+<a class="text-label-md font-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="#">Testimonials</a>
+</nav>
+<button class="text-label-md font-label-md text-on-surface bg-surface border-2 border-on-surface rounded-full px-4 py-2 hover:bg-surface-container-high transition-colors active:translate-y-0.5 shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] active:shadow-none">Contact Sales</button>
+</header>
+<main class="max-w-7xl mx-auto px-container-margin pt-xl">
+<!-- Headline Section -->
+<section class="text-center mb-xl">
+<h1 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg text-on-background mb-xs">
+                Simple, Honest Pricing.<br/>No Sneaky Commissions. 🛑
+            </h1>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-2xl mx-auto">
+                Choose the plan that fits your ambition. Switch or cancel anytime.
+            </p>
+</section>
+<!-- Pricing Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-lg max-w-5xl mx-auto mb-xl">
+<!-- Tier 1: Kedai Kecil -->
+<div class="bg-surface-container-lowest rounded-[16px] border border-surface-dim p-lg flex flex-col hover:shadow-lg transition-shadow relative">
+<div class="mb-md">
+<h2 class="text-headline-md font-headline-md text-on-background">Kedai Kecil</h2>
+<p class="text-body-md font-body-md text-on-surface-variant mb-md">Perfect for side hustles</p>
+<div class="flex items-baseline gap-1">
+<span class="text-display-lg font-display-lg text-on-background">RM 49</span>
+<span class="text-body-md font-body-md text-on-surface-variant">/mo</span>
+</div>
+</div>
+<ul class="flex flex-col gap-sm mb-lg flex-grow">
+<li class="flex items-start gap-xs text-body-md font-body-md text-on-background">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                        1 storefront
+                    </li>
+<li class="flex items-start gap-xs text-body-md font-body-md text-on-background">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                        WhatsApp routing
+                    </li>
+<li class="flex items-start gap-xs text-body-md font-body-md text-on-background">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                        Lalamove integration
+                    </li>
+<li class="flex items-start gap-xs text-body-md font-body-md text-on-background">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                        300 orders/mo
+                    </li>
+</ul>
+<button class="w-full py-sm rounded-lg border-2 border-on-surface bg-surface text-on-surface text-label-md font-label-md hover:bg-surface-container-high transition-colors shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] active:translate-y-[2px] active:shadow-none">Select Plan</button>
+</div>
+<!-- Tier 2: Tauke Besar (Popular) -->
+<div class="bg-surface-container-lowest rounded-[16px] border-2 border-primary p-lg flex flex-col relative shadow-[4px_4px_0px_0px_rgba(20,27,43,1)] transform md:-translate-y-4">
+<div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+<span class="bg-primary text-on-primary text-label-sm font-label-sm px-3 py-1 rounded-full animate-pulse shadow-sm">Popular 🔥</span>
+</div>
+<div class="mb-md mt-sm">
+<h2 class="text-headline-md font-headline-md text-primary">Tauke Besar</h2>
+<p class="text-body-md font-body-md text-on-surface-variant mb-md">For growing businesses</p>
+<div class="flex items-baseline gap-1">
+<span class="text-display-lg font-display-lg text-on-background">RM 99</span>
+<span class="text-body-md font-body-md text-on-surface-variant">/mo</span>
+</div>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant mb-sm uppercase tracking-wider">Everything in Kedai Kecil, plus:</p>
+<ul class="flex flex-col gap-sm mb-lg flex-grow">
+<li class="flex items-start gap-xs text-body-md font-body-md text-on-background">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">stars</span>
+                        Unlimited orders
+                    </li>
+<li class="flex items-start gap-xs text-body-md font-body-md text-on-background">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">stars</span>
+                        Car-only rules
+                    </li>
+<li class="flex items-start gap-xs text-body-md font-body-md text-on-background">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">stars</span>
+                        Batch Route Optimization
+                    </li>
+</ul>
+<button class="w-full py-sm rounded-lg bg-primary text-on-primary text-label-md font-label-md hover:bg-surface-tint transition-transform hover:-translate-y-1 shadow-[0px_4px_0px_0px_rgba(97,0,14,1)] active:translate-y-[4px] active:shadow-none">Start Your 14-Day Free Trial 🚀</button>
+</div>
+<!-- Tier 3: Enterprise Kitchen -->
+<div class="bg-surface-container-lowest rounded-[16px] border border-surface-dim p-lg flex flex-col hover:shadow-lg transition-shadow relative">
+<div class="mb-md">
+<h2 class="text-headline-md font-headline-md text-on-background">Enterprise Kitchen</h2>
+<p class="text-body-md font-body-md text-on-surface-variant mb-md">For multi-outlet empires</p>
+<div class="flex items-baseline gap-1">
+<span class="text-display-lg font-display-lg text-on-background">RM 199</span>
+<span class="text-body-md font-body-md text-on-surface-variant">/mo</span>
+</div>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant mb-sm uppercase tracking-wider">Everything in Tauke Besar, plus:</p>
+<ul class="flex flex-col gap-sm mb-lg flex-grow">
+<li class="flex items-start gap-xs text-body-md font-body-md text-on-background">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">domain_add</span>
+                        Multi-outlet switcher
+                    </li>
+<li class="flex items-start gap-xs text-body-md font-body-md text-on-background">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">domain_add</span>
+                        Priority queue
+                    </li>
+<li class="flex items-start gap-xs text-body-md font-body-md text-on-background">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">domain_add</span>
+                        WhatsApp Business API
+                    </li>
+</ul>
+<button class="w-full py-sm rounded-lg border-2 border-on-surface bg-surface text-on-surface text-label-md font-label-md hover:bg-surface-container-high transition-colors shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] active:translate-y-[2px] active:shadow-none">Contact Sales</button>
+</div>
+</section>
+<!-- Platform Fee Box -->
+<section class="max-w-2xl mx-auto bg-surface-container border border-tertiary-fixed-dim rounded-xl p-md flex items-start gap-sm">
+<span class="material-symbols-outlined text-tertiary mt-1" style="font-variation-settings: 'FILL' 1;">info</span>
+<div>
+<h3 class="text-label-md font-label-md text-on-surface">Platform Fee Note</h3>
+<p class="text-body-md font-body-md text-on-surface-variant mt-1">
+                    A flat RM 1.00 platform fee is added to the customer's delivery bill per order to cover server and map costs. You never pay this out of pocket.
+                </p>
+</div>
+</section>
+</main>
+</body></html>

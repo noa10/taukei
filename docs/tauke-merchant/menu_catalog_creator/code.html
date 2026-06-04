@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Merchant Menu &amp; Catalog Creator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-container": "#8596a1",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-container": "#00743a",
+                      "primary-container": "#ff5a5f",
+                      "secondary": "#006d37",
+                      "on-primary-fixed-variant": "#92001b",
+                      "surface-bright": "#f9f9ff",
+                      "on-tertiary-container": "#1e2e37",
+                      "primary-fixed": "#ffdad8",
+                      "secondary-fixed-dim": "#4ae183",
+                      "secondary-container": "#6bfe9c",
+                      "on-surface-variant": "#5a403f",
+                      "secondary-fixed": "#6bfe9c",
+                      "on-surface": "#141b2b",
+                      "inverse-primary": "#ffb3b0",
+                      "on-tertiary-fixed": "#0c1e26",
+                      "tertiary-fixed-dim": "#b7c9d5",
+                      "inverse-surface": "#293040",
+                      "on-background": "#141b2b",
+                      "surface": "#f9f9ff",
+                      "on-primary-container": "#61000e",
+                      "tertiary": "#50616b",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed": "#410007",
+                      "inverse-on-surface": "#edf0ff",
+                      "surface-dim": "#d3daef",
+                      "surface-tint": "#b52330",
+                      "on-secondary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "primary": "#b52330",
+                      "outline-variant": "#e2bebc",
+                      "on-error": "#ffffff",
+                      "on-tertiary-fixed-variant": "#384953",
+                      "surface-container-low": "#f1f3ff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container": "#e9edff",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed-variant": "#005228",
+                      "surface-container-high": "#e1e8fd",
+                      "on-primary": "#ffffff",
+                      "outline": "#8e706f",
+                      "surface-container-highest": "#dce2f7",
+                      "primary-fixed-dim": "#ffb3b0",
+                      "surface-variant": "#dce2f7",
+                      "tertiary-fixed": "#d3e5f1",
+                      "background": "#f9f9ff",
+                      "on-secondary-fixed": "#00210c"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "container-margin": "16px",
+                      "xs": "8px",
+                      "base": "4px",
+                      "sm": "12px",
+                      "lg": "24px",
+                      "md": "16px",
+                      "gutter": "12px"
+              },
+              "fontFamily": {
+                      "body-lg": ["Plus Jakarta Sans"],
+                      "label-sm": ["Plus Jakarta Sans"],
+                      "headline-lg": ["Space Grotesk"],
+                      "display-lg": ["Space Grotesk"],
+                      "body-md": ["Plus Jakarta Sans"],
+                      "headline-lg-mobile": ["Space Grotesk"],
+                      "label-md": ["Plus Jakarta Sans"],
+                      "headline-md": ["Space Grotesk"]
+              },
+              "fontSize": {
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "700"}],
+                      "headline-lg": ["32px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "display-lg": ["40px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "32px", "fontWeight": "700"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "28px", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Custom Pop-Brutalism Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid #141b2b;
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 2px 2px 0px 0px rgba(20,27,43,1);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #dce2f7;
+            border-radius: 4px;
+            border: 1px solid #141b2b;
+        }
+        
+        /* Smooth interactions */
+        .pop-active:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px 0px rgba(20,27,43,1) !important;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen pb-32 selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar (Shared Component) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-margin h-16 bg-surface dark:bg-on-background border-b-2 border-on-surface dark:border-outline-variant shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] dark:shadow-none hidden md:flex">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+<span class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed">Tauke</span>
+</div>
+<div class="flex items-center">
+<button class="p-2 hover:bg-surface-container-high transition-colors rounded-full active:translate-y-0.5 active:shadow-none transition-all duration-100">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed">notifications</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="md:pt-20 pt-4 w-full max-w-[393px] mx-auto md:max-w-3xl relative">
+<!-- Sticky Header & FAB -->
+<div class="sticky top-0 md:top-16 z-40 bg-surface/95 backdrop-blur-sm px-container-margin py-4 flex justify-between items-center border-b-2 border-on-surface/10 mb-6 shadow-[0px_4px_12px_-4px_rgba(20,27,43,0.1)]">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface tracking-tight">Your Active Menu <span class="text-2xl">🍕</span></h1>
+<button aria-label="Create New Dish" class="bg-primary text-on-primary p-3 rounded-full border-2 border-on-surface shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] pop-active flex items-center justify-center hover:bg-surface-tint transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+</div>
+<!-- Filter Chips -->
+<div class="px-container-margin flex gap-sm overflow-x-auto pb-4 scrollbar-hide snap-x">
+<button class="snap-start shrink-0 px-4 py-2 bg-primary text-on-primary font-label-md text-label-md rounded-full border-2 border-on-surface shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] pop-active">All Items</button>
+<button class="snap-start shrink-0 px-4 py-2 bg-surface-container-lowest text-on-surface font-label-md text-label-md rounded-full border-2 border-on-surface shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] pop-active">Mains</button>
+<button class="snap-start shrink-0 px-4 py-2 bg-surface-container-lowest text-on-surface font-label-md text-label-md rounded-full border-2 border-on-surface shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] pop-active">Sides</button>
+<button class="snap-start shrink-0 px-4 py-2 bg-surface-container-lowest text-on-surface font-label-md text-label-md rounded-full border-2 border-on-surface shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] pop-active">Drinks</button>
+</div>
+<!-- Menu List -->
+<div class="px-container-margin flex flex-col gap-md">
+<!-- Item 1: Expanded (Logistics Shield Open) -->
+<div class="bg-surface-container-lowest border-2 border-on-surface rounded-xl shadow-[4px_4px_0px_0px_rgba(20,27,43,1)] overflow-hidden transition-all duration-300">
+<!-- Header / Basic Info -->
+<div class="p-4 flex gap-4 items-center relative cursor-pointer" onclick="toggleDetails('item-1')">
+<div class="w-20 h-20 rounded-lg border-2 border-on-surface overflow-hidden shrink-0 bg-surface-container">
+<img alt="Spicy Thai Basil Chicken" class="w-full h-full object-cover" data-alt="A close-up, high-contrast, mouth-watering shot of Thai Basil Chicken (Krapow Ayam) served over steamed rice with a perfectly fried sunny-side-up egg on top. The lighting is bright and warm, emphasizing the rich, savory sauce and fresh green basil leaves. Shot in a vibrant, modern-pop food photography style with saturated colors and sharp focus on the central dish, against a clean, minimal white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCplDQzE1tLwrXJt4cERJB3a8K-fsidMB-rZDf8P3W-e4-lpbE_cWCYLi5S8cJyVEN4xyJ8KSIPZutDgfOGd3sswT1SGjPpZZVFA-bcF3vozRmzqHNqWgaLDJK4D7M0VsLQAaYBgSEpXeiMbZzZ3b5PG859DHBojjV70Kz3UBWtFf5fZBkZ2WwkvOEtRM-hrbg38ngDplq2s3AP5gloMlZOxTRD90UOUzhx02oT8KnXUA4TA3G_PiVBeLejT35QSBM3s1pqec6OPeDc"/>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-[20px] leading-tight text-on-surface mb-1">Set Krapow Ayam</h3>
+<p class="font-label-md text-label-md text-secondary mb-2">RM 15.00</p>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary">local_shipping</span>
+<span class="font-label-sm text-label-sm text-tertiary">Standard Tapau</span>
+</div>
+</div>
+<!-- Custom Toggle -->
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-6 bg-surface-dim peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-on-surface after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:border-2 after:border-on-surface after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary border-2 border-on-surface"></div>
+</label>
+</div>
+<!-- Logistics Parameter Shield (Expanded Area) -->
+<div class="px-4 pb-4 pt-2 border-t-2 border-on-surface/10 bg-surface-container-low transition-all duration-300" id="item-1">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-tertiary">tune</span>
+<h4 class="font-label-md text-label-md text-on-surface uppercase tracking-wider">Logistics Parameters</h4>
+</div>
+<!-- Weight Slider -->
+<div class="mb-6">
+<div class="flex justify-between mb-2">
+<label class="font-body-md text-body-md text-on-surface-variant">Estimated Weight</label>
+<span class="font-label-md text-label-md text-on-surface font-bold bg-surface-container-highest px-2 py-1 rounded border border-on-surface/20">450g</span>
+</div>
+<input class="w-full" max="2000" min="100" type="range" value="450"/>
+<div class="flex justify-between mt-1 px-1">
+<span class="font-label-sm text-label-sm text-tertiary">100g</span>
+<span class="font-label-sm text-label-sm text-tertiary">2kg</span>
+</div>
+</div>
+<!-- Packaging Toggle -->
+<div class="space-y-2">
+<label class="font-body-md text-body-md text-on-surface-variant">Packaging Type</label>
+<div class="grid grid-cols-2 gap-2">
+<button class="bg-primary text-on-primary border-2 border-on-surface rounded-lg p-3 flex flex-col items-center gap-1 shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] pop-active">
+<span class="text-2xl">🥡</span>
+<span class="font-label-sm text-label-sm text-center">Standard Tapau Box</span>
+</button>
+<button class="bg-surface-container-lowest text-on-surface border-2 border-on-surface rounded-lg p-3 flex flex-col items-center gap-1 shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] pop-active opacity-60 hover:opacity-100 transition-opacity">
+<span class="text-2xl">🚗</span>
+<span class="font-label-sm text-label-sm text-center">Fragile - Car Only</span>
+</button>
+</div>
+<p class="font-label-sm text-label-sm text-secondary mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">info</span>
+                            Auto-assigns bikes for delivery.
+                        </p>
+</div>
+</div>
+</div>
+<!-- Item 2: Collapsed -->
+<div class="bg-surface-container-lowest border-2 border-on-surface rounded-xl shadow-[4px_4px_0px_0px_rgba(20,27,43,1)] overflow-hidden transition-all duration-300">
+<div class="p-4 flex gap-4 items-center relative cursor-pointer hover:bg-surface-container-low transition-colors">
+<div class="w-20 h-20 rounded-lg border-2 border-on-surface overflow-hidden shrink-0 bg-surface-container">
+<img alt="Iced Teh Tarik" class="w-full h-full object-cover" data-alt="A tall glass of iced milk tea, prominently showing the rich, vibrant orange-brown color of the tea mixed with condensed milk, topped with a frothy layer. Ice cubes are visible, creating condensation on the outside of the glass. The aesthetic is bright and refreshing, styled against a highly saturated, contrasting pastel background to fit a modern-pop food UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAs6wh-R9ETlJ1CNIOGVRanE4bb-Hsje0sU_rBtIiWsKwieLdyslt4hpHykNo-OC8koLAVTPQUlchaCA59tUb-fggk381y31kn3qLHUGM7zhCQZOK9s_GCSllt1xFni5O4cf6cMuOvamnbieNX479C_DB44lLf8wfEc74Ggb9xmPK8wTAV1KuuoBGHi8pmdvNp3-18fqx_f07xMssClpC1BKToeEYykNAQgOdHYX2ywc-acCKsg1n6PKPXkNV3ACoizT1-QH6PSgWe1"/>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-[20px] leading-tight text-on-surface mb-1">Teh Tarik Ais Bunga</h3>
+<p class="font-label-md text-label-md text-secondary mb-2">RM 5.50</p>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary">water_drop</span>
+<span class="font-label-sm text-label-sm text-tertiary">Spill-Proof Seal</span>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer shrink-0" onclick="event.stopPropagation()">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-6 bg-surface-dim peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-on-surface after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:border-2 after:border-on-surface after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary border-2 border-on-surface"></div>
+</label>
+</div>
+</div>
+<!-- Item 3: Collapsed, Inactive -->
+<div class="bg-surface-container-lowest border-2 border-on-surface/50 rounded-xl shadow-[2px_2px_0px_0px_rgba(20,27,43,0.5)] overflow-hidden transition-all duration-300 opacity-75">
+<div class="p-4 flex gap-4 items-center relative cursor-pointer hover:bg-surface-container-low transition-colors">
+<div class="w-20 h-20 rounded-lg border-2 border-on-surface/50 overflow-hidden shrink-0 bg-surface-container grayscale">
+<img alt="Nasi Lemak Special" class="w-full h-full object-cover" data-alt="A flat lay top-down view of Nasi Lemak wrapped in a banana leaf. Visible components include coconut rice, spicy dark red sambal, fried anchovies, roasted peanuts, cucumber slices, and a hard-boiled egg. The image is styled with a slight desaturation to indicate an 'inactive' state, but still retains its crisp, tactile, brutalist food photography framing." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpsdb88vk6vHxwr3XEPI-uz6ejhWmYYLBxNj6POkIK6mkZfts0Jl3QCEznlBnL5Myx82cgid4eJDsVgxcFbgoNT2hHFRdphLkxBA-ey14SJydY_ZfeWpLJ28eUVFx5f9VakFMUwzBcNwHGe2QZHWo6nV3B89xNGTFmhp-VL9DczcD2rAsMijtqL2X_gBFJcUTQ_YZ9G35xUjEEHuZ4QVn03PBzN6zfK9y7K8hg2rW3ZIw7VeEl09K0nP_QWpUrk_Xx_f3lek9BR4eK"/>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-[20px] leading-tight text-on-surface-variant mb-1">Nasi Lemak Special</h3>
+<p class="font-label-md text-label-md text-on-surface-variant mb-2">RM 12.00</p>
+<span class="font-label-sm text-label-sm text-error bg-error-container px-2 py-0.5 rounded-full border border-error/20 inline-block">Sold Out</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer shrink-0" onclick="event.stopPropagation()">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-6 bg-surface-dim peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-on-surface after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:border-2 after:border-on-surface after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary border-2 border-on-surface"></div>
+</label>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Shared Component) - Rendered for Mobile Destination Context -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-base py-sm bg-surface dark:bg-on-background border-t-2 border-on-surface dark:border-outline-variant shadow-[0px_-2px_0px_0px_rgba(20,27,43,1)] rounded-t-xl md:hidden">
+<!-- Dashboard (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-tertiary-container hover:bg-surface-container-lowest active:scale-95 transition-transform duration-75 w-16 h-14 rounded-lg">
+<span class="material-symbols-outlined text-[24px]">dashboard</span>
+<span class="text-label-sm font-label-sm mt-1">Dashboard</span>
+</button>
+<!-- Menu (ACTIVE) -->
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed bg-primary-container dark:bg-on-primary-container rounded-xl px-3 py-1 hover:bg-surface-container-lowest active:scale-95 transition-transform duration-75 w-16 h-14 border-2 border-on-surface shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] transform -translate-y-2">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">restaurant_menu</span>
+<span class="text-label-sm font-label-sm mt-1">Menu</span>
+</button>
+<!-- Orders (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-tertiary-container hover:bg-surface-container-lowest active:scale-95 transition-transform duration-75 w-16 h-14 rounded-lg">
+<span class="material-symbols-outlined text-[24px]">receipt_long</span>
+<span class="text-label-sm font-label-sm mt-1">Orders</span>
+</button>
+<!-- Wallet (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-tertiary-container hover:bg-surface-container-lowest active:scale-95 transition-transform duration-75 w-16 h-14 rounded-lg">
+<span class="material-symbols-outlined text-[24px]">account_balance_wallet</span>
+<span class="text-label-sm font-label-sm mt-1">Wallet</span>
+</button>
+</nav>
+<script>
+        // Simple script to handle toggling the logistics shield for demonstration
+        function toggleDetails(id) {
+            const el = document.getElementById(id);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                // Optional: add animation classes
+            } else {
+                // In a real app we'd animate height, for this static demo we just toggle display or visibility
+                // Actually let's just leave it expanded as requested by the prompt ("Card 1: Expanded") and not make it fully collapsible via JS to ensure the UI is visible for review.
+                console.log('Toggled', id);
+            }
+        }
+    </script>
+</body></html>

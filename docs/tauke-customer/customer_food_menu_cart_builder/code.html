@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mad Krapow 🔥 - Menu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "surface-container-low": "#f1f3ff",
+                "on-tertiary": "#ffffff",
+                "on-background": "#141b2b",
+                "on-secondary-fixed": "#00210c",
+                "background": "#f9f9ff",
+                "outline-variant": "#e2bebc",
+                "on-secondary-container": "#00743a",
+                "tertiary-fixed-dim": "#b7c9d5",
+                "on-error-container": "#93000a",
+                "error": "#ba1a1a",
+                "surface-bright": "#f9f9ff",
+                "primary-fixed-dim": "#ffb3b0",
+                "primary": "#b52330",
+                "surface-container": "#e9edff",
+                "on-primary-fixed": "#410007",
+                "on-primary": "#ffffff",
+                "tertiary": "#50616b",
+                "surface-container-high": "#e1e8fd",
+                "on-secondary-fixed-variant": "#005228",
+                "secondary-fixed": "#6bfe9c",
+                "tertiary-fixed": "#d3e5f1",
+                "surface-container-highest": "#dce2f7",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary-container": "#1e2e37",
+                "on-surface": "#141b2b",
+                "on-primary-fixed-variant": "#92001b",
+                "outline": "#8e706f",
+                "secondary": "#006d37",
+                "inverse-surface": "#293040",
+                "on-tertiary-fixed": "#0c1e26",
+                "on-error": "#ffffff",
+                "on-surface-variant": "#5a403f",
+                "on-primary-container": "#61000e",
+                "secondary-fixed-dim": "#4ae183",
+                "surface": "#f9f9ff",
+                "inverse-on-surface": "#edf0ff",
+                "primary-fixed": "#ffdad8",
+                "secondary-container": "#6bfe9c",
+                "inverse-primary": "#ffb3b0",
+                "surface-dim": "#d3daef",
+                "primary-container": "#ff5a5f",
+                "surface-tint": "#b52330",
+                "surface-variant": "#dce2f7",
+                "tertiary-container": "#8596a1",
+                "on-secondary": "#ffffff",
+                "error-container": "#ffdad6",
+                "on-tertiary-fixed-variant": "#384953"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "lg": "24px",
+                "container-margin": "16px",
+                "sm": "12px",
+                "gutter": "12px",
+                "xl": "32px",
+                "md": "16px",
+                "xs": "8px",
+                "base": "4px"
+        },
+        "fontFamily": {
+                "headline-lg": [
+                        "Space Grotesk"
+                ],
+                "label-sm": [
+                        "Plus Jakarta Sans"
+                ],
+                "headline-md": [
+                        "Space Grotesk"
+                ],
+                "label-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "display-lg": [
+                        "Space Grotesk"
+                ],
+                "body-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "headline-lg-mobile": [
+                        "Space Grotesk"
+                ],
+                "body-lg": [
+                        "Plus Jakarta Sans"
+                ]
+        },
+        "fontSize": {
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "36px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "letterSpacing": "0.01em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "display-lg": [
+                        "40px",
+                        {
+                                "lineHeight": "44px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "28px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "500"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+  body {
+    background-color: #f9f9ff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .brutal-shadow {
+    box-shadow: 2px 2px 0px 0px rgba(0,0,0,0.8);
+  }
+  .brutal-border {
+    border: 2px solid #141b2b;
+  }
+  .active-press:active {
+    transform: translateY(2px);
+    box-shadow: none;
+  }
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1;
+  }
+</style>
+</head>
+<body class="text-on-surface pb-[120px]">
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-surface-container-lowest border-b-2 border-outline-variant shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] px-md py-sm flex items-center justify-between">
+<div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight">Mad Krapow 🔥</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Delivery powered by Tauke 🏎️</p>
+</div>
+<button class="bg-primary-container text-on-primary-container px-sm py-xs rounded-full flex items-center gap-2 brutal-shadow brutal-border active-press animate-pulse">
+<span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+<span class="font-label-md text-label-md">2 items | RM 32.00</span>
+</button>
+</header>
+<!-- Categories -->
+<nav class="sticky top-[80px] z-40 bg-background/90 backdrop-blur-sm py-sm overflow-x-auto whitespace-nowrap px-md no-scrollbar">
+<div class="flex gap-sm">
+<button class="bg-primary text-on-primary px-lg py-xs rounded-full font-label-md text-label-md brutal-shadow brutal-border active-press transition-transform hover:scale-105">🔥 Best Sellers</button>
+<button class="bg-surface-container-highest text-on-surface px-lg py-xs rounded-full font-label-md text-label-md brutal-border active-press transition-transform hover:scale-105">🍳 Pad Kra Pao</button>
+<button class="bg-surface-container-highest text-on-surface px-lg py-xs rounded-full font-label-md text-label-md brutal-border active-press transition-transform hover:scale-105">🧋 Beverages</button>
+<button class="bg-surface-container-highest text-on-surface px-lg py-xs rounded-full font-label-md text-label-md brutal-border active-press transition-transform hover:scale-105">🍦 Desserts</button>
+</div>
+</nav>
+<!-- Menu List -->
+<main class="px-md mt-lg space-y-md">
+<!-- Food Card 1 -->
+<article class="bg-surface-container-lowest rounded-[16px] brutal-border p-sm flex gap-md brutal-shadow relative">
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<h3 class="font-headline-md text-headline-md leading-tight mb-xs">Signature Basil Beef Pad Kra Pao</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Spicy minced beef over hot jasmine rice + a crispy fried egg! 🍳</p>
+</div>
+<p class="font-label-lg text-label-lg font-bold text-primary mt-sm">RM 16.00</p>
+</div>
+<div class="w-[100px] h-[100px] rounded-[12px] overflow-hidden relative shrink-0 brutal-border">
+<img alt="Spicy Thai basil beef with fried egg on rice" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSwTTgF_p06VTkxQs12ReyJrsKUTsi1O9jRBlPBPs0z8OFKk_YvJVMg8Sc99W6v1mdWQceQ9dhHxCZVjI6_WvYdILhW4gfYzK8OR0GM0NQMesBRBtnBgNlKL9Bwt-4SLFNhrn7OYjX51XS-w2on9rTTLMWrgWLJ0k764k71c4ZkOQeQWPxOS5bf3P7vsokIbBX571ORWWRn-H3l4sgXojhclqcfDNtmCQTUe2UbaRWpIeoQ3YRa0k8OYI70CH37csYe_P3ParWtu04"/>
+<button aria-label="Add to cart" class="absolute bottom-[-8px] right-[-8px] bg-primary-container text-on-primary-container w-8 h-8 rounded-full flex items-center justify-center brutal-shadow brutal-border active-press z-10">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+</article>
+<!-- Food Card 2 -->
+<article class="bg-surface-container-lowest rounded-[16px] brutal-border p-sm flex gap-md brutal-shadow relative">
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<h3 class="font-headline-md text-headline-md leading-tight mb-xs">Chicken Pad Kra Pao</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Classic holy basil stir-fry with tender chicken pieces and perfectly cooked rice.</p>
+</div>
+<p class="font-label-lg text-label-lg font-bold text-primary mt-sm">RM 14.00</p>
+</div>
+<div class="w-[100px] h-[100px] rounded-[12px] bg-surface-container-high overflow-hidden relative shrink-0 brutal-border flex items-center justify-center">
+<span class="material-symbols-outlined text-[32px] text-tertiary-container">image</span>
+<button aria-label="Add to cart" class="absolute bottom-[-8px] right-[-8px] bg-primary-container text-on-primary-container w-8 h-8 rounded-full flex items-center justify-center brutal-shadow brutal-border active-press z-10">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+</article>
+</main>
+<!-- Bottom Sheet Modal (Simulated Active State) -->
+<div class="fixed inset-0 bg-on-background/50 z-[60] flex flex-col justify-end">
+<div class="bg-surface-container-lowest rounded-t-[24px] p-md max-h-[80vh] overflow-y-auto brutal-border border-b-0 animate-[slideUp_0.3s_ease-out]">
+<div class="w-12 h-1 bg-outline-variant rounded-full mx-auto mb-lg"></div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile mb-md">Choose your Spice Level 🌶️</h2>
+<div class="space-y-sm mb-xl">
+<label class="flex items-center justify-between p-sm border-2 border-outline-variant rounded-[12px] bg-surface-container-low active:bg-surface-container">
+<span class="font-label-md text-label-md">Manja (Mild)</span>
+<input class="text-primary focus:ring-primary w-5 h-5 border-2 border-outline brutal-border" name="spice" type="radio"/>
+</label>
+<label class="flex items-center justify-between p-sm border-2 border-primary rounded-[12px] bg-primary-fixed">
+<span class="font-label-md text-label-md text-on-primary-fixed">Pedas Biasa (Normal)</span>
+<input checked="" class="text-primary focus:ring-primary w-5 h-5 border-2 border-primary brutal-border" name="spice" type="radio"/>
+</label>
+<label class="flex items-center justify-between p-sm border-2 border-outline-variant rounded-[12px] bg-surface-container-low active:bg-surface-container">
+<span class="font-label-md text-label-md">Pedas Gila (Super Spicy 🔥)</span>
+<input class="text-primary focus:ring-primary w-5 h-5 border-2 border-outline brutal-border" name="spice" type="radio"/>
+</label>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile mb-md">Add Extra Toppings 🍳</h2>
+<div class="space-y-sm mb-[80px]">
+<label class="flex items-center justify-between p-sm border-2 border-outline-variant rounded-[12px] bg-surface-container-low active:bg-surface-container">
+<div>
+<span class="block font-label-md text-label-md">Extra Crispy Egg</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">+RM 2.00</span>
+</div>
+<input class="text-primary rounded-[4px] focus:ring-primary w-6 h-6 border-2 border-outline brutal-border" type="checkbox"/>
+</label>
+<label class="flex items-center justify-between p-sm border-2 border-outline-variant rounded-[12px] bg-surface-container-low active:bg-surface-container">
+<div>
+<span class="block font-label-md text-label-md">Double Meat</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">+RM 5.00</span>
+</div>
+<input class="text-primary rounded-[4px] focus:ring-primary w-6 h-6 border-2 border-outline brutal-border" type="checkbox"/>
+</label>
+</div>
+<!-- Sticky Modal Action -->
+<div class="fixed bottom-0 left-0 w-full p-md bg-surface-container-lowest border-t-2 border-outline-variant">
+<button class="w-full bg-primary text-on-primary py-sm rounded-[12px] font-label-md text-label-md brutal-shadow brutal-border active-press flex items-center justify-center gap-2">
+                Add to Cart - RM 16.00
+            </button>
+</div>
+</div>
+</div>
+<!-- Main Sticky Footer (Hidden when modal is open, but included for completeness) -->
+<!--
+<div class="fixed bottom-0 w-full p-md bg-surface-container-lowest/90 backdrop-blur-md border-t-2 border-outline-variant z-40">
+    <button class="w-full bg-primary text-on-primary py-sm rounded-[16px] font-label-md text-label-md brutal-shadow brutal-border active-press flex items-center justify-between px-lg">
+        <span>View Basket & Choose Delivery Vehicle</span>
+        <span class="material-symbols-outlined">arrow_forward</span>
+    </button>
+</div>
+-->
+<style>
+    @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .no-scrollbar {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+</style>
+</body></html>

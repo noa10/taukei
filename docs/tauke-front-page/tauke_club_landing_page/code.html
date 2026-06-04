@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tauke - Join the Club</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-container": "#8596a1",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-container": "#00743a",
+                      "primary-container": "#ff5a5f",
+                      "secondary": "#006d37",
+                      "on-primary-fixed-variant": "#92001b",
+                      "surface-bright": "#f9f9ff",
+                      "on-tertiary-container": "#1e2e37",
+                      "primary-fixed": "#ffdad8",
+                      "secondary-fixed-dim": "#4ae183",
+                      "secondary-container": "#6bfe9c",
+                      "on-surface-variant": "#5a403f",
+                      "secondary-fixed": "#6bfe9c",
+                      "on-surface": "#141b2b",
+                      "inverse-primary": "#ffb3b0",
+                      "on-tertiary-fixed": "#0c1e26",
+                      "tertiary-fixed-dim": "#b7c9d5",
+                      "inverse-surface": "#293040",
+                      "on-background": "#141b2b",
+                      "surface": "#f9f9ff",
+                      "on-primary-container": "#61000e",
+                      "tertiary": "#50616b",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed": "#410007",
+                      "inverse-on-surface": "#edf0ff",
+                      "surface-dim": "#d3daef",
+                      "surface-tint": "#b52330",
+                      "on-secondary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "primary": "#b52330",
+                      "outline-variant": "#e2bebc",
+                      "on-error": "#ffffff",
+                      "on-tertiary-fixed-variant": "#384953",
+                      "surface-container-low": "#f1f3ff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container": "#e9edff",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed-variant": "#005228",
+                      "surface-container-high": "#e1e8fd",
+                      "on-primary": "#ffffff",
+                      "outline": "#8e706f",
+                      "surface-container-highest": "#dce2f7",
+                      "primary-fixed-dim": "#ffb3b0",
+                      "surface-variant": "#dce2f7",
+                      "tertiary-fixed": "#d3e5f1",
+                      "background": "#f9f9ff",
+                      "on-secondary-fixed": "#00210c"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "container-margin": "16px",
+                      "xs": "8px",
+                      "base": "4px",
+                      "sm": "12px",
+                      "lg": "24px",
+                      "md": "16px",
+                      "gutter": "12px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "label-sm": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg": [
+                              "Space Grotesk"
+                      ],
+                      "display-lg": [
+                              "Space Grotesk"
+                      ],
+                      "body-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg-mobile": [
+                              "Space Grotesk"
+                      ],
+                      "label-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-md": [
+                              "Space Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "36px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 1,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+        
+        .brutal-border {
+            border: 2px solid #141b2b;
+        }
+        .brutal-shadow {
+            box-shadow: 4px 4px 0px 0px #141b2b;
+        }
+        .brutal-btn-shadow {
+            box-shadow: 0px 4px 0px 0px #141b2b;
+            transition: all 0.1s ease;
+        }
+        .brutal-btn-shadow:active {
+            box-shadow: 0px 0px 0px 0px #141b2b;
+            transform: translateY(4px);
+        }
+        .micro-shadow {
+            box-shadow: 2px 2px 0px 0px #141b2b;
+        }
+        
+        /* Floating animation for logo */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased overflow-x-hidden w-full max-w-[393px] mx-auto min-h-screen flex flex-col relative md:max-w-none">
+<!-- Top Navigation (Header) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-margin h-16 bg-surface border-b-2 border-on-surface shadow-[2px_2px_0px_0px_rgba(20,27,43,1)]">
+<div class="flex items-center gap-2">
+<span class="text-headline-md font-headline-md font-bold text-primary flex items-center gap-1 animate-float">Tauke 🚀</span>
+</div>
+<button class="bg-primary-container text-on-primary-container font-label-md text-label-md px-4 py-2 rounded-lg brutal-border brutal-btn-shadow font-bold flex items-center gap-1">
+            Start Free
+        </button>
+</header>
+<!-- Main Content -->
+<main class="flex-1 pt-[80px] pb-xl px-container-margin flex flex-col gap-xl">
+<!-- Hero Section -->
+<section class="text-center pt-lg flex flex-col items-center gap-md">
+<div class="inline-block bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-sm font-label-sm font-bold brutal-border micro-shadow mb-2">
+                #1 FOR INDIE MERCHANTS
+            </div>
+<h1 class="text-display-lg font-display-lg md:text-display-lg md:font-display-lg text-headline-lg-mobile font-headline-lg-mobile leading-tight">
+                Stop Feeding the Middleman. Keep 100% of Your Hard-Earned Profit! 💰
+            </h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-md mx-auto">
+                Launch your own high-converting direct menu link with automated, hands-free Lalamove dispatching in under 10 minutes flat.
+            </p>
+<div class="w-full aspect-video bg-surface-container-high rounded-xl brutal-border brutal-shadow overflow-hidden mt-md relative">
+<img alt="Preview of the Tauke direct menu interface on a mobile device, showing vibrant food images and clear pricing." class="w-full h-full object-cover" data-alt="A stylized, flat-lay digital mockup of a smartphone displaying a highly visual food delivery menu interface. The interface uses a bright, modern pop aesthetic with electric salmon accents against a clean white background. High-quality images of vibrant street food are visible on the screen. The overall scene is well-lit, evoking a sense of speed and high conversion typical of modern D2C platforms." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAR8p_GNQS1vuQITs0a6VEd428mwJaUkrLZYz3580IL_7MxwYfu__BapMYxeNArRH0LbJwenrb8InjdDPn2RKjD_qgcQuo-oFlb9NoCIGquREsIbOO8-XCLSYroz6EeNvKCyqDaH38sm7fz_bk2YQ_EvLE7U71a31I5qblk4ScdtTYOtkmo0J8AB8U3QL8Bg-SywoYQKJKwB53_CyL-7-P_2sD92bvH2TWaVh0PDWFmkN9EWgpDoEK-sNDktNEw8-rH_mOtRwrpTc2R"/>
+</div>
+</section>
+<!-- Interactive Calculator -->
+<section class="bg-surface-container-lowest rounded-xl brutal-border brutal-shadow p-container-margin flex flex-col gap-md">
+<h2 class="text-headline-md font-headline-md text-center">Calculate Your Extra Profit</h2>
+<p class="text-body-md font-body-md text-center text-on-surface-variant">How many orders do you get per day?</p>
+<div class="flex items-center justify-between mt-sm">
+<span class="text-label-md font-label-md font-bold">10</span>
+<span class="text-label-md font-label-md font-bold text-primary" id="order-display">50</span>
+<span class="text-label-md font-label-md font-bold">100+</span>
+</div>
+<input class="w-full h-3 bg-surface-container-high rounded-full appearance-none cursor-pointer border border-on-surface accent-primary" id="order-slider" max="100" min="10" type="range" value="50"/>
+<div class="bg-primary-fixed rounded-lg p-sm brutal-border mt-sm text-center">
+<p class="text-label-sm font-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">Money saved from app commissions this month</p>
+<p class="text-headline-lg font-headline-lg text-on-primary-fixed-variant" id="savings-display">RM 2,500! 🔥</p>
+</div>
+</section>
+<!-- Value Grid -->
+<section class="grid grid-cols-2 gap-gutter">
+<!-- Block 1 -->
+<div class="bg-surface-container-lowest rounded-xl brutal-border micro-shadow p-sm flex flex-col items-start gap-xs">
+<div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center brutal-border mb-1">
+<span class="material-symbols-outlined text-error" data-icon="block" data-weight="fill">block</span>
+</div>
+<h3 class="text-label-md font-label-md font-bold leading-tight">0% App Commissions</h3>
+</div>
+<!-- Block 2 -->
+<div class="bg-surface-container-lowest rounded-xl brutal-border micro-shadow p-sm flex flex-col items-start gap-xs">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center brutal-border mb-1">
+<span class="material-symbols-outlined text-secondary" data-icon="bolt" data-weight="fill">bolt</span>
+</div>
+<h3 class="text-label-md font-label-md font-bold leading-tight">Autonomous Fleet Calling</h3>
+</div>
+<!-- Block 3 -->
+<div class="bg-surface-container-lowest rounded-xl brutal-border micro-shadow p-sm flex flex-col items-start gap-xs">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center brutal-border mb-1">
+<span class="material-symbols-outlined text-on-primary-container" data-icon="rocket_launch" data-weight="fill">rocket_launch</span>
+</div>
+<h3 class="text-label-md font-label-md font-bold leading-tight">Instant Bank Cashouts</h3>
+</div>
+<!-- Block 4 -->
+<div class="bg-surface-container-lowest rounded-xl brutal-border micro-shadow p-sm flex flex-col items-start gap-xs">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center brutal-border mb-1">
+<span class="material-symbols-outlined text-on-tertiary-fixed" data-icon="cake" data-weight="fill">cake</span>
+</div>
+<h3 class="text-label-md font-label-md font-bold leading-tight">Fragile Food Protective Rules</h3>
+</div>
+</section>
+<!-- Primary CTA Area -->
+<section class="flex flex-col items-center gap-md mt-md">
+<button class="w-full bg-primary text-on-primary text-headline-md font-headline-md py-4 rounded-xl brutal-border brutal-btn-shadow flex justify-center items-center gap-2">
+                Claim Your Shop Link Now! 👉
+            </button>
+<a class="text-label-md font-label-md text-on-surface-variant underline underline-offset-4 mt-2" href="#">
+                Already a Tauke Boss? Log In
+            </a>
+</section>
+</main>
+<script>
+        // Simple interactive calculator logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const slider = document.getElementById('order-slider');
+            const orderDisplay = document.getElementById('order-display');
+            const savingsDisplay = document.getElementById('savings-display');
+            
+            // Assuming average order value RM 25, commission 30%, 30 days
+            const calculateSavings = (orders) => {
+                const avgOrderValue = 25;
+                const commissionRate = 0.30;
+                const days = 30;
+                return Math.floor(orders * avgOrderValue * commissionRate * days);
+            };
+
+            slider.addEventListener('input', (e) => {
+                const orders = e.target.value;
+                orderDisplay.textContent = orders;
+                
+                const savings = calculateSavings(orders);
+                // Format with commas
+                const formattedSavings = savings.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                
+                savingsDisplay.textContent = `RM ${formattedSavings}! 🔥`;
+                
+                // Add a little pop animation on change
+                savingsDisplay.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    savingsDisplay.style.transform = 'scale(1)';
+                    savingsDisplay.style.transition = 'transform 0.1s ease';
+                }, 100);
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Merchant Onboarding - Tauke</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#8596a1",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#00743a",
+                    "primary-container": "#ff5a5f",
+                    "secondary": "#006d37",
+                    "on-primary-fixed-variant": "#92001b",
+                    "surface-bright": "#f9f9ff",
+                    "on-tertiary-container": "#1e2e37",
+                    "primary-fixed": "#ffdad8",
+                    "secondary-fixed-dim": "#4ae183",
+                    "secondary-container": "#6bfe9c",
+                    "on-surface-variant": "#5a403f",
+                    "secondary-fixed": "#6bfe9c",
+                    "on-surface": "#141b2b",
+                    "inverse-primary": "#ffb3b0",
+                    "on-tertiary-fixed": "#0c1e26",
+                    "tertiary-fixed-dim": "#b7c9d5",
+                    "inverse-surface": "#293040",
+                    "on-background": "#141b2b",
+                    "surface": "#f9f9ff",
+                    "on-primary-container": "#61000e",
+                    "tertiary": "#50616b",
+                    "on-error-container": "#93000a",
+                    "on-primary-fixed": "#410007",
+                    "inverse-on-surface": "#edf0ff",
+                    "surface-dim": "#d3daef",
+                    "surface-tint": "#b52330",
+                    "on-secondary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "primary": "#b52330",
+                    "outline-variant": "#e2bebc",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed-variant": "#384953",
+                    "surface-container-low": "#f1f3ff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container": "#e9edff",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed-variant": "#005228",
+                    "surface-container-high": "#e1e8fd",
+                    "on-primary": "#ffffff",
+                    "outline": "#8e706f",
+                    "surface-container-highest": "#dce2f7",
+                    "primary-fixed-dim": "#ffb3b0",
+                    "surface-variant": "#dce2f7",
+                    "tertiary-fixed": "#d3e5f1",
+                    "background": "#f9f9ff",
+                    "on-secondary-fixed": "#00210c"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "container-margin": "16px",
+                    "xs": "8px",
+                    "base": "4px",
+                    "sm": "12px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "gutter": "12px"
+            },
+            "fontFamily": {
+                    "body-lg": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "label-sm": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-lg": [
+                            "Space Grotesk"
+                    ],
+                    "display-lg": [
+                            "Space Grotesk"
+                    ],
+                    "body-md": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-lg-mobile": [
+                            "Space Grotesk"
+                    ],
+                    "label-md": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-md": [
+                            "Space Grotesk"
+                    ]
+            },
+            "fontSize": {
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "36px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "display-lg": [
+                            "40px",
+                            {
+                                    "lineHeight": "44px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Custom Utilities for Brutalist-Pop aesthetic */
+        .brutal-shadow {
+            box-shadow: 2px 2px 0px 0px #141b2b;
+        }
+        .brutal-shadow-lg {
+            box-shadow: 4px 4px 0px 0px #141b2b;
+        }
+        .brutal-shadow-btn {
+            box-shadow: 0px 4px 0px 0px #61000e; /* Darker primary for button */
+        }
+        .brutal-active:active {
+            box-shadow: none !important;
+            transform: translate(2px, 2px);
+        }
+        .brutal-active-btn:active {
+            box-shadow: none !important;
+            transform: translateY(4px);
+        }
+        
+        /* Toggle Switch Styling */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #6bfe9c;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #6bfe9c;
+        }
+        .toggle-checkbox:checked + .toggle-label:before {
+            transform: translateX(100%);
+            border-color: #141b2b;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md antialiased min-h-screen pb-32">
+<!-- Header & Progress -->
+<header class="sticky top-0 z-50 bg-surface/90 backdrop-blur-sm pt-6 pb-4 px-container-margin border-b-2 border-on-surface">
+<div class="flex items-center gap-sm mb-sm">
+<button class="p-2 border-2 border-on-surface rounded-full bg-surface-container-lowest brutal-shadow brutal-active transition-all">
+<span class="material-symbols-outlined block text-on-surface" style="font-variation-settings: 'FILL' 1;">arrow_back</span>
+</button>
+<h1 class="text-headline-md font-headline-md">Step 2 of 3: Calibrating Your Kitchen 🛠️</h1>
+</div>
+<div class="w-full h-3 bg-surface-container-high rounded-full border-2 border-on-surface overflow-hidden">
+<div class="h-full bg-primary w-2/3 border-r-2 border-on-surface relative overflow-hidden">
+<!-- Glossy highlight effect for gamified feel -->
+<div class="absolute inset-0 bg-white/20 -skew-x-12 translate-x-[-100%] animate-[shimmer_2s_infinite]"></div>
+</div>
+</div>
+</header>
+<main class="px-container-margin pt-lg space-y-xl">
+<!-- Store Profile Section -->
+<section class="space-y-md">
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-primary">Store Profile</h2>
+<div class="space-y-xs">
+<label class="block text-label-md font-label-md text-on-surface-variant">Legendary shop name?</label>
+<input class="w-full bg-surface-container-lowest border-2 border-on-surface rounded-xl px-4 py-4 text-body-lg font-body-lg text-on-surface focus:outline-none focus:border-primary focus:ring-0 brutal-shadow transition-colors placeholder:text-on-surface/40" placeholder="e.g. Nasi Lemak Cyberpunk" type="text"/>
+</div>
+<div class="space-y-xs mt-lg">
+<label class="block text-label-md font-label-md text-on-surface-variant">Drop your exact kitchen coordinate pin 📍</label>
+<div class="relative bg-surface-container-lowest border-2 border-on-surface rounded-xl brutal-shadow overflow-hidden h-48 group cursor-pointer active:shadow-none active:translate-y-[2px] transition-all">
+<!-- Map Placeholder Image -->
+<img alt="Map Location" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A stylized, vibrant top-down digital map view of Kuala Lumpur streets. The map uses a bright, modern light-mode color palette with soft pastel gray backgrounds and bold, neon-like accents for major roads. A highly prominent, oversized 3D red map pin marker sits dead center, casting a crisp micro-shadow on the cartography. The overall aesthetic is clean, gamified, and optimistic, matching a high-energy delivery app interface." data-location="Kuala Lumpur" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAk3_tSh5DmWtgEJ5QYgyKzZNBAL9mJ0rH7p_VHrhGbRp4B7Uuh6bqdOR7eCsq859Ep4G0WJ51PLEb7Z5kFFofz7DO-e0mbwY5bO5a3AEUyMA9taZ02dJgUjOn5LNfRoyjFMezLrzMAUQHOZpzBfXU3gMg_3li2aO1awPB0Dds3wZGjXhjaplMf0W_k-6g5IaWu23ZXFjrUksJdrQxfrOtBefZ8KmvqP5lSRLcJTVX8BWr37hlxV7gd_jpFV3jJ3_B5QOQDqM9LTUW"/>
+<!-- Center Pin Overlay -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<span class="material-symbols-outlined text-primary text-[40px] drop-shadow-[0_4px_0_rgba(20,27,43,1)]" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+<!-- Edit Button Overlay -->
+<div class="absolute bottom-sm right-sm">
+<span class="bg-surface-container-lowest text-on-surface text-label-sm font-label-sm px-3 py-2 border-2 border-on-surface rounded-full brutal-shadow flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">edit_location</span> Edit Pin
+                        </span>
+</div>
+</div>
+</div>
+</section>
+<!-- Logistics Control Section -->
+<section class="space-y-md border-t-2 border-outline-variant pt-lg">
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-secondary">Logistics Control</h2>
+<div class="space-y-xs">
+<label class="block text-label-md font-label-md text-on-surface-variant mb-sm">Standard Prep Time</label>
+<div class="grid grid-cols-2 gap-sm" id="prep-time-grid">
+<button class="prep-tile bg-surface-container-lowest border-2 border-on-surface rounded-xl p-4 brutal-shadow brutal-active flex flex-col items-center justify-center gap-xs transition-all data-[selected=true]:bg-secondary-container data-[selected=true]:border-secondary data-[selected=true]:shadow-none data-[selected=true]:translate-y-[2px]">
+<span class="text-display-lg font-display-lg">⏱️</span>
+<span class="text-body-lg font-body-lg font-bold">15m</span>
+</button>
+<button class="prep-tile bg-secondary-container border-2 border-secondary rounded-xl p-4 flex flex-col items-center justify-center gap-xs transition-all translate-y-[2px] shadow-none" data-selected="true">
+<span class="text-display-lg font-display-lg">⚡</span>
+<span class="text-body-lg font-body-lg font-bold text-on-secondary-container">20m</span>
+</button>
+<button class="prep-tile bg-surface-container-lowest border-2 border-on-surface rounded-xl p-4 brutal-shadow brutal-active flex flex-col items-center justify-center gap-xs transition-all data-[selected=true]:bg-secondary-container data-[selected=true]:border-secondary data-[selected=true]:shadow-none data-[selected=true]:translate-y-[2px]">
+<span class="text-display-lg font-display-lg">🍳</span>
+<span class="text-body-lg font-body-lg font-bold">30m</span>
+</button>
+<button class="prep-tile bg-surface-container-lowest border-2 border-on-surface rounded-xl p-4 brutal-shadow brutal-active flex flex-col items-center justify-center gap-xs transition-all data-[selected=true]:bg-secondary-container data-[selected=true]:border-secondary data-[selected=true]:shadow-none data-[selected=true]:translate-y-[2px]">
+<span class="text-display-lg font-display-lg">🪵</span>
+<span class="text-body-lg font-body-lg font-bold">45m</span>
+</button>
+</div>
+</div>
+<!-- Toggles -->
+<div class="space-y-sm pt-sm">
+<!-- Toggle 1 -->
+<div class="bg-surface-container-lowest border-2 border-on-surface rounded-xl p-md brutal-shadow flex items-center justify-between gap-md">
+<span class="text-body-md font-body-md font-medium max-w-[80%]">Automatically split super heavy orders across multiple bikes 🏍️</span>
+<label class="flex items-center cursor-pointer relative">
+<input checked="" class="sr-only toggle-checkbox" type="checkbox"/>
+<div class="toggle-label block bg-surface-container-high border-2 border-on-surface w-14 h-8 rounded-full transition-colors duration-300 relative">
+<div class="dot absolute left-1 top-1 bg-surface-container-lowest w-5 h-5 border-2 border-on-surface rounded-full transition-transform duration-300"></div>
+</div>
+</label>
+</div>
+<!-- Toggle 2 -->
+<div class="bg-surface-container-lowest border-2 border-on-surface rounded-xl p-md brutal-shadow flex items-center justify-between gap-md">
+<span class="text-body-md font-body-md font-medium max-w-[80%]">Force car-only delivery for fragile cakes/boba tea towers 🧋</span>
+<label class="flex items-center cursor-pointer relative">
+<input class="sr-only toggle-checkbox" type="checkbox"/>
+<div class="toggle-label block bg-surface-container-high border-2 border-on-surface w-14 h-8 rounded-full transition-colors duration-300 relative">
+<div class="dot absolute left-1 top-1 bg-surface-container-lowest w-5 h-5 border-2 border-on-surface rounded-full transition-transform duration-300"></div>
+</div>
+</label>
+</div>
+</div>
+</section>
+</main>
+<!-- Fixed CTA Footer -->
+<footer class="fixed bottom-0 left-0 w-full bg-surface pt-4 pb-8 px-container-margin border-t-2 border-on-surface z-50">
+<div class="flex justify-end">
+<button class="bg-primary text-on-primary font-headline-md text-headline-md px-lg py-4 rounded-xl border-2 border-on-surface brutal-shadow-btn brutal-active-btn transition-all flex items-center gap-sm">
+                Save &amp; Go Live! 🎉
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
+</button>
+</div>
+</footer>
+<script>
+        // Micro-interaction for Prep Time Tiles
+        const tiles = document.querySelectorAll('.prep-tile');
+        
+        tiles.forEach(tile => {
+            tile.addEventListener('click', () => {
+                // Reset all tiles
+                tiles.forEach(t => {
+                    t.setAttribute('data-selected', 'false');
+                    t.classList.remove('bg-secondary-container', 'border-secondary', 'shadow-none', 'translate-y-[2px]');
+                    t.classList.add('bg-surface-container-lowest', 'border-on-surface', 'brutal-shadow', 'brutal-active');
+                    const textNode = t.querySelector('.text-on-secondary-container');
+                    if(textNode) textNode.classList.remove('text-on-secondary-container');
+                });
+                
+                // Set active tile
+                tile.setAttribute('data-selected', 'true');
+                tile.classList.remove('bg-surface-container-lowest', 'border-on-surface', 'brutal-shadow', 'brutal-active');
+                tile.classList.add('bg-secondary-container', 'border-secondary', 'shadow-none', 'translate-y-[2px]');
+                tile.querySelector('.text-body-lg').classList.add('text-on-secondary-container');
+            });
+        });
+
+        // Toggle Switch visual logic is handled largely by CSS, 
+        // but we need to move the 'dot' specifically based on checked state
+        const checkboxes = document.querySelectorAll('.toggle-checkbox');
+        checkboxes.forEach(box => {
+            const updateDot = () => {
+                const dot = box.nextElementSibling.querySelector('.dot');
+                if(box.checked) {
+                    dot.style.transform = 'translateX(24px)';
+                } else {
+                    dot.style.transform = 'translateX(0)';
+                }
+            };
+            // Initial state
+            updateDot();
+            // On change
+            box.addEventListener('change', updateDot);
+        });
+    </script>
+</body></html>

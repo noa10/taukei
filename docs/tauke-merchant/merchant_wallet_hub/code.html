@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Merchant Revenue Wallet</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-container": "#8596a1",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-container": "#00743a",
+                      "primary-container": "#ff5a5f",
+                      "secondary": "#006d37",
+                      "on-primary-fixed-variant": "#92001b",
+                      "surface-bright": "#f9f9ff",
+                      "on-tertiary-container": "#1e2e37",
+                      "primary-fixed": "#ffdad8",
+                      "secondary-fixed-dim": "#4ae183",
+                      "secondary-container": "#6bfe9c",
+                      "on-surface-variant": "#5a403f",
+                      "secondary-fixed": "#6bfe9c",
+                      "on-surface": "#141b2b",
+                      "inverse-primary": "#ffb3b0",
+                      "on-tertiary-fixed": "#0c1e26",
+                      "tertiary-fixed-dim": "#b7c9d5",
+                      "inverse-surface": "#293040",
+                      "on-background": "#141b2b",
+                      "surface": "#f9f9ff",
+                      "on-primary-container": "#61000e",
+                      "tertiary": "#50616b",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed": "#410007",
+                      "inverse-on-surface": "#edf0ff",
+                      "surface-dim": "#d3daef",
+                      "surface-tint": "#b52330",
+                      "on-secondary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "primary": "#b52330",
+                      "outline-variant": "#e2bebc",
+                      "on-error": "#ffffff",
+                      "on-tertiary-fixed-variant": "#384953",
+                      "surface-container-low": "#f1f3ff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container": "#e9edff",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed-variant": "#005228",
+                      "surface-container-high": "#e1e8fd",
+                      "on-primary": "#ffffff",
+                      "outline": "#8e706f",
+                      "surface-container-highest": "#dce2f7",
+                      "primary-fixed-dim": "#ffb3b0",
+                      "surface-variant": "#dce2f7",
+                      "tertiary-fixed": "#d3e5f1",
+                      "background": "#f9f9ff",
+                      "on-secondary-fixed": "#00210c"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "container-margin": "16px",
+                      "xs": "8px",
+                      "base": "4px",
+                      "sm": "12px",
+                      "lg": "24px",
+                      "md": "16px",
+                      "gutter": "12px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "label-sm": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg": [
+                              "Space Grotesk"
+                      ],
+                      "display-lg": [
+                              "Space Grotesk"
+                      ],
+                      "body-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg-mobile": [
+                              "Space Grotesk"
+                      ],
+                      "label-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-md": [
+                              "Space Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "36px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .brutal-border {
+            border: 2px solid #141b2b;
+        }
+        .brutal-shadow {
+            box-shadow: 4px 4px 0px 0px rgba(20,27,43,1);
+        }
+        .brutal-shadow-sm {
+            box-shadow: 2px 2px 0px 0px rgba(20,27,43,1);
+        }
+        .brutal-shadow-none:active {
+            box-shadow: 0px 0px 0px 0px rgba(20,27,43,1);
+            transform: translate(2px, 2px);
+        }
+        /* Neon Wave Graph CSS placeholder */
+        .neon-wave {
+            background: linear-gradient(180deg, rgba(107, 254, 156, 0.2) 0%, rgba(107, 254, 156, 0) 100%);
+            border-bottom: 3px solid #6bfe9c;
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .neon-wave::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #6bfe9c;
+            box-shadow: 0 -2px 10px #6bfe9c;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen pb-[100px] md:pb-0 md:pl-80 pt-16 md:pt-0">
+<!-- Shared Component: TopAppBar (Mobile Only) -->
+<header class="md:hidden fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-margin h-16 bg-surface border-b-2 border-on-surface shadow-[2px_2px_0px_0px_rgba(20,27,43,1)]">
+<div class="flex items-center gap-sm">
+<button class="p-2 brutal-border rounded-lg bg-surface-container-lowest brutal-shadow-sm brutal-shadow-none transition-all">
+<span class="material-symbols-outlined font-bold text-on-surface" style="font-variation-settings: 'FILL' 1;">menu</span>
+</button>
+<h1 class="text-headline-md font-headline-md font-bold text-primary">Tauke</h1>
+</div>
+<button class="p-2 brutal-border rounded-lg bg-surface-container-lowest brutal-shadow-sm brutal-shadow-none transition-all">
+<span class="material-symbols-outlined font-bold text-on-surface" data-icon="notifications" style="font-variation-settings: 'FILL' 1;">notifications</span>
+</button>
+</header>
+<!-- Shared Component: NavigationDrawer (Desktop Only) -->
+<aside class="hidden md:flex flex-col h-full p-md w-80 rounded-r-xl border-r-2 border-on-surface shadow-[4px_0px_0px_0px_rgba(20,27,43,1)] bg-surface fixed top-0 left-0 z-40">
+<div class="flex items-center gap-sm mb-xl p-sm brutal-border rounded-xl bg-surface-container-lowest brutal-shadow-sm">
+<div class="w-12 h-12 rounded-full bg-primary-container brutal-border overflow-hidden flex items-center justify-center">
+<img alt="Merchant Logo" class="w-full h-full object-cover" data-alt="A close up, vibrant logo of a modern independent food merchant. The logo features playful, thick geometric shapes in electric salmon and deep charcoal. The style is bold and optimistic, typical of a trendy direct-to-consumer food brand. The background is a crisp white. Lighting is flat and graphic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCs_DG8MwISjRUh12KLXyyozHooMn4tfJbAlTtWqT1AlZGxmwWnIlYFio83RIk6K3brEivQYwHe2L1Fr8ygpJdkXDRjogTRmK084-lx2HRpknYJmQexeluLyw_cSDQMwHZ446jRX3tlCa1LNnd3bX7vMJ-pTyGcH3GXQXGeWL57xKKeqnFuEnUE-f-jCEX9AFZWxFZsQ76v9UqzWhpMYJA-_YEiRcyoqZwp8mkUN9zuZWS0i-n0h4YCy8pXfVs4HqaGNImaEG_39iS3"/>
+</div>
+<div>
+<h2 class="text-headline-md font-headline-md font-bold text-on-surface leading-tight">Warung Pak Mat</h2>
+<p class="text-label-sm font-label-sm text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                    Verified Merchant
+                </p>
+<p class="text-label-sm font-label-sm text-tertiary">Kuala Lumpur</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-sm">
+<a class="flex items-center gap-md px-md py-sm text-body-lg font-body-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="store">store</span>
+                Business Profile
+            </a>
+<a class="flex items-center gap-md px-md py-sm text-body-lg font-body-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Store Settings
+            </a>
+<a class="flex items-center gap-md px-md py-sm text-body-lg font-body-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+                Staff Access
+            </a>
+<a class="flex items-center gap-md px-md py-sm text-body-lg font-body-lg bg-secondary-container text-on-secondary-container font-bold rounded-lg brutal-border brutal-shadow-sm" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+                Payout History
+            </a>
+<a class="flex items-center gap-md px-md py-sm text-body-lg font-body-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg mt-auto" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+                Help Center
+            </a>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="p-container-margin md:p-xl max-w-4xl mx-auto space-y-xl">
+<!-- Digital Currency Readout -->
+<section class="bg-surface-container-lowest rounded-2xl brutal-border brutal-shadow p-xl flex flex-col items-center justify-center text-center relative overflow-hidden">
+<!-- Decorative bg elements -->
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-primary-fixed rounded-full opacity-50 blur-2xl pointer-events-none"></div>
+<div class="absolute -bottom-10 -left-10 w-32 h-32 bg-secondary-container rounded-full opacity-50 blur-2xl pointer-events-none"></div>
+<p class="text-label-md font-label-md text-tertiary mb-xs uppercase tracking-wider">Ready for Cashout 🤑</p>
+<h2 class="text-[48px] md:text-[64px] font-display-lg font-bold text-on-surface leading-none tracking-tight">
+<span class="text-primary text-[32px] md:text-[40px] align-top">RM</span> 1,420.50
+            </h2>
+<div class="mt-md px-sm py-1 bg-secondary-container text-on-secondary-container rounded-full text-label-sm font-label-sm brutal-border inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+                +12% vs last week
+            </div>
+</section>
+<!-- Revenue Wave (7-Day Sales) -->
+<section class="bg-surface-container-lowest rounded-2xl brutal-border brutal-shadow p-md md:p-lg space-y-md relative">
+<div class="flex justify-between items-end mb-sm">
+<div>
+<h3 class="text-headline-md font-headline-md font-bold text-on-surface">Revenue Wave</h3>
+<p class="text-body-md font-body-md text-tertiary">7-day sales (excl. delivery)</p>
+</div>
+<div class="flex gap-xs">
+<span class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-label-sm font-label-sm font-bold brutal-border">M</span>
+<span class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-label-sm font-label-sm font-bold brutal-border">T</span>
+<span class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-label-sm font-label-sm font-bold brutal-border">W</span>
+</div>
+</div>
+<!-- Abstracted Wave Graph -->
+<div class="h-48 w-full relative flex items-end justify-between px-xs pb-xs border-b-2 border-outline-variant">
+<!-- Data bars representing the wave -->
+<div class="w-[12%] h-[40%] bg-surface-container-high rounded-t-lg border-2 border-b-0 border-on-surface relative"></div>
+<div class="w-[12%] h-[60%] bg-surface-container-high rounded-t-lg border-2 border-b-0 border-on-surface relative"></div>
+<div class="w-[12%] h-[30%] bg-surface-container-high rounded-t-lg border-2 border-b-0 border-on-surface relative"></div>
+<div class="w-[12%] h-[80%] bg-secondary-container rounded-t-lg border-2 border-b-0 border-on-surface relative brutal-shadow-sm">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-surface px-2 py-1 rounded text-label-sm font-label-sm whitespace-nowrap">RM 450</div>
+</div>
+<div class="w-[12%] h-[50%] bg-surface-container-high rounded-t-lg border-2 border-b-0 border-on-surface relative"></div>
+<div class="w-[12%] h-[70%] bg-surface-container-high rounded-t-lg border-2 border-b-0 border-on-surface relative"></div>
+<div class="w-[12%] h-[90%] bg-primary-fixed rounded-t-lg border-2 border-b-0 border-on-surface relative">
+<!-- Neon line overlay effect -->
+<svg class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600%] h-[200%] pointer-events-none opacity-50" preserveaspectratio="none" viewbox="0 0 100 100">
+<path class="drop-shadow-[0_0_8px_#6bfe9c]" d="M0,100 C20,80 30,20 50,50 C70,80 80,10 100,100" fill="none" stroke="#6bfe9c" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+</section>
+<!-- History Ledger -->
+<section class="space-y-sm">
+<h3 class="text-headline-md font-headline-md font-bold text-on-surface px-2">History Ledger</h3>
+<div class="flex flex-col gap-sm">
+<!-- Row 1: Settled -->
+<div class="bg-surface-container-lowest rounded-xl brutal-border p-md flex items-center justify-between hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-xl bg-secondary-fixed-dim border-2 border-on-secondary-fixed-variant flex items-center justify-center text-on-secondary-fixed-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+</div>
+<div>
+<p class="text-body-md font-body-md font-bold text-on-surface">Direct Payout to Bank</p>
+<p class="text-label-sm font-label-sm text-tertiary">(...4321)</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-body-lg font-body-lg font-bold text-on-surface">- RM 850.00</p>
+<p class="text-label-sm font-label-sm text-secondary flex items-center justify-end gap-1">
+                            Settled ✅
+                        </p>
+</div>
+</div>
+<!-- Row 2: In Escrow -->
+<div class="bg-surface-container-lowest rounded-xl brutal-border p-md flex items-center justify-between hover:bg-surface-container-high transition-colors cursor-pointer relative overflow-hidden">
+<!-- Striped background for processing state -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, #141b2b 10px, #141b2b 20px);"></div>
+<div class="flex items-center gap-md relative z-10">
+<div class="w-12 h-12 rounded-xl bg-surface-variant border-2 border-on-surface-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pending_actions</span>
+</div>
+<div>
+<p class="text-body-md font-body-md font-bold text-on-surface">Platform Settlement</p>
+<p class="text-label-sm font-label-sm text-tertiary">Processing Hold</p>
+</div>
+</div>
+<div class="text-right relative z-10">
+<p class="text-body-lg font-body-lg font-bold text-on-surface">+ RM 570.50</p>
+<p class="text-label-sm font-label-sm text-tertiary-container flex items-center justify-end gap-1">
+                            In Escrow ⏳
+                        </p>
+</div>
+</div>
+<!-- Row 3: Settled -->
+<div class="bg-surface-container-lowest rounded-xl brutal-border p-md flex items-center justify-between hover:bg-surface-container-high transition-colors cursor-pointer opacity-75">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-xl bg-secondary-fixed-dim border-2 border-on-secondary-fixed-variant flex items-center justify-center text-on-secondary-fixed-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+</div>
+<div>
+<p class="text-body-md font-body-md font-bold text-on-surface">Direct Payout to Bank</p>
+<p class="text-label-sm font-label-sm text-tertiary">(...4321)</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-body-lg font-body-lg font-bold text-on-surface">- RM 1,200.00</p>
+<p class="text-label-sm font-label-sm text-secondary flex items-center justify-end gap-1">
+                            Settled ✅
+                        </p>
+</div>
+</div>
+</div>
+<button class="w-full py-sm mt-xs text-label-md font-label-md text-on-surface underline decoration-2 decoration-outline-variant hover:decoration-primary transition-all text-center">
+                View Full Ledger
+            </button>
+</section>
+<!-- Footer Action -->
+<section class="pt-md pb-xl md:pb-md mt-auto">
+<button class="w-full bg-primary text-on-primary py-lg rounded-xl brutal-border brutal-shadow brutal-shadow-none text-headline-md font-headline-md font-bold flex items-center justify-center gap-sm active:scale-[0.98] transition-all relative overflow-hidden group">
+<span class="relative z-10 flex items-center gap-2">
+                    Transfer Funds to My Bank Instantly 🏦💰
+                </span>
+<!-- Hover/Active highlight effect -->
+<div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity z-0"></div>
+</button>
+</section>
+</main>
+<!-- Shared Component: BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-base py-sm bg-surface rounded-t-xl border-t-2 border-on-surface shadow-[0px_-2px_0px_0px_rgba(20,27,43,1)] pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant w-16 h-14" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="dashboard">dashboard</span>
+<span class="text-label-sm font-label-sm">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant w-16 h-14" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="text-label-sm font-label-sm">Menu</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant w-16 h-14" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="receipt_long">receipt_long</span>
+<span class="text-label-sm font-label-sm">Orders</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary bg-primary-container rounded-xl px-3 py-1 w-16 h-14 brutal-border brutal-shadow-sm" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="account_balance_wallet" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="text-label-sm font-label-sm">Wallet</span>
+</a>
+</nav>
+<!-- Safe area padding for mobile bottom nav -->
+<style>
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .pb-safe {
+                padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
+            }
+        }
+    </style>
+</body></html>

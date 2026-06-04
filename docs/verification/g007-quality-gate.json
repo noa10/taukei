@@ -1,0 +1,36 @@
+{
+  "aiSlopCleaner": {
+    "status": "passed",
+    "evidence": "docs/verification/g007-ai-slop-cleaner-report.md"
+  },
+  "verification": {
+    "status": "passed",
+    "commands": [
+      "bun run schema:validate",
+      "bun run lint",
+      "bun run typecheck",
+      "bun run test",
+      "bun run build",
+      "bun run smoke",
+      "bun run smoke:customer",
+      "bun run smoke:merchant"
+    ],
+    "evidence": "/tmp/taukei-g007-after-doc-fix-verification.log",
+    "summary": "All final checks passed after reviewer fixes and docs refresh: schema validation including live-row and RLS role checks, lint, typecheck, 13 tests / 43 assertions, build, startup smoke, customer smoke, and merchant smoke."
+  },
+  "codeReview": {
+    "recommendation": "APPROVE",
+    "architectStatus": "CLEAR",
+    "evidence": "Final independent review refresh passed: code-reviewer APPROVE with zero issues and architect CLEAR.",
+    "independentReview": {
+      "codeReviewer": {
+        "agentRole": "code-reviewer",
+        "evidence": "docs/verification/g007-code-reviewer-final.md"
+      },
+      "architect": {
+        "agentRole": "architect",
+        "evidence": "docs/verification/g007-architect-review-final.md"
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+ARCHITECT INDEPENDENT REVIEW
+Files reviewed: 13
+Architectural Status: CLEAR
+BLOCK: none
+WATCH: none
+CLEAR evidence: apps/web/lib/webhooks/production-guardrails.ts:3 centralizes process-local-only idempotency and atomic Supabase webhook_events requirement; apps/web/lib/webhooks/production-guardrails.ts:6 keeps service-role clients private to future webhook persistence helpers; apps/web/lib/data-access.ts:38 marks configured read evidence as `remotePersistence: false`; apps/web/lib/customer-orders.ts:135 marks Supabase-shaped checkout records as non-persistent; apps/web/lib/merchant-mutations.ts:95 uses `boundary-accepted`, not persisted naming; apps/web/lib/webhooks/stripe.ts:232 rejects live Stripe mode before processing; apps/web/lib/webhooks/lalamove.ts:217 rejects live Lalamove mode before processing; docs/implementation/g008-production-guardrails.md:21 requires atomic Supabase webhook_events persistence before live/horizontal use; docs/implementation/g008-production-guardrails.md:36 blocks flag-only production rollout; docs/verification/g008-ai-slop-cleaner-report.md:25 records process-local idempotency as foundation-only, not production-safe.
+Tradeoffs: Keeps deterministic local/demo webhook and Supabase-shaped evidence for development while explicitly deferring production persistence and horizontal safety to a future story.
+Rationale: Prior WATCH risks are now visible in types, returned evidence, fail-closed live guards, regression assertions, and maintainer docs; no reviewed file constructs service-role clients or implies configured equals persisted.

@@ -1,0 +1,29 @@
+{
+  "aiSlopCleaner": {
+    "status": "passed",
+    "evidence": "docs/verification/g008-ai-slop-cleaner-report.md: scoped G008 cleanup pass completed; misleading persistence labels repaired; no masking fallback slop; post-clean verification passed."
+  },
+  "verification": {
+    "status": "passed",
+    "commands": [
+      "bun test apps/web/lib/customer-orders.test.ts apps/web/lib/merchant-mutations.test.ts apps/web/lib/data-access.test.ts apps/web/lib/webhooks/stripe.test.ts apps/web/lib/webhooks/lalamove.test.ts",
+      "bun run lint && bun run typecheck && bun run test && bun run build"
+    ],
+    "evidence": "Targeted G008 tests passed 19/19 before full verification; post-clean full verification passed: ESLint, TypeScript including schema, bun test 38/38, Next build."
+  },
+  "codeReview": {
+    "recommendation": "APPROVE",
+    "architectStatus": "CLEAR",
+    "evidence": "Final independent review clean: code-reviewer APPROVE and architect CLEAR; reports stored in docs/verification/g008-code-reviewer-final.md and docs/verification/g008-architect-review-final.md.",
+    "independentReview": {
+      "codeReviewer": {
+        "agentRole": "code-reviewer",
+        "evidence": "CODE-REVIEWER INDEPENDENT REVIEW\nFiles reviewed: 13\nCRITICAL: none\nHIGH: none\nMEDIUM: none\nLOW: none\nEvidence: `apps/web/lib/webhooks/stripe.ts:81` documents process-local idempotency and atomic `webhook_events` replacement; `apps/web/lib/webhooks/stripe.ts:232` rejects live mode with `noLiveSideEffect`; `apps/web/lib/webhooks/lalamove.ts:87` documents the same process-local limitation; `apps/web/lib/webhooks/lalamove.ts:278` rejects live payloads; `apps/web/lib/webhooks/production-guardrails.ts:3` centralizes non-production idempotency/service-role guardrails; `apps/web/lib/data-access.ts:38` marks read evidence `remotePersistence: false`; `apps/web/lib/customer-orders.ts:135` marks Supabase-shaped records local-only; `apps/web/lib/merchant-mutations.ts:101` states mutation records are local evidence only; `apps/web/lib/webhooks/stripe.test.ts:61` and `apps/web/lib/webhooks/lalamove.test.ts:62` assert production guardrail metadata; `docs/implementation/g008-production-guardrails.md:22` requires atomic future webhook persistence; `docs/verification/g008-ai-slop-cleaner-report.md:39` records passing targeted/full verification.\nRecommendation: APPROVE\nRationale: Scoped changes make the WATCH constraints explicit, add regression coverage for non-persistence/no-live-side-effect metadata, avoid service-role client construction and live network side effects, and introduce no new dependencies."
+      },
+      "architect": {
+        "agentRole": "architect",
+        "evidence": "ARCHITECT INDEPENDENT REVIEW\nFiles reviewed: 13\nArchitectural Status: CLEAR\nBLOCK: none\nWATCH: none\nCLEAR evidence: apps/web/lib/webhooks/production-guardrails.ts:3 centralizes process-local-only idempotency and atomic Supabase webhook_events requirement; apps/web/lib/webhooks/production-guardrails.ts:6 keeps service-role clients private to future webhook persistence helpers; apps/web/lib/data-access.ts:38 marks configured read evidence as `remotePersistence: false`; apps/web/lib/customer-orders.ts:135 marks Supabase-shaped checkout records as non-persistent; apps/web/lib/merchant-mutations.ts:95 uses `boundary-accepted`, not persisted naming; apps/web/lib/webhooks/stripe.ts:232 rejects live Stripe mode before processing; apps/web/lib/webhooks/lalamove.ts:217 rejects live Lalamove mode before processing; docs/implementation/g008-production-guardrails.md:21 requires atomic Supabase webhook_events persistence before live/horizontal use; docs/implementation/g008-production-guardrails.md:36 blocks flag-only production rollout; docs/verification/g008-ai-slop-cleaner-report.md:25 records process-local idempotency as foundation-only, not production-safe.\nTradeoffs: Keeps deterministic local/demo webhook and Supabase-shaped evidence for development while explicitly deferring production persistence and horizontal safety to a future story.\nRationale: Prior WATCH risks are now visible in types, returned evidence, fail-closed live guards, regression assertions, and maintainer docs; no reviewed file constructs service-role clients or implies configured equals persisted."
+      }
+    }
+  }
+}

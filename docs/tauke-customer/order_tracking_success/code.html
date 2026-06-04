@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tauke - Order Tracking</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#8596a1",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#00743a",
+                    "primary-container": "#ff5a5f",
+                    "secondary": "#006d37",
+                    "on-primary-fixed-variant": "#92001b",
+                    "surface-bright": "#f9f9ff",
+                    "on-tertiary-container": "#1e2e37",
+                    "primary-fixed": "#ffdad8",
+                    "secondary-fixed-dim": "#4ae183",
+                    "secondary-container": "#6bfe9c",
+                    "on-surface-variant": "#5a403f",
+                    "secondary-fixed": "#6bfe9c",
+                    "on-surface": "#141b2b",
+                    "inverse-primary": "#ffb3b0",
+                    "on-tertiary-fixed": "#0c1e26",
+                    "tertiary-fixed-dim": "#b7c9d5",
+                    "inverse-surface": "#293040",
+                    "on-background": "#141b2b",
+                    "surface": "#f9f9ff",
+                    "on-primary-container": "#61000e",
+                    "tertiary": "#50616b",
+                    "on-error-container": "#93000a",
+                    "on-primary-fixed": "#410007",
+                    "inverse-on-surface": "#edf0ff",
+                    "surface-dim": "#d3daef",
+                    "surface-tint": "#b52330",
+                    "on-secondary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "primary": "#b52330",
+                    "outline-variant": "#e2bebc",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed-variant": "#384953",
+                    "surface-container-low": "#f1f3ff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container": "#e9edff",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed-variant": "#005228",
+                    "surface-container-high": "#e1e8fd",
+                    "on-primary": "#ffffff",
+                    "outline": "#8e706f",
+                    "surface-container-highest": "#dce2f7",
+                    "primary-fixed-dim": "#ffb3b0",
+                    "surface-variant": "#dce2f7",
+                    "tertiary-fixed": "#d3e5f1",
+                    "background": "#f9f9ff",
+                    "on-secondary-fixed": "#00210c"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "container-margin": "16px",
+                    "xs": "8px",
+                    "base": "4px",
+                    "sm": "12px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "gutter": "12px"
+            },
+            "fontFamily": {
+                    "body-lg": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "label-sm": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-lg": [
+                            "Space Grotesk"
+                    ],
+                    "display-lg": [
+                            "Space Grotesk"
+                    ],
+                    "body-md": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-lg-mobile": [
+                            "Space Grotesk"
+                    ],
+                    "label-md": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-md": [
+                            "Space Grotesk"
+                    ]
+            },
+            "fontSize": {
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "36px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "display-lg": [
+                            "40px",
+                            {
+                                    "lineHeight": "44px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ff5a5f;
+            opacity: 0;
+        }
+        
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            80% { transform: scale(1.2); opacity: 0; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+        .animate-pulse-ring::before {
+            content: '';
+            position: absolute;
+            left: -10px; top: -10px; right: -10px; bottom: -10px;
+            border-radius: 50%;
+            border: 2px solid #6bfe9c;
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface h-full flex flex-col font-body-md text-on-surface overflow-x-hidden">
+<!-- Confetti Container -->
+<div class="fixed inset-0 pointer-events-none z-50 overflow-hidden" id="confetti-container"></div>
+<!-- TopNav - Suppressed for transactional/success screen as per instructions -->
+<main class="flex-1 flex flex-col w-full max-w-[393px] mx-auto relative pb-24">
+<!-- Header Section -->
+<div class="px-container-margin pt-xl pb-md text-center flex flex-col items-center justify-center relative z-10 bg-surface">
+<h1 class="text-display-lg font-display-lg text-primary mb-xs drop-shadow-[2px_2px_0px_#141b2b]">Order Confirmed! 🥳</h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant bg-surface-container-high px-md py-xs rounded-full border-2 border-on-surface">Order #TK-8892</p>
+</div>
+<!-- Transit Canvas Map -->
+<div class="w-full h-[250px] bg-surface-container-low border-y-2 border-on-surface relative overflow-hidden flex-shrink-0 z-0">
+<img alt="Map" class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-multiply" data-alt="A stylized, simplified top-down street map view showing a route in Kuala Lumpur, Malaysia. The map should use the modern-pop brutalist aesthetic: flat solid colors, pastel gray roads on a bright white background, with thick black outlines for city blocks. The lighting is bright and flat, emphasizing the playful, gamified UI style. Clean, high-contrast, digital vector art style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2-SG_LMG8UqFaS4bv-99oG9LvQZ20vjnMycJ5DGF7-4DtYe-bSU0jKb4CbQVUIMci-fTdfbzCDavDSyjPb1Jk_1aRjIFWdTAJwDiJotbFZM0phYslGPU7KDj2keEkKHQRaZBLzERh5Rki0sjYUZmLPdhDXM3djybwLyq_a3rAvT8WTvre1clSDZIJTB3CyJgYtdKpxqtYJ5J-J-URDIV1LFgZy_oT91Td5GMStaNoJ433az5azipPIBHIt3rcbD39EyqWHpVoMIs3"/>
+<!-- Map Overlay Gradient for better text readability below -->
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+<!-- Origin Marker -->
+<div class="absolute top-[20%] left-[20%] w-10 h-10 bg-primary-container rounded-full border-2 border-on-surface shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-on-primary-container text-[20px]" data-icon="restaurant">restaurant</span>
+</div>
+<!-- Animated Route Line (Static representation for HTML) -->
+<svg class="absolute top-[20%] left-[20%] w-[60%] h-[60%] z-0" overflow="visible">
+<path class="animate-[dash_20s_linear_infinite]" d="M 20 20 Q 80 20, 100 80 T 200 120" fill="none" stroke="#141b2b" stroke-dasharray="8 8" stroke-width="4"></path>
+</svg>
+<!-- Destination Marker -->
+<div class="absolute top-[70%] left-[70%] w-10 h-10 bg-secondary-container rounded-full border-2 border-on-surface shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-on-secondary-container text-[20px]" data-icon="home">home</span>
+</div>
+<!-- Moving Avatar (Driver) -->
+<div class="absolute top-[35%] left-[45%] w-12 h-12 bg-white rounded-full border-2 border-on-surface shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] flex items-center justify-center z-20 animate-pulse">
+<img alt="Driver Avatar" class="w-full h-full object-cover rounded-full p-[2px]" data-alt="A small, stylized circular avatar portrait of a friendly delivery driver wearing a helmet. The portrait is drawn in a bright, modern-pop brutalist vector style with thick black outlines and vibrant flat colors. White background, high contrast, matching the playful UI aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuChAlRKj91G2oC4LHl6mx43x1aOKuDc6h0qh_OyJO_qDkrcY7hrZDu-cNZ6iuw0NCL70b9tP0ndYvGcSwiFK9xw8XqvCefup44lst9x8ke147F4c36kZaQRDcBhIO6CxnepGzUFFpWRUwcVtCxeNUscu5eP24chmvVY1CW4TE6jxd_3fTHysvXxhVvE1mh8xxf_5BUaLDiD6cYeUFleRovQ66pwJ4RmBUrH1JgV9dynyeanGtGGRwuqCYjaB8pzKV9F4-FwvWoAdh1E"/>
+</div>
+</div>
+<!-- Live Tracker Pipeline -->
+<div class="flex-1 px-container-margin py-lg bg-surface z-10 -mt-sm rounded-t-3xl border-t-2 border-on-surface">
+<!-- Delivery Estimate Card -->
+<div class="bg-surface-container-lowest border-2 border-on-surface rounded-2xl p-sm shadow-[4px_4px_0px_0px_rgba(20,27,43,1)] mb-lg flex items-center justify-between">
+<div>
+<p class="text-label-md font-label-md text-on-surface-variant">Estimated Delivery</p>
+<p class="text-headline-lg-mobile font-headline-lg-mobile text-on-surface mt-[-4px]">8:45 PM</p>
+</div>
+<div class="bg-primary-container px-sm py-xs rounded-lg border-2 border-on-surface text-center">
+<span class="block text-headline-md font-headline-md text-on-primary-container leading-none" id="countdown">15</span>
+<span class="block text-[10px] font-bold text-on-primary-container leading-none mt-1">MINS</span>
+</div>
+</div>
+<!-- Pipeline Nodes -->
+<div class="relative pl-6">
+<!-- Vertical Track Line -->
+<div class="absolute left-10 top-4 bottom-8 w-[2px] bg-outline-variant z-0"></div>
+<!-- Active Line Fill -->
+<div class="absolute left-10 top-4 h-[30%] w-[4px] -ml-[1px] bg-secondary-container z-0"></div>
+<!-- Node 1: Active -->
+<div class="relative z-10 flex items-start mb-xl group">
+<div class="w-8 h-8 rounded-full bg-secondary-container border-2 border-on-surface shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] flex items-center justify-center mr-md mt-1 shrink-0 animate-pulse-ring relative">
+<span class="material-symbols-outlined text-[16px] text-on-surface" data-icon="local_fire_department">local_fire_department</span>
+</div>
+<div class="bg-surface-container-lowest border-2 border-on-surface rounded-xl p-sm shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] w-full">
+<h3 class="text-label-md font-label-md text-on-surface font-bold">Chef is blazing up the wok! 🔥</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-1">Preparing your Nasi Lemak Special.</p>
+<!-- Mini progress bar -->
+<div class="w-full bg-surface-container-high h-2 rounded-full mt-2 border border-on-surface overflow-hidden">
+<div class="bg-secondary h-full rounded-full w-[40%] animate-[pulse_1s_ease-in-out_infinite]"></div>
+</div>
+</div>
+</div>
+<!-- Node 2: Pending -->
+<div class="relative z-10 flex items-start mb-xl">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-on-surface flex items-center justify-center mr-md mt-1 shrink-0">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="two_wheeler">two_wheeler</span>
+</div>
+<div>
+<h3 class="text-body-md font-body-md text-on-surface font-semibold">Tauke is calling a rider...</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-1">Looking for a Lalamove rider nearby.</p>
+</div>
+</div>
+<!-- Node 3: Locked -->
+<div class="relative z-10 flex items-start">
+<div class="w-8 h-8 rounded-full bg-surface-dim border-2 border-outline-variant flex items-center justify-center mr-md mt-1 shrink-0 opacity-50">
+<span class="material-symbols-outlined text-[16px] text-tertiary" data-icon="lock">lock</span>
+</div>
+<div class="opacity-50">
+<h3 class="text-body-md font-body-md text-tertiary">Rider picking up your hot food</h3>
+</div>
+</div>
+</div>
+<!-- Support Button -->
+<div class="mt-xl text-center">
+<button class="bg-surface-container-lowest text-on-surface border-2 border-on-surface rounded-lg px-md py-sm font-label-md text-label-md shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] active:shadow-none active:translate-y-[2px] transition-all flex items-center justify-center gap-2 mx-auto">
+<span class="material-symbols-outlined text-[18px]" data-icon="support_agent">support_agent</span>
+                    Need Help?
+                </button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar - Suppressed for transactional/success screen as per rules -->
+<script>
+        // Simple Confetti Animation
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#ff5a5f', '#6bfe9c', '#b52330', '#141b2b', '#ffffff'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                
+                // Randomize properties
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const left = Math.random() * 100 + 'vw';
+                const animationDuration = Math.random() * 3 + 2 + 's';
+                const animationDelay = Math.random() * 2 + 's';
+                
+                confetti.style.backgroundColor = color;
+                confetti.style.left = left;
+                confetti.style.top = '-10px';
+                
+                if(color === '#ffffff') {
+                    confetti.style.border = '1px solid #141b2b';
+                }
+
+                // Simple CSS animation via JS injection
+                confetti.animate([
+                    { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
+                    { transform: `translate3d(${Math.random()*100 - 50}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
+                ], {
+                    duration: Math.random() * 2000 + 1500,
+                    delay: Math.random() * 200,
+                    easing: 'cubic-bezier(.37,0,.63,1)',
+                    fill: 'forwards'
+                });
+                
+                container.appendChild(confetti);
+            }
+        }
+        
+        // Run confetti on load
+        window.addEventListener('load', createConfetti);
+        
+        // Simple Countdown Timer
+        let time = 15;
+        const countdownEl = document.getElementById('countdown');
+        setInterval(() => {
+            if(time > 1) {
+                time--;
+                countdownEl.innerText = time;
+            }
+        }, 60000); // update every minute
+    </script>
+</body></html>

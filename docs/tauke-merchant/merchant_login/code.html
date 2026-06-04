@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Account Login - Tauke</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-container": "#8596a1",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-container": "#00743a",
+                      "primary-container": "#ff5a5f",
+                      "secondary": "#006d37",
+                      "on-primary-fixed-variant": "#92001b",
+                      "surface-bright": "#f9f9ff",
+                      "on-tertiary-container": "#1e2e37",
+                      "primary-fixed": "#ffdad8",
+                      "secondary-fixed-dim": "#4ae183",
+                      "secondary-container": "#6bfe9c",
+                      "on-surface-variant": "#5a403f",
+                      "secondary-fixed": "#6bfe9c",
+                      "on-surface": "#141b2b",
+                      "inverse-primary": "#ffb3b0",
+                      "on-tertiary-fixed": "#0c1e26",
+                      "tertiary-fixed-dim": "#b7c9d5",
+                      "inverse-surface": "#293040",
+                      "on-background": "#141b2b",
+                      "surface": "#f9f9ff",
+                      "on-primary-container": "#61000e",
+                      "tertiary": "#50616b",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed": "#410007",
+                      "inverse-on-surface": "#edf0ff",
+                      "surface-dim": "#d3daef",
+                      "surface-tint": "#b52330",
+                      "on-secondary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "primary": "#b52330",
+                      "outline-variant": "#e2bebc",
+                      "on-error": "#ffffff",
+                      "on-tertiary-fixed-variant": "#384953",
+                      "surface-container-low": "#f1f3ff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container": "#e9edff",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed-variant": "#005228",
+                      "surface-container-high": "#e1e8fd",
+                      "on-primary": "#ffffff",
+                      "outline": "#8e706f",
+                      "surface-container-highest": "#dce2f7",
+                      "primary-fixed-dim": "#ffb3b0",
+                      "surface-variant": "#dce2f7",
+                      "tertiary-fixed": "#d3e5f1",
+                      "background": "#f9f9ff",
+                      "on-secondary-fixed": "#00210c"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "container-margin": "16px",
+                      "xs": "8px",
+                      "base": "4px",
+                      "sm": "12px",
+                      "lg": "24px",
+                      "md": "16px",
+                      "gutter": "12px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "label-sm": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg": [
+                              "Space Grotesk"
+                      ],
+                      "display-lg": [
+                              "Space Grotesk"
+                      ],
+                      "body-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg-mobile": [
+                              "Space Grotesk"
+                      ],
+                      "label-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-md": [
+                              "Space Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "36px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Custom floating label styles tailored to the pop-brutalist aesthetic */
+        .input-wrapper:focus-within label,
+        .input-wrapper input:not(:placeholder-shown) + label {
+            transform: translateY(-130%) scale(0.85);
+            color: #ff5a5f; /* primary-container */
+        }
+      </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md antialiased min-h-screen flex flex-col items-center justify-center">
+<!-- Main Container optimized for Mobile (393px) -->
+<main class="w-full max-w-[393px] min-h-screen relative flex flex-col p-container-margin pt-xl pb-xl bg-surface mx-auto shadow-none sm:shadow-xl sm:border-2 sm:border-on-surface sm:rounded-xl sm:min-h-[852px] sm:my-8 overflow-hidden">
+<!-- Decorative Background Elements -->
+<div class="absolute -top-16 -right-16 w-64 h-64 bg-secondary-container rounded-full mix-blend-multiply filter blur-3xl opacity-30 pointer-events-none"></div>
+<div class="absolute -bottom-16 -left-16 w-64 h-64 bg-primary-fixed rounded-full mix-blend-multiply filter blur-3xl opacity-40 pointer-events-none"></div>
+<!-- Header Illustration & Title -->
+<header class="flex flex-col items-center text-center mt-md relative z-10">
+<div class="w-32 h-32 rounded-full border-4 border-on-surface shadow-[4px_4px_0px_0px_rgba(20,27,43,1)] overflow-hidden bg-secondary-fixed-dim mb-lg rotate-[-3deg] transform hover:rotate-0 transition-transform duration-300">
+<img class="w-full h-full object-cover object-top" data-alt="A stylized 3D cartoon illustration of a cool food merchant character wearing sunglasses and a colorful apron. The character is smiling confidently. The art style is vibrant, modern-pop with thick outlines and bold colors, evoking a playful and high-energy mobile gaming aesthetic. The background behind the character is a solid, bright mint green to create high contrast." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYPFKdJ-kRa5Z-sHUSUCd75zT7SLu6fvFuvz-8TjzubMXn33wUj63LWlicZKVLb1HPA7RLHQpkQ_L_Ng-uMvUD6gZvF3XsHydhNXr7tU0YhDyguMNzQGvBFiNiQMIsM5Jjzqiq1kfCo3063jeb2b13qD2OsTKcyWrfdoMdjJARycR9bkupUJORRv734NKNtRUx_eoqc97l4zqgbt0Xmh0h4SVcxaS7tY2iDM9wP_-gPrEvgcnbU3umreR7rm-pTtR8ZtzdaXDEefTz"/>
+</div>
+<h1 class="text-headline-lg-mobile font-headline-lg-mobile text-on-surface">Welcome Back, Boss! 👋</h1>
+<p class="text-body-md font-body-md text-on-surface-variant mt-xs">Ready to smash today's targets?</p>
+</header>
+<!-- Login Form -->
+<form class="flex flex-col flex-1 mt-xl relative z-10 w-full" id="loginForm">
+<!-- Inputs Container -->
+<div class="flex flex-col gap-lg">
+<!-- Handphone Number Input -->
+<div class="relative input-wrapper flex flex-col">
+<div class="relative">
+<input class="w-full bg-surface-container-highest text-on-surface text-body-lg font-body-lg rounded-xl border-2 border-on-surface px-md pt-lg pb-sm focus:outline-none focus:border-primary-container focus:bg-surface-container-lowest transition-colors shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] focus:shadow-[4px_4px_0px_0px_rgba(20,27,43,1)] peer" id="phone" name="phone" placeholder=" " type="tel"/>
+<label class="absolute left-md top-1/2 -translate-y-1/2 text-body-md font-body-md text-on-surface/60 pointer-events-none transition-all duration-200 origin-left peer-focus:text-primary-container peer-focus:-translate-y-[120%] peer-focus:scale-75 peer-[&amp;:not(:placeholder-shown)]:-translate-y-[120%] peer-[&amp;:not(:placeholder-shown)]:scale-75" for="phone">
+                            Your Handphone Number (+60...)
+                        </label>
+</div>
+</div>
+<!-- Secret Passcode Input -->
+<div class="relative input-wrapper flex flex-col">
+<div class="relative">
+<input class="w-full bg-surface-container-highest text-on-surface text-body-lg font-body-lg rounded-xl border-2 border-on-surface px-md pt-lg pb-sm pr-12 focus:outline-none focus:border-primary-container focus:bg-surface-container-lowest transition-colors shadow-[2px_2px_0px_0px_rgba(20,27,43,1)] focus:shadow-[4px_4px_0px_0px_rgba(20,27,43,1)] peer" id="passcode" name="passcode" placeholder=" " type="password"/>
+<label class="absolute left-md top-1/2 -translate-y-1/2 text-body-md font-body-md text-on-surface/60 pointer-events-none transition-all duration-200 origin-left peer-focus:text-primary-container peer-focus:-translate-y-[120%] peer-focus:scale-75 peer-[&amp;:not(:placeholder-shown)]:-translate-y-[120%] peer-[&amp;:not(:placeholder-shown)]:scale-75" for="passcode">
+                            Secret Passcode
+                        </label>
+<button class="absolute right-md top-1/2 -translate-y-1/2 text-on-surface hover:text-primary-container transition-colors focus:outline-none h-10 w-10 flex items-center justify-center rounded-full active:scale-90" id="togglePassword" type="button">
+<span class="material-symbols-outlined" data-icon="visibility" id="passwordIcon">visibility</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Fast-Pass Options -->
+<div class="flex justify-between items-center mt-md mb-auto px-xs">
+<label class="flex items-center gap-xs cursor-pointer group">
+<div class="relative flex items-center justify-center w-5 h-5">
+<input class="peer appearance-none w-5 h-5 border-2 border-on-surface rounded bg-surface-container-lowest checked:bg-primary-container checked:border-primary-container transition-colors cursor-pointer" type="checkbox"/>
+<span class="material-symbols-outlined text-on-primary absolute text-[16px] opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" style="font-size: 16px;">check</span>
+</div>
+<span class="text-label-md font-label-md text-on-surface-variant group-hover:text-on-surface transition-colors">Keep me signed in</span>
+</label>
+<a class="text-label-md font-label-md text-primary-container hover:text-primary font-bold underline decoration-2 underline-offset-4 transition-colors" href="#">Forgot Passcode? 😭</a>
+</div>
+<!-- Action Stack -->
+<div class="flex flex-col gap-sm mt-xl">
+<!-- Primary Action -->
+<button class="w-full bg-primary-container text-on-primary text-body-lg font-body-lg font-bold py-md px-lg rounded-xl border-2 border-on-surface shadow-[0px_4px_0px_0px_rgba(20,27,43,1)] active:shadow-none active:translate-y-1 transition-all duration-100 flex justify-center items-center gap-sm" type="submit">
+                    Launch My Dashboard 🚀
+                </button>
+<!-- Divider -->
+<div class="flex items-center gap-md my-sm">
+<div class="flex-1 h-[2px] bg-outline-variant/50"></div>
+<span class="text-label-sm font-label-sm text-tertiary uppercase tracking-wider">or get a fast code</span>
+<div class="flex-1 h-[2px] bg-outline-variant/50"></div>
+</div>
+<!-- Secondary Action -->
+<button class="w-full bg-surface-container-lowest text-on-surface text-body-md font-body-md font-bold py-sm px-lg rounded-xl border-2 border-on-surface shadow-[0px_4px_0px_0px_rgba(20,27,43,1)] active:shadow-none active:translate-y-1 transition-all duration-100 flex justify-center items-center gap-sm hover:bg-secondary-fixed hover:text-on-secondary-fixed" type="button">
+                    Secure Login via WhatsApp OTP 💬
+                </button>
+</div>
+</form>
+</main>
+<script>
+        // Password Visibility Toggle Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleButton = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('passcode');
+            const passwordIcon = document.getElementById('passwordIcon');
+
+            toggleButton.addEventListener('click', () => {
+                const isPassword = passwordInput.getAttribute('type') === 'password';
+                
+                // Toggle input type
+                passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+                
+                // Toggle icon (eye to smiley as requested, using material symbols)
+                // 'visibility' is the eye, 'mood' is a smiley face
+                passwordIcon.textContent = isPassword ? 'mood' : 'visibility';
+                passwordIcon.setAttribute('data-icon', isPassword ? 'mood' : 'visibility');
+                
+                // Add a playful little bounce to the icon
+                passwordIcon.classList.add('scale-125', 'text-primary-container');
+                setTimeout(() => {
+                    passwordIcon.classList.remove('scale-125', 'text-primary-container');
+                }, 150);
+            });
+
+            // Prevent form submit for demo purposes
+            document.getElementById('loginForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span class="material-symbols-outlined animate-spin mr-2">refresh</span> Launching...';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    // In a real app, redirect would happen here
+                }, 1500);
+            });
+        });
+    </script>
+</body></html>

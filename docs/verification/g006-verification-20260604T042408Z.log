@@ -1,0 +1,113 @@
+# Taukei G006 verification run
+Generated: 2026-06-04T04:24:08Z
+
+## bun run schema:validate
+$ ./scripts/validate-supabase-schema.sh
+initdb: warning: enabling "trust" authentication for local connections
+You can change this by editing pg_hba.conf or using the option -A, or
+--auth-local and --auth-host, the next time you run initdb.
+ check_name | count 
+------------+-------
+ tables     |    14
+(1 row)
+
+ check_name  | count 
+-------------+-------
+ rls_enabled |    14
+(1 row)
+
+ check_name  |  public_ref  | total_cents 
+-------------+--------------+-------------
+ seed_orders | TK-DEMO-1001 |        3100
+(1 row)
+
+    check_name     | payment_mode | delivery_mode 
+-------------------+--------------+---------------
+ fake_integrations | fake         | fake
+(1 row)
+
+NOTICE:  fake live payment guard rejected insert as expected
+DO
+
+## bun run lint
+$ bun --cwd apps/web lint
+$ eslint . --max-warnings=0
+
+## bun run typecheck
+$ bun --cwd apps/web typecheck && bun --cwd packages/env typecheck && bun --cwd packages/domain typecheck && bun run typecheck:schema
+$ tsc --noEmit
+$ tsc --noEmit
+$ tsc --noEmit
+$ tsc --noEmit -p tsconfig.schema.json
+
+## bun run test
+$ bun test
+bun test v1.3.14 (0d9b296a)
+
+packages/env/tests/env.test.ts:
+(pass) defaults to safe fake integrations [2.85ms]
+(pass) rejects unknown integration modes [0.65ms]
+(pass) fails closed for Stripe live mode without explicit production authorization [0.03ms]
+(pass) fails closed for Stripe live mode without live secret [0.02ms]
+(pass) fails closed for Lalamove live mode without credentials [0.02ms]
+
+packages/domain/tests/domain.test.ts:
+(pass) prices from trusted catalog and ignores client-supplied unit prices [1.30ms]
+(pass) rejects unavailable and unknown catalog items [0.95ms]
+(pass) selects car when any priced line is fragile [0.07ms]
+(pass) fake adapters return stub metadata without live side effects [1.97ms]
+(pass) checkout orchestration combines server pricing, fake payment, and fake delivery [0.27ms]
+(pass) adapter factories fail closed for live modes [0.06ms]
+(pass) adapter factories choose sandbox stubs without network side effects [0.09ms]
+
+ 12 pass
+ 0 fail
+ 37 expect() calls
+Ran 12 tests across 2 files. [78.00ms]
+
+## bun run build
+$ bun --cwd apps/web build
+$ next build
+▲ Next.js 16.2.7 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 1057ms
+  Running TypeScript ...
+  Finished TypeScript in 1054ms ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/12) ...
+  Generating static pages using 9 workers (3/12) 
+  Generating static pages using 9 workers (6/12) 
+  Generating static pages using 9 workers (9/12) 
+✓ Generating static pages using 9 workers (12/12) in 155ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /mad-krapow-demo
+├ ○ /mad-krapow-demo/checkout
+├ ○ /manifest.webmanifest
+├ ○ /merchant
+├ ○ /merchant/catalog
+├ ○ /merchant/fulfillment
+├ ○ /merchant/login
+├ ○ /merchant/onboarding
+└ ○ /order/TK-DEMO-1001
+
+
+○  (Static)  prerendered as static content
+
+
+## bun run smoke
+$ bun run scripts/smoke-startup.ts
+Taukei startup smoke check passed.
+Stripe=fake, Lalamove=fake. Safe local foundation: no real payment capture and no rider booking.
+
+## bun run smoke:customer
+$ ./scripts/smoke-customer-flow.sh
+Taukei customer flow smoke passed: storefront, checkout, and order tracking returned no-live-side-effect content.
+
+## bun run smoke:merchant
+$ ./scripts/smoke-merchant-flow.sh
+Taukei merchant flow smoke passed: login, onboarding, catalog, fulfillment, and tenant-safety content returned.
