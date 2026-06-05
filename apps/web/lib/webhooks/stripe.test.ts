@@ -11,12 +11,12 @@ const event = {
   livemode: false,
   data: {
     object: {
-      id: "cs_fake_taukei_tk_demo_1001",
+      id: "cs_fake_taukei_tk_test_001",
       payment_intent: "pi_test_1001",
       payment_status: "paid",
       amount_total: 3300,
       currency: "myr",
-      metadata: { orderRef: "TK-DEMO-1001" },
+      metadata: { orderRef: "TK-TEST-001" },
     },
   },
 } as const;
@@ -28,7 +28,7 @@ afterEach(() => {
 });
 
 describe("deterministic Stripe webhook processing", () => {
-  it("verifies configured signatures and reconciles the demo payment session without live side effects", async () => {
+  it("verifies configured signatures and reconciles the test payment session without live side effects", async () => {
     const signature = createStripeTestSignature(payload, "whsec_test_taukei");
     const result = await processDeterministicStripeWebhook(payload, signature, {
       TAUKEI_STRIPE_MODE: "sandbox",
@@ -47,8 +47,8 @@ describe("deterministic Stripe webhook processing", () => {
     );
     expect(result.reconciliation).toEqual(
       expect.objectContaining({
-        order_ref: "TK-DEMO-1001",
-        provider_session_id: "cs_fake_taukei_tk_demo_1001",
+        order_ref: "TK-TEST-001",
+        provider_session_id: "cs_fake_taukei_tk_test_001",
         provider_payment_intent_id: "pi_test_1001",
         previous_status: "stubbed",
         next_status: "paid",

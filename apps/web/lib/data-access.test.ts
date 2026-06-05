@@ -9,35 +9,52 @@ import {
 } from "./supabase/service";
 import {
   assertMerchantTenantScope,
-  getDemoMerchantSession,
+  type MerchantSession,
 } from "./supabase/session";
 
-const demoMerchantId = "00000000-0000-4000-8000-000000000001";
+function createTestMerchantSession(
+  overrides?: Partial<MerchantSession>,
+): MerchantSession {
+  return {
+    userId: "00000000-0000-4000-8000-000000000000",
+    merchantId: "11111111-1111-4111-8111-111111111111",
+    role: "owner",
+    email: "test@taukei.app",
+    tenantScope: "merchant:11111111-1111-4111-8111-111111111111",
+    authMode: "supabase-rls",
+    ...overrides,
+  };
+}
 
 describe("G003 data-access boundaries", () => {
   it("keeps public storefront reads behind one repository helper", async () => {
-    const result = await getPublicStorefrontBySlug("mad-krapow-demo");
-    expect(result.merchant?.id).toBe(demoMerchantId);
-    expect(result.catalog.length).toBeGreaterThan(0);
+    const result = await getPublicStorefrontBySlug("test-storefront");
+    expect(result.merchant).toBeNull();
+    expect(result.catalog).toEqual([]);
     expect(result.evidence.boundary).toBe("server-supabase-read");
     expect(result.evidence.remotePersistence).toBe(false);
     expect(result.evidence.productionGuardrail).toContain(
-      "not remote persistence evidence",
+      "RLS-scoped read boundary",
     );
   });
 
   it("rejects cross-tenant merchant operations before mutation helpers run", async () => {
-    const session = getDemoMerchantSession();
-    expect(assertMerchantTenantScope(session, demoMerchantId).ok).toBe(true);
+    const session = createTestMerchantSession();
     expect(
-      assertMerchantTenantScope(session, "00000000-0000-4000-8000-000000000999")
+      assertMerchantTenantScope(
+        session,
+        "11111111-1111-4111-8111-111111111111",
+      ).ok,
+    ).toBe(true);
+    expect(
+      assertMerchantTenantScope(session, "99999999-9999-4999-8999-999999999999")
         .ok,
     ).toBe(false);
 
     const context = await getMerchantOperationsContext({
       ...session,
-      merchantId: "00000000-0000-4000-8000-000000000999",
-      tenantScope: "merchant:00000000-0000-4000-8000-000000000999",
+      merchantId: "99999999-9999-4999-8999-999999999999",
+      tenantScope: "merchant:99999999-9999-4999-8999-999999999999",
     });
     expect(context.ok).toBe(false);
     expect(context.guard.ok).toBe(false);

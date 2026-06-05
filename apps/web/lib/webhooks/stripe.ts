@@ -1,12 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { loadTaukeiEnv, type RawEnv } from "@taukei/env";
-import { buildCustomerOrderRecords } from "../customer-orders";
-import { demoCheckoutRequest } from "../demo-data";
-import {
-  createCheckoutDraft,
-  createLalamoveAdapterFromEnv,
-  createStripeAdapterFromEnv,
-} from "@taukei/domain";
+import type { PaymentSession } from "@taukei/domain";
 import { buildWebhookIdempotencyKey } from "./idempotency";
 import {
   buildWebhookProductionGuardrail,
@@ -194,21 +188,18 @@ function parseStripeEvent(payload: string): StripeDeterministicEvent | null {
   }
 }
 
-async function buildDemoPaymentSession() {
-  const draft = await createCheckoutDraft(
-    { ...demoCheckoutRequest, catalog: demoCheckoutRequest.catalog },
-    {
-      stripe: createStripeAdapterFromEnv(),
-      lalamove: createLalamoveAdapterFromEnv(),
-    },
-    {
-      now: new Date("2026-06-04T12:00:00.000Z"),
-      orderRefFactory: () => "TK-DEMO-1001",
-      successUrl: "http://localhost:3000/order/TK-DEMO-1001",
-      cancelUrl: "http://localhost:3000/mad-krapow-demo",
-    },
-  );
-  return buildCustomerOrderRecords(draft).paymentSession;
+function buildMinimalPaymentSession(): PaymentSession {
+  return {
+    id: crypto.randomUUID(),
+    provider: "stripe",
+    mode: "fake",
+    status: "stubbed",
+    amountCents: 0,
+    currency: "MYR",
+    checkoutUrl: "",
+    noLivePayment: true,
+    metadata: {},
+  };
 }
 
 function nextPaymentStatus(
@@ -321,13 +312,13 @@ export async function processDeterministicStripeWebhook(
     };
   }
 
-  const paymentSession = await buildDemoPaymentSession();
-  const amount = event.data.object.amount_total ?? paymentSession.amount_cents;
+  const paymentSession = buildMinimalPaymentSession();
+  const amount = event.data.object.amount_total ?? paymentSession.amountCents;
   const currency = (event.data.object.currency ?? "myr").toUpperCase();
   const orderRef =
     event.data.object.metadata?.orderRef ??
     event.data.object.metadata?.order_ref ??
-    "TK-DEMO-1001";
+    event.data.object.id;
   const result: StripeWebhookProcessingResult = {
     accepted: true,
     provider: "stripe",

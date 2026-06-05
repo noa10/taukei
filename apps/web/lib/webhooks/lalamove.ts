@@ -1,12 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { loadTaukeiEnv, type RawEnv } from "@taukei/env";
-import { buildCustomerOrderRecords } from "../customer-orders";
-import { demoCheckoutRequest } from "../demo-data";
-import {
-  createCheckoutDraft,
-  createLalamoveAdapterFromEnv,
-  createStripeAdapterFromEnv,
-} from "@taukei/domain";
+import type { DeliveryJob } from "@taukei/domain";
 import { buildWebhookIdempotencyKey } from "./idempotency";
 import {
   buildWebhookProductionGuardrail,
@@ -171,21 +165,17 @@ function parseLalamoveEvent(
   }
 }
 
-async function buildDemoDeliveryJob() {
-  const draft = await createCheckoutDraft(
-    { ...demoCheckoutRequest, catalog: demoCheckoutRequest.catalog },
-    {
-      stripe: createStripeAdapterFromEnv(),
-      lalamove: createLalamoveAdapterFromEnv(),
-    },
-    {
-      now: new Date("2026-06-04T12:00:00.000Z"),
-      orderRefFactory: () => "TK-DEMO-1001",
-      successUrl: "http://localhost:3000/order/TK-DEMO-1001",
-      cancelUrl: "http://localhost:3000/mad-krapow-demo",
-    },
-  );
-  return buildCustomerOrderRecords(draft).deliveryJob;
+function buildMinimalDeliveryJob(): DeliveryJob {
+  return {
+    id: crypto.randomUUID(),
+    provider: "lalamove",
+    mode: "fake",
+    status: "scheduled",
+    vehicleType: "MOTORCYCLE",
+    scheduledDispatchAt: new Date().toISOString(),
+    noLiveBooking: true,
+    metadata: {},
+  };
 }
 
 function nextDeliveryStatus(
@@ -306,11 +296,11 @@ export async function processDeterministicLalamoveWebhook(
     };
   }
 
-  const deliveryJob = await buildDemoDeliveryJob();
+  const deliveryJob = buildMinimalDeliveryJob();
   const orderRef =
     event.data.metadata?.orderRef ??
     event.data.metadata?.order_ref ??
-    "TK-DEMO-1001";
+    event.data.orderId;
   const result: LalamoveWebhookProcessingResult = {
     accepted: true,
     provider: "lalamove",

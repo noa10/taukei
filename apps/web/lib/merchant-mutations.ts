@@ -1,12 +1,6 @@
-import {
-  catalogDrafts,
-  fulfillmentOrders,
-  merchantProfile,
-} from "./merchant-data";
 import { getSupabaseBoundaryConfig } from "./supabase/config";
 import {
   assertMerchantTenantScope,
-  getDemoMerchantSession,
   type MerchantSession,
 } from "./supabase/session";
 
@@ -118,15 +112,15 @@ function assertTenant<TPayload>(
 
 export function upsertMerchantProfileDefaults(
   input: MerchantProfileDefaultsInput,
-  session = getDemoMerchantSession(),
+  session: MerchantSession,
 ): MerchantMutationResult {
   const tenantRejection = assertTenant(session, input.merchantId, "stores");
   if (tenantRejection) return tenantRejection;
 
   const payload = {
     merchant_id: input.merchantId,
-    name: input.storeName.trim() || merchantProfile.storeName,
-    city: input.city.trim() || merchantProfile.city,
+    name: input.storeName.trim(),
+    city: input.city.trim(),
     prep_buffer_minutes: input.kitchenPrepBufferMinutes,
     default_vehicle_type: input.defaultVehicleType,
     public_ordering_enabled: input.publicOrderingEnabled,
@@ -157,18 +151,17 @@ export function upsertMerchantProfileDefaults(
 
 export function upsertCatalogItem(
   input: CatalogItemMutationInput,
-  session = getDemoMerchantSession(),
+  session: MerchantSession,
 ): MerchantMutationResult {
   const tenantRejection = assertTenant(session, input.merchantId, "menu_items");
   if (tenantRejection) return tenantRejection;
 
-  const existing = catalogDrafts.find((item) => item.id === input.itemId);
-  if (!existing)
+  if (!input.itemId || input.itemId.trim().length === 0)
     return reject(
       session,
       input.merchantId,
       "menu_items",
-      "Unknown catalog item for this merchant.",
+      "Catalog item ID is required.",
     );
   if (input.priceCents !== undefined && input.priceCents < 0)
     return reject(
@@ -179,12 +172,12 @@ export function upsertCatalogItem(
     );
 
   const payload = {
-    id: existing.id,
+    id: input.itemId,
     merchant_id: session.merchantId,
-    name: input.name?.trim() || existing.name,
-    price_cents: input.priceCents ?? existing.priceCents,
-    is_available: input.isAvailable ?? existing.isAvailable,
-    category_name: input.categoryName?.trim() || existing.category,
+    name: input.name?.trim() || "",
+    price_cents: input.priceCents ?? 0,
+    is_available: input.isAvailable ?? true,
+    category_name: input.categoryName?.trim() || "",
   };
 
   return {
@@ -202,7 +195,7 @@ export function upsertCatalogItem(
 
 export function transitionFulfillmentStatus(
   input: FulfillmentTransitionInput,
-  session = getDemoMerchantSession(),
+  session: MerchantSession,
 ): MerchantMutationResult {
   const tenantRejection = assertTenant(
     session,
@@ -211,31 +204,17 @@ export function transitionFulfillmentStatus(
   );
   if (tenantRejection) return tenantRejection;
 
-  const order = fulfillmentOrders.find(
-    (candidate) => candidate.publicRef === input.publicRef,
-  );
-  if (!order)
+  if (!input.publicRef || input.publicRef.trim().length === 0)
     return reject(
       session,
       input.merchantId,
       "fulfillment_events",
-      "Unknown order for this merchant.",
+      "Order public reference is required.",
     );
-
-  const currentStatus = order.status as FulfillmentStatus;
-  if (!legalFulfillmentTransitions[currentStatus]?.includes(input.nextStatus)) {
-    return reject(
-      session,
-      input.merchantId,
-      "fulfillment_events",
-      `Illegal fulfillment transition ${currentStatus} -> ${input.nextStatus}.`,
-    );
-  }
 
   const payload = {
     merchant_id: session.merchantId,
     public_ref: input.publicRef,
-    from_status: currentStatus,
     to_status: input.nextStatus,
     actor_user_id: session.userId,
   };

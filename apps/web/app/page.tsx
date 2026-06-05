@@ -1,46 +1,93 @@
-import { describeIntegrationSafety, loadTaukeiEnv } from "@taukei/env";
-import { ButtonLink } from "../components/primitives";
+import { Badge, SectionHeader, Card } from "../components/primitives";
 
-const foundationCards = [
-  "Next.js App Router web/PWA shell",
-  "Multi-merchant Supabase-ready repository layout",
-  "Stripe and Lalamove live modes fail closed",
-  "Customer storefront path with stubbed checkout"
+const features = [
+  {
+    icon: "🏪",
+    title: "Your own storefront",
+    body: "A clean, fast ordering page under your brand. No marketplace middleman taking a cut of every order."
+  },
+  {
+    icon: "📊",
+    title: "Own your customer data",
+    body: "Every order, every customer, every preference — yours. Build loyalty without platform gatekeepers."
+  },
+  {
+    icon: "💰",
+    title: "Keep your margins",
+    body: "Zero marketplace fees. You set your prices, you keep your revenue. We provide the rails."
+  },
+  {
+    icon: "⚡",
+    title: "Simple setup",
+    body: "Get your storefront live in minutes. Add your menu, set your hours, start taking orders."
+  }
+];
+
+const howItWorks = [
+  { step: "1", title: "Sign up", body: "Create your merchant account in under two minutes." },
+  { step: "2", title: "Add your menu", body: "Upload your items, set prices, configure prep times." },
+  { step: "3", title: "Go live", body: "Share your storefront link. Orders come straight to you." }
 ];
 
 export default function Home() {
-  const env = loadTaukeiEnv();
-  const safety = describeIntegrationSafety(env);
-
   return (
     <main className="shell">
+      {/* Hero */}
       <section className="hero-card" aria-labelledby="hero-title">
-        <p className="eyebrow">Taukei platform foundation</p>
-        <h1 id="hero-title">Merchant-owned ordering links for Malaysian food operators.</h1>
+        <Badge tone="mint">For Malaysian food operators</Badge>
+        <h1 id="hero-title">Own your ordering.<br />No marketplace fees.</h1>
         <p className="lede">
-          Taukei starts as a safe web/PWA foundation: public storefronts, merchant operations, Supabase schema work,
-          and sandbox-only payment plus delivery seams before any production integration phase.
+          Taukei gives independent hawkers, cafés, and restaurants their own direct storefronts.
+          Your customers order from you — not through a third-party app that takes a cut and owns your data.
         </p>
-        <div className="actions" aria-label="Foundation status actions">
-          <ButtonLink href="/mad-krapow-demo">Open demo storefront</ButtonLink>
-          <ButtonLink href="/mad-krapow-demo/checkout" variant="secondary">Try stub checkout</ButtonLink>
-          <ButtonLink href="/manifest.webmanifest" variant="secondary">View PWA manifest</ButtonLink>
+        <div className="actions" aria-label="Get started actions">
+          <a className="button primary" href="#signup">Get started</a>
+          <a className="button secondary" href="#how-it-works">See how it works</a>
         </div>
       </section>
 
-      <section className="grid" aria-label="Foundation capabilities">
-        {foundationCards.map((card) => (
-          <article className="capability" key={card}>
-            <span aria-hidden="true">✦</span>
-            <p>{card}</p>
-          </article>
+      {/* Features */}
+      <SectionHeader
+        eyebrow="Why Taukei"
+        title="Built for merchants, not marketplaces"
+        body="Every feature exists to put you in control of your ordering business."
+      />
+      <section className="grid" aria-label="Feature cards">
+        {features.map((f) => (
+          <Card className="capability" key={f.title}>
+            <span aria-hidden="true" style={{ fontSize: "1.6rem" }}>{f.icon}</span>
+            <p>{f.title}</p>
+            <p className="small" style={{ marginTop: 8 }}>{f.body}</p>
+          </Card>
         ))}
       </section>
 
-      <section className="safety" aria-label="Integration safety status">
-        <h2>Integration safety</h2>
-        <p>{safety}</p>
-        <p className="small">Live Stripe payment movement and live Lalamove rider booking are deferred and guarded by environment validation.</p>
+      {/* How it works */}
+      <section id="how-it-works">
+        <SectionHeader
+          eyebrow="How it works"
+          title="Three steps to your storefront"
+        />
+        <div className="grid" style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }} aria-label="Steps">
+          {howItWorks.map((s) => (
+            <Card key={s.step}>
+              <Badge tone="salmon">Step {s.step}</Badge>
+              <h3 style={{ margin: "12px 0 6px" }}>{s.title}</h3>
+              <p>{s.body}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="safety" aria-labelledby="cta-title" style={{ textAlign: "center", marginTop: 40 }}>
+        <h2 id="cta-title" style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)" }}>Ready to take back your orders?</h2>
+        <p style={{ maxWidth: 560, margin: "12px auto 0", color: "var(--muted)" }}>
+          Join Malaysian food operators who are moving off marketplace apps and onto their own storefronts.
+        </p>
+        <div className="actions" style={{ justifyContent: "center", marginTop: 24 }}>
+          <a className="button primary" href="#signup">Sign up as a merchant</a>
+        </div>
       </section>
     </main>
   );

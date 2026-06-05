@@ -10,10 +10,10 @@ const event = {
   type: "DRIVER_ASSIGNED",
   livemode: false,
   data: {
-    orderId: "job_quote_fake_tk_demo_1001",
+    orderId: "job_quote_test_001",
     status: "ON_GOING",
-    driverId: "driver-demo-1",
-    metadata: { orderRef: "TK-DEMO-1001" },
+    driverId: "driver-test-1",
+    metadata: { orderRef: "TK-TEST-001" },
   },
 } as const;
 
@@ -50,11 +50,11 @@ describe("deterministic Lalamove webhook processing", () => {
     );
     expect(result.reconciliation).toEqual(
       expect.objectContaining({
-        order_ref: "TK-DEMO-1001",
-        provider_job_id: "job_quote_fake_tk_demo_1001",
+        order_ref: "TK-TEST-001",
+        provider_job_id: "job_quote_test_001",
         previous_status: "scheduled",
         next_status: "driver_assigned",
-        driver_id: "driver-demo-1",
+        driver_id: "driver-test-1",
         no_live_booking: true,
       }),
     );

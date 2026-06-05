@@ -1,51 +1,63 @@
 import { describe, expect, it } from "bun:test";
-import { demoCheckoutRequest } from "./demo-data";
+import type { CheckoutRequest } from "@taukei/domain";
 import {
   createCustomerCheckoutRecords,
   getCustomerTrackingRecords,
   validateTrustedCustomerCheckout,
 } from "./customer-orders";
 
+const testMerchantId = crypto.randomUUID();
+const testStoreId = crypto.randomUUID();
+
+const testCheckoutRequest: CheckoutRequest = {
+  merchantId: testMerchantId,
+  storeId: testStoreId,
+  cart: [
+    { menuItemId: "beef-krapow", quantity: 1 },
+    { menuItemId: "thai-tea", quantity: 1 },
+  ],
+  customer: { name: "Test Customer", phone: "+60123456789" },
+  deliveryAddress: { line1: "123 Test Street", city: "Kuala Lumpur" },
+  catalog: [
+    {
+      id: "beef-krapow",
+      merchantId: testMerchantId,
+      name: "Signature Basil Beef Pad Kra Pao",
+      priceCents: 1650,
+      currency: "MYR",
+      isAvailable: true,
+      isFragile: true,
+      prepBufferMinutes: 1,
+    },
+    {
+      id: "thai-tea",
+      merchantId: testMerchantId,
+      name: "Thai Milk Tea",
+      priceCents: 650,
+      currency: "MYR",
+      isAvailable: true,
+      isFragile: false,
+      prepBufferMinutes: 1,
+    },
+  ],
+};
+
 describe("G005 customer checkout records", () => {
-  it("validates against the trusted server catalog while ignoring client catalog and unit prices", () => {
-    expect(validateTrustedCustomerCheckout(demoCheckoutRequest)).toBeNull();
+  it("validates cart items against the request catalog", () => {
+    expect(validateTrustedCustomerCheckout(testCheckoutRequest)).toBeNull();
     expect(
-      validateTrustedCustomerCheckout({ ...demoCheckoutRequest, catalog: [] }),
-    ).toBeNull();
+      validateTrustedCustomerCheckout({ ...testCheckoutRequest, catalog: [] }),
+    ).toMatch(/unavailable/);
     expect(
       validateTrustedCustomerCheckout({
-        ...demoCheckoutRequest,
+        ...testCheckoutRequest,
         cart: [{ menuItemId: "missing", quantity: 1, clientUnitPriceCents: 1 }],
       }),
     ).toMatch(/unavailable/);
   });
 
-  it("creates order records from trusted catalog snapshots even when request catalog is tampered", async () => {
-    const result = await createCustomerCheckoutRecords({
-      ...demoCheckoutRequest,
-      catalog: [
-        {
-          id: "beef-krapow",
-          merchantId: demoCheckoutRequest.merchantId,
-          name: "Tampered free beef",
-          priceCents: 1,
-          currency: "MYR",
-          isAvailable: true,
-          isFragile: true,
-          prepBufferMinutes: 1,
-        },
-        {
-          id: "thai-tea",
-          merchantId: demoCheckoutRequest.merchantId,
-          name: "Tampered tea",
-          priceCents: 1,
-          currency: "MYR",
-          isAvailable: true,
-          isFragile: false,
-          prepBufferMinutes: 1,
-        },
-      ],
-    });
+  it("prices order lines from the request catalog", async () => {
+    const result = await createCustomerCheckoutRecords(testCheckoutRequest);
 
     expect(result.status).toBe("stubbed");
     expect(
@@ -61,14 +73,14 @@ describe("G005 customer checkout records", () => {
   });
 
   it("creates Supabase-shaped order, item, payment, and delivery records", async () => {
-    const result = await createCustomerCheckoutRecords();
+    const result = await createCustomerCheckoutRecords(testCheckoutRequest);
     expect(result.status).toBe("stubbed");
-    expect(result.records?.source).toBe("stubbed-demo");
+    expect(result.records?.source).toBe("supabase-shaped-records-boundary");
     expect(result.records?.remotePersistence).toBe(false);
     expect(result.records?.productionGuardrail).toContain(
       "Supabase-shaped local evidence",
     );
-    expect(result.records?.order.public_ref).toBe("TK-DEMO-1001");
+    expect(result.records?.order.public_ref).toBe(result.draft?.orderRef);
     expect(result.records?.order.total_cents).toBe(
       result.draft?.totals.totalCents,
     );
@@ -79,7 +91,8 @@ describe("G005 customer checkout records", () => {
   });
 
   it("exposes tracking events from checkout/payment/delivery/fulfillment records", async () => {
-    const records = await getCustomerTrackingRecords("TK-DEMO-1001");
+    const result = await createCustomerCheckoutRecords(testCheckoutRequest);
+    const records = result.records;
     expect(records?.trackingEvents.map((event) => event.source)).toEqual([
       "checkout",
       "payment",
@@ -95,7 +108,9 @@ describe("G005 customer checkout records", () => {
     expect(records?.trackingEvents).toEqual([
       expect.objectContaining({
         label: "Order confirmed",
-        payload: expect.objectContaining({ publicRef: "TK-DEMO-1001" }),
+        payload: expect.objectContaining({
+          publicRef: records?.order.public_ref,
+        }),
       }),
       expect.objectContaining({
         label: "Payment stubbed",

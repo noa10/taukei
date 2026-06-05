@@ -1,0 +1,73 @@
+{
+  "schema_version": 2,
+  "active_work_id": "fix-vercel-nextjs-detection-d5b23acc",
+  "works": {
+    "remove-demo-production-e4a34bd9": {
+      "work_id": "remove-demo-production-e4a34bd9",
+      "active_plan": "/Users/khairulanwar/dev/taukei/.omo/plans/remove-demo-production.md",
+      "plan_name": "remove-demo-production",
+      "status": "completed",
+      "started_at": "2026-06-04T19:55:26.645Z",
+      "updated_at": "2026-06-04T20:23:44.467Z",
+      "session_ids": [
+        "opencode:ses_16c092406ffesDkYUi0QfrLEVx"
+      ],
+      "session_origins": {
+        "opencode:ses_16c092406ffesDkYUi0QfrLEVx": "direct"
+      },
+      "agent": "atlas",
+      "task_sessions": {},
+      "ended_at": "2026-06-04T20:23:44.466Z",
+      "elapsed_ms": 1697821
+    },
+    "fix-vercel-nextjs-detection-d5b23acc": {
+      "work_id": "fix-vercel-nextjs-detection-d5b23acc",
+      "active_plan": "/Users/khairulanwar/dev/taukei/.omo/plans/fix-vercel-nextjs-detection.md",
+      "plan_name": "fix-vercel-nextjs-detection",
+      "status": "active",
+      "started_at": "2026-06-05T05:22:19.020Z",
+      "updated_at": "2026-06-05T05:25:06.323Z",
+      "session_ids": [
+        "opencode:ses_16a2f9d06ffeH8Hz793vkMna9J"
+      ],
+      "session_origins": {
+        "opencode:ses_16a2f9d06ffeH8Hz793vkMna9J": "direct"
+      },
+      "agent": "atlas",
+      "task_sessions": {
+        "todo:1": {
+          "task_key": "todo:1",
+          "task_label": "1",
+          "task_title": "Add Next.js to root package.json dependencies",
+          "session_id": "opencode:ses_169c2411affewlVWm77WzDRmNl",
+          "started_at": "2026-06-05T05:23:31.933Z",
+          "status": "running",
+          "updated_at": "2026-06-05T05:25:06.323Z"
+        }
+      }
+    }
+  },
+  "active_plan": "/Users/khairulanwar/dev/taukei/.omo/plans/fix-vercel-nextjs-detection.md",
+  "started_at": "2026-06-05T05:22:19.020Z",
+  "status": "active",
+  "updated_at": "2026-06-05T05:25:06.323Z",
+  "session_ids": [
+    "opencode:ses_16a2f9d06ffeH8Hz793vkMna9J"
+  ],
+  "session_origins": {
+    "opencode:ses_16a2f9d06ffeH8Hz793vkMna9J": "direct"
+  },
+  "plan_name": "fix-vercel-nextjs-detection",
+  "task_sessions": {
+    "todo:1": {
+      "task_key": "todo:1",
+      "task_label": "1",
+      "task_title": "Add Next.js to root package.json dependencies",
+      "session_id": "opencode:ses_169c2411affewlVWm77WzDRmNl",
+      "started_at": "2026-06-05T05:23:31.933Z",
+      "status": "running",
+      "updated_at": "2026-06-05T05:25:06.323Z"
+    }
+  },
+  "agent": "atlas"
+}

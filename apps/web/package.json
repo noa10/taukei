@@ -11,11 +11,12 @@
     "e2e": "bun run ../../scripts/smoke-startup.ts"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.10.3",
+    "@taukei/domain": "workspace:*",
     "@taukei/env": "workspace:*",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest",
-    "@taukei/domain": "workspace:*"
+    "react-dom": "latest"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
