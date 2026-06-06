@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseBoundaryConfig } from "./lib/supabase/config";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const response = NextResponse.next();
 
   if (request.nextUrl.pathname.startsWith("/merchant")) {
