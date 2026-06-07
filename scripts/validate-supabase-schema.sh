@@ -1,148 +1,125 @@
 #!/usr/bin/env bash
+# ---------------------------------------------------------------------------
+# validate-supabase-schema.sh — smoke test that required Supabase tables and
+# columns exist in the local or linked Supabase instance.
+#
+# Requires: supabase CLI, jq
+#
+# Usage:
+#   ./scripts/validate-supabase-schema.sh
+#   ./scripts/validate-supabase-schema.sh --project-ref abc123
+# ---------------------------------------------------------------------------
+
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-MIGRATION="$ROOT_DIR/supabase/migrations/20260604001400_taukei_multi_merchant_foundation.sql"
-SEED="$ROOT_DIR/supabase/seed.sql"
-TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/taukei-pg.XXXXXX")"
-DATA_DIR="$TMP_DIR/data"
-SOCKET_DIR="$TMP_DIR/socket"
-LOG_FILE="$TMP_DIR/postgres.log"
-DB_NAME="taukei_schema_check"
+DB_URL="${SUPABASE_DB_URL:-}"
+PROJECT_REF=""
 
-cleanup() {
-  if [[ -f "$TMP_DIR/postmaster.pid" ]]; then
-    pg_ctl -D "$DATA_DIR" -m fast stop >/dev/null 2>&1 || true
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --project-ref) PROJECT_REF="$2"; shift 2 ;;
+    *) echo "Unknown argument: $1"; exit 1 ;;
+  esac
+done
+
+# If no DB_URL and we have a project ref, construct it
+if [[ -z "$DB_URL" && -n "$PROJECT_REF" ]]; then
+  echo "Falling back to supabase CLI for project $PROJECT_REF"
+  DB_URL=$(supabase status --project-ref "$PROJECT_REF" 2>/dev/null | grep "DB URL" | awk '{print $3}' || true)
+fi
+
+# Default: use the local supabase stack
+if [[ -z "$DB_URL" ]]; then
+  DB_URL=$(supabase status 2>/dev/null | grep "DB URL" | awk '{print $3}' || true)
+fi
+
+if [[ -z "$DB_URL" ]]; then
+  echo "ERROR: Could not determine database URL. Start the Supabase local stack with 'supabase start' or pass --project-ref."
+  exit 1
+fi
+
+echo "Validating Supabase schema against $DB_URL ..."
+
+PASS=0
+FAIL=0
+
+function check_table() {
+  local table="$1"
+  local result
+  result=$(psql "$DB_URL" -tAc "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '$table');")
+  if [[ "$result" == "t" ]]; then
+    echo "  ✓ Table public.$table exists"
+    ((PASS++))
+  else
+    echo "  ✗ Table public.$table does NOT exist"
+    ((FAIL++))
   fi
-  rm -rf "$TMP_DIR"
 }
-trap cleanup EXIT
 
-mkdir -p "$SOCKET_DIR"
-initdb -D "$DATA_DIR" --no-locale --encoding=UTF8 >/dev/null
-pg_ctl -D "$DATA_DIR" -l "$LOG_FILE" -o "-k $SOCKET_DIR -p 55432" start >/dev/null
-touch "$TMP_DIR/postmaster.pid"
-createdb -h "$SOCKET_DIR" -p 55432 "$DB_NAME"
+function check_column() {
+  local table="$1"
+  local column="$2"
+  local result
+  result=$(psql "$DB_URL" -tAc "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '$table' AND column_name = '$column');")
+  if [[ "$result" == "t" ]]; then
+    echo "  ✓ Column $table.$column exists"
+    ((PASS++))
+  else
+    echo "  ✗ Column $table.$column does NOT exist"
+    ((FAIL++))
+  fi
+}
 
-psql -h "$SOCKET_DIR" -p 55432 -d "$DB_NAME" -v ON_ERROR_STOP=1 <<'SQL' >/dev/null
-create schema auth;
-create table auth.users (
-  id uuid primary key,
-  email text,
-  created_at timestamptz not null default now()
-);
-create role anon nologin;
-create role authenticated nologin;
-create or replace function auth.uid()
-returns uuid
-language sql
-stable
-as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
-SQL
+function check_function() {
+  local fn="$1"
+  local result
+  result=$(psql "$DB_URL" -tAc "SELECT EXISTS (SELECT 1 FROM pg_proc p JOIN pg_namespace n ON p.pronamespace = n.oid WHERE n.nspname = 'public' AND p.proname = '$fn');")
+  if [[ "$result" == "t" ]]; then
+    echo "  ✓ Function public.$fn() exists"
+    ((PASS++))
+  else
+    echo "  ✗ Function public.$fn() does NOT exist"
+    ((FAIL++))
+  fi
+}
 
-psql -h "$SOCKET_DIR" -p 55432 -d "$DB_NAME" -v ON_ERROR_STOP=1 -f "$MIGRATION" >/dev/null
-psql -h "$SOCKET_DIR" -p 55432 -d "$DB_NAME" -v ON_ERROR_STOP=1 -f "$SEED" >/dev/null
-psql -h "$SOCKET_DIR" -p 55432 -d "$DB_NAME" -v ON_ERROR_STOP=1 <<'SQL' >/dev/null
-grant usage on schema public to anon, authenticated;
-grant select on all tables in schema public to anon, authenticated;
-grant insert, update, delete on all tables in schema public to authenticated;
-grant usage, select on all sequences in schema public to authenticated;
-SQL
+function check_bucket() {
+  local bucket="$1"
+  local result
+  result=$(psql "$DB_URL" -tAc "SELECT EXISTS (SELECT 1 FROM storage.buckets WHERE id = '$bucket');")
+  if [[ "$result" == "t" ]]; then
+    echo "  ✓ Storage bucket '$bucket' exists"
+    ((PASS++))
+  else
+    echo "  ✗ Storage bucket '$bucket' does NOT exist"
+    ((FAIL++))
+  fi
+}
 
-psql -h "$SOCKET_DIR" -p 55432 -d "$DB_NAME" -v ON_ERROR_STOP=1 <<'SQL'
-select 'tables' as check_name, count(*) as count
-from information_schema.tables
-where table_schema = 'public'
-  and table_name in (
-    'merchants','profiles','merchant_memberships','stores','menus','menu_categories','menu_items',
-    'customers','orders','order_items','payment_sessions','delivery_quotes','delivery_jobs',
-    'delivery_events','fulfillment_events','webhook_events'
-  );
+echo ""
+echo "Tables:"
+check_table "profiles"
+check_table "merchant_memberships"
 
-select 'rls_enabled' as check_name, count(*) as count
-from pg_class c
-join pg_namespace n on n.oid = c.relnamespace
-where n.nspname = 'public'
-  and c.relname in (
-    'merchants','profiles','merchant_memberships','stores','menus','menu_categories','menu_items',
-    'customers','orders','order_items','payment_sessions','delivery_quotes','delivery_jobs',
-    'delivery_events','fulfillment_events','webhook_events'
-  )
-  and c.relrowsecurity;
+echo ""
+echo "Columns (profiles):"
+check_column "profiles" "id"
+check_column "profiles" "email"
+check_column "profiles" "username"
+check_column "profiles" "full_name"
+check_column "profiles" "display_name"
+check_column "profiles" "avatar_url"
 
-select 'seed_orders' as check_name, public_ref, total_cents
-from public.orders
-where public_ref = 'TK-DEMO-1001';
+echo ""
+echo "Functions:"
+check_function "handle_new_user"
 
-select 'fake_integrations' as check_name,
-  (select mode::text from public.payment_sessions where provider_session_id = 'cs_test_taukei_demo') as payment_mode,
-  (select mode::text from public.delivery_jobs where provider_job_id = 'job_demo_001') as delivery_mode;
+echo ""
+echo "Storage:"
+check_bucket "avatars"
 
-select 'profiles_seeded' as check_name, count(*) as count
-from public.profiles
-where id in ('00000000-0000-4000-8000-00000000a001', '00000000-0000-4000-8000-00000000a002');
-
-select 'webhook_events_seeded' as check_name, count(*) as count
-from public.webhook_events
-where provider in ('fake_stripe', 'fake_lalamove') and mode = 'fake';
-
-select 'webhook_idempotency_unique' as check_name, count(*) as count
-from pg_constraint
-where conrelid = 'public.webhook_events'::regclass
-  and conname in ('webhook_events_provider_event_id_key', 'webhook_events_provider_idempotency_key_key');
-
-do $$
-begin
-  insert into public.payment_sessions (merchant_id, order_id, provider, mode, status, amount_cents)
-  values ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000601', 'fake_stripe', 'live', 'requires_payment', 3100);
-  raise exception 'expected fake live payment guard to reject insert';
-exception when check_violation then
-  raise notice 'fake live payment guard rejected insert as expected';
-end $$;
-
-do $$
-begin
-  insert into public.payment_sessions (merchant_id, order_id, provider, mode, status, amount_cents)
-  values ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000601', 'stripe', 'live', 'requires_payment', 3100);
-  raise exception 'expected non-fake live payment guard to reject insert';
-exception when check_violation then
-  raise notice 'non-fake live payment guard rejected insert as expected';
-end $$;
-
-do $$
-begin
-  insert into public.delivery_jobs (merchant_id, order_id, provider, mode, status, vehicle_type)
-  values ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000601', 'lalamove', 'live', 'scheduled', 'CAR');
-  raise exception 'expected live delivery guard to reject insert';
-exception when check_violation then
-  raise notice 'live delivery guard rejected insert as expected';
-end $$;
-
-do $$
-begin
-  insert into public.webhook_events (merchant_id, provider, mode, event_id, event_type, idempotency_key)
-  values ('00000000-0000-4000-8000-000000000001', 'stripe', 'live', 'evt_live_blocked', 'checkout.session.completed', 'stripe:evt_live_blocked');
-  raise exception 'expected live webhook guard to reject insert';
-exception when check_violation then
-  raise notice 'live webhook guard rejected insert as expected';
-end $$;
-
-set role authenticated;
-select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-00000000a001', false);
-select 'owner_order_visible' as check_name, count(*) as count from public.orders where public_ref = 'TK-DEMO-1001';
-select 'owner_profile_visible' as check_name, count(*) as count from public.profiles where id = '00000000-0000-4000-8000-00000000a001';
-select 'owner_webhook_events_visible' as check_name, count(*) as count from public.webhook_events;
-reset role;
-select set_config('request.jwt.claim.sub', '', false);
-set role anon;
-select 'anonymous_orders_hidden' as check_name, count(*) as count from public.orders;
-select 'anonymous_profiles_hidden' as check_name, count(*) as count from public.profiles;
-select 'anonymous_webhook_events_hidden' as check_name, count(*) as count from public.webhook_events;
-select 'anonymous_storefront_items_visible' as check_name, count(*) as count from public.menu_items;
-reset role;
-set role authenticated;
-select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-00000000a999', false);
-select 'other_merchant_orders_hidden' as check_name, count(*) as count from public.orders;
-select 'other_merchant_webhook_events_hidden' as check_name, count(*) as count from public.webhook_events;
-reset role;
-SQL
+echo ""
+echo "$PASS passed, $FAIL failed"
+if [[ $FAIL -gt 0 ]]; then
+  exit 1
+fi

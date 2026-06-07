@@ -281,6 +281,109 @@ export interface Database {
         Insert: { id?: string; merchant_id: string; order_id: string; from_status?: FulfillmentStatus | null; to_status: FulfillmentStatus; note?: string | null; actor_user_id?: string | null; occurred_at?: string };
         Update: Partial<Database["public"]["Tables"]["fulfillment_events"]["Insert"]>;
       };
+
+      modifier_groups: {
+        Row: {
+          id: string;
+          merchant_id: string;
+          name: string;
+          description: string | null;
+          min_selections: number;
+          max_selections: number;
+          sort_order: number;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          merchant_id: string;
+          name: string;
+          description?: string | null;
+          min_selections?: number;
+          max_selections?: number;
+          sort_order?: number;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          merchant_id?: string;
+          name?: string;
+          description?: string | null;
+          min_selections?: number;
+          max_selections?: number;
+          sort_order?: number;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      modifiers: {
+        Row: {
+          id: string;
+          merchant_id: string;
+          modifier_group_id: string;
+          name: string;
+          price_delta_cents: number;
+          is_default: boolean;
+          is_available: boolean;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          merchant_id: string;
+          modifier_group_id: string;
+          name: string;
+          price_delta_cents?: number;
+          is_default?: boolean;
+          is_available?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          merchant_id?: string;
+          modifier_group_id?: string;
+          name?: string;
+          price_delta_cents?: number;
+          is_default?: boolean;
+          is_available?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      menu_item_modifier_groups: {
+        Row: {
+          id: string;
+          merchant_id: string;
+          menu_item_id: string;
+          modifier_group_id: string;
+          is_required: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          merchant_id: string;
+          menu_item_id: string;
+          modifier_group_id: string;
+          is_required?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          merchant_id?: string;
+          menu_item_id?: string;
+          modifier_group_id?: string;
+          is_required?: boolean;
+          created_at?: string;
+        };
+      };
     };
     Enums: {
       merchant_status: MerchantStatus;
