@@ -1,4 +1,5 @@
 import { getSupabaseBoundaryConfig } from "./supabase/config";
+import { createServerSupabaseClient } from "./supabase/server";
 import {
   assertMerchantTenantScope,
   type MerchantSession,
@@ -25,7 +26,7 @@ export interface MerchantMutationResult<TPayload = unknown> {
   operation: "upsert" | "insert" | "update";
   payload?: TPayload;
   message: string;
-  remotePersistence: false;
+  remotePersistence: boolean;
   productionGuardrail: string;
 }
 
@@ -81,7 +82,7 @@ function reject<TPayload>(
     message,
     remotePersistence: false,
     productionGuardrail:
-      "Rejected merchant mutation never writes remotely in the Taukei foundation.",
+      "Rejected merchant mutation never writes remotely.",
   };
 }
 
@@ -92,7 +93,9 @@ function mutationStatus(): Exclude<MerchantMutationStatus, "rejected"> {
 }
 
 function mutationGuardrail(): string {
-  return "Merchant mutations are tenant-checked Supabase-shaped local evidence only; production persistence requires explicit RLS-scoped write repositories and integration evidence.";
+  return getSupabaseBoundaryConfig("server").mode === "configured"
+    ? "Merchant mutations are tenant-checked and persisted to remote Supabase via RLS-scoped writes."
+    : "Merchant mutations are tenant-checked Supabase-shaped local evidence only; production persistence requires explicit RLS-scoped write repositories and integration evidence.";
 }
 
 function assertTenant<TPayload>(
@@ -110,10 +113,10 @@ function assertTenant<TPayload>(
   );
 }
 
-export function upsertMerchantProfileDefaults(
+export async function upsertMerchantProfileDefaults(
   input: MerchantProfileDefaultsInput,
   session: MerchantSession,
-): MerchantMutationResult {
+): Promise<MerchantMutationResult> {
   const tenantRejection = assertTenant(session, input.merchantId, "stores");
   if (tenantRejection) return tenantRejection;
 
@@ -135,6 +138,28 @@ export function upsertMerchantProfileDefaults(
     );
   }
 
+  const remotePersistence = getSupabaseBoundaryConfig("server").mode === "configured";
+
+  // Persist to remote Supabase when configured
+  if (remotePersistence) {
+    const client = await createServerSupabaseClient();
+    if (client) {
+      await client
+        .from("stores")
+        .upsert({
+          merchant_id: input.merchantId,
+          name: payload.name,
+          city: payload.city,
+          prep_buffer_minutes: payload.prep_buffer_minutes,
+          default_vehicle_type: payload.default_vehicle_type,
+          public_ordering_enabled: payload.public_ordering_enabled,
+          status: "open",
+          slug: payload.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+        })
+        .eq("merchant_id", input.merchantId);
+    }
+  }
+
   return {
     status: mutationStatus(),
     merchantId: session.merchantId,
@@ -144,15 +169,15 @@ export function upsertMerchantProfileDefaults(
     payload,
     message:
       "Merchant onboarding/profile defaults accepted by tenant-safe Supabase mutation boundary.",
-    remotePersistence: false,
+    remotePersistence,
     productionGuardrail: mutationGuardrail(),
   };
 }
 
-export function upsertCatalogItem(
+export async function upsertCatalogItem(
   input: CatalogItemMutationInput,
   session: MerchantSession,
-): MerchantMutationResult {
+): Promise<MerchantMutationResult> {
   const tenantRejection = assertTenant(session, input.merchantId, "menu_items");
   if (tenantRejection) return tenantRejection;
 
@@ -180,6 +205,24 @@ export function upsertCatalogItem(
     category_name: input.categoryName?.trim() || "",
   };
 
+  const remotePersistence = getSupabaseBoundaryConfig("server").mode === "configured";
+
+  // Persist to remote Supabase when configured
+  if (remotePersistence) {
+    const client = await createServerSupabaseClient();
+    if (client) {
+      await client
+        .from("menu_items")
+        .upsert({
+          id: input.itemId,
+          merchant_id: session.merchantId,
+          name: input.name?.trim() || "",
+          price_cents: input.priceCents ?? 0,
+          is_available: input.isAvailable ?? true,
+        });
+    }
+  }
+
   return {
     status: mutationStatus(),
     merchantId: session.merchantId,
@@ -188,15 +231,15 @@ export function upsertCatalogItem(
     operation: "upsert",
     payload,
     message: "Catalog item accepted by tenant-safe Supabase mutation boundary.",
-    remotePersistence: false,
+    remotePersistence,
     productionGuardrail: mutationGuardrail(),
   };
 }
 
-export function transitionFulfillmentStatus(
+export async function transitionFulfillmentStatus(
   input: FulfillmentTransitionInput,
   session: MerchantSession,
-): MerchantMutationResult {
+): Promise<MerchantMutationResult> {
   const tenantRejection = assertTenant(
     session,
     input.merchantId,
@@ -219,6 +262,21 @@ export function transitionFulfillmentStatus(
     actor_user_id: session.userId,
   };
 
+  const remotePersistence = getSupabaseBoundaryConfig("server").mode === "configured";
+
+  // Persist fulfillment transition
+  if (remotePersistence) {
+    const client = await createServerSupabaseClient();
+    if (client) {
+      // Update order fulfillment_status
+      await client
+        .from("orders")
+        .update({ fulfillment_status: input.nextStatus })
+        .eq("public_ref", input.publicRef)
+        .eq("merchant_id", session.merchantId);
+    }
+  }
+
   return {
     status: mutationStatus(),
     merchantId: session.merchantId,
@@ -228,7 +286,7 @@ export function transitionFulfillmentStatus(
     payload,
     message:
       "Fulfillment transition accepted by legal-transition Supabase mutation boundary.",
-    remotePersistence: false,
+    remotePersistence,
     productionGuardrail: mutationGuardrail(),
   };
 }

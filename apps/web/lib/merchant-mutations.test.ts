@@ -24,9 +24,9 @@ function createTestSession(
 }
 
 describe("G004 merchant mutation boundaries", () => {
-  it("accepts merchant profile defaults only inside the active tenant", () => {
+  it("accepts merchant profile defaults only inside the active tenant", async () => {
     const session = createTestSession();
-    const accepted = upsertMerchantProfileDefaults(
+    const accepted = await upsertMerchantProfileDefaults(
       {
         merchantId: TEST_MERCHANT_ID,
         storeName: "Mad Krapow KL Kitchen",
@@ -42,7 +42,7 @@ describe("G004 merchant mutation boundaries", () => {
     expect(accepted.remotePersistence).toBe(false);
     expect(accepted.productionGuardrail).toContain("local evidence");
 
-    const rejected = upsertMerchantProfileDefaults(
+    const rejected = await upsertMerchantProfileDefaults(
       {
         merchantId: "00000000-0000-4000-8000-000000000999",
         storeName: "Other Store",
@@ -57,67 +57,67 @@ describe("G004 merchant mutation boundaries", () => {
     expect(rejected.remotePersistence).toBe(false);
   });
 
-  it("guards catalog mutations with tenant and value checks", () => {
+  it("guards catalog mutations with tenant and value checks", async () => {
     const session = createTestSession();
     expect(
-      upsertCatalogItem(
+      (await upsertCatalogItem(
         {
           merchantId: TEST_MERCHANT_ID,
           itemId: "beef-krapow",
           priceCents: 1700,
         },
         session,
-      ).status,
+      )).status,
     ).toBe("stubbed");
     expect(
-      upsertCatalogItem(
+      (await upsertCatalogItem(
         {
           merchantId: TEST_MERCHANT_ID,
           itemId: "beef-krapow",
           priceCents: -1,
         },
         session,
-      ).status,
+      )).status,
     ).toBe("rejected");
     expect(
-      upsertCatalogItem(
+      (await upsertCatalogItem(
         {
           merchantId: "00000000-0000-4000-8000-000000000999",
           itemId: "beef-krapow",
         },
         session,
-      ).status,
+      )).status,
     ).toBe("rejected");
   });
 
-  it("accepts any fulfillment transition within the active tenant", () => {
+  it("accepts any fulfillment transition within the active tenant", async () => {
     const session = createTestSession();
     expect(legalFulfillmentNextStatuses("new")).toContain("accepted");
     expect(
-      transitionFulfillmentStatus(
+      (await transitionFulfillmentStatus(
         {
           merchantId: TEST_MERCHANT_ID,
           publicRef: "TK-DEMO-1002",
           nextStatus: "accepted",
         },
         session,
-      ).status,
+      )).status,
     ).toBe("stubbed");
     expect(
-      transitionFulfillmentStatus(
+      (await transitionFulfillmentStatus(
         {
           merchantId: TEST_MERCHANT_ID,
           publicRef: "TK-DEMO-1002",
           nextStatus: "delivered",
         },
         session,
-      ).status,
+      )).status,
     ).toBe("stubbed");
   });
 
-  it("records the acting merchant session in fulfillment events", () => {
+  it("records the acting merchant session in fulfillment events", async () => {
     const session = createTestSession();
-    const result = transitionFulfillmentStatus(
+    const result = await transitionFulfillmentStatus(
       {
         merchantId: TEST_MERCHANT_ID,
         publicRef: "TK-DEMO-1001",

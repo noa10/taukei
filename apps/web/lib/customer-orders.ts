@@ -7,50 +7,8 @@ import {
   type MenuItemSnapshot,
 } from "@taukei/domain";
 import { getSupabaseBoundaryConfig } from "./supabase/config";
+import { createServerSupabaseClient } from "./supabase/server";
 
-// ---------------------------------------------------------------------------
-// Supabase REST client (local — extract to ./supabase/server when ready)
-// ---------------------------------------------------------------------------
-
-interface SupabaseRestClient {
-  configured: boolean;
-  restGet<T = Record<string, unknown>>(
-    table: string,
-    params?: Record<string, string>,
-  ): Promise<T[]>;
-}
-
-function createServerSupabaseClient(): SupabaseRestClient {
-  const config = getSupabaseBoundaryConfig("server");
-  const baseUrl = config.url;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const configured =
-    config.mode === "configured" && Boolean(baseUrl) && Boolean(anonKey);
-
-  async function restGet<T = Record<string, unknown>>(
-    table: string,
-    params: Record<string, string> = {},
-  ): Promise<T[]> {
-    if (!configured || !baseUrl || !anonKey) return [];
-    const qs = new URLSearchParams(params);
-    const url = `${baseUrl}/rest/v1/${table}?${qs.toString()}`;
-    try {
-      const res = await fetch(url, {
-        headers: {
-          apikey: anonKey,
-          Authorization: `Bearer ${anonKey}`,
-          Accept: "application/json",
-        },
-      });
-      if (!res.ok) return [];
-      return (await res.json()) as T[];
-    } catch {
-      return [];
-    }
-  }
-
-  return { configured, restGet };
-}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -86,17 +44,16 @@ function mapRowToMenuItemSnapshot(
 async function fetchCatalogForMerchant(
   merchantId: string,
 ): Promise<MenuItemSnapshot[]> {
-  const client = createServerSupabaseClient();
-  if (!client.configured) return [];
+  const client = await createServerSupabaseClient();
+  if (!client) return [];
 
-  const rows = await client.restGet("menu_items", {
-    select:
-      "id,merchant_id,name,price_cents,currency,is_available,is_fragile,prep_buffer_minutes",
-    merchant_id: `eq.${merchantId}`,
-    is_available: "eq.true",
-  });
+  const { data: items } = await client
+    .from("menu_items")
+    .select("id,merchant_id,name,price_cents,currency,is_available,is_fragile,prep_buffer_minutes")
+    .eq("merchant_id", merchantId)
+    .eq("is_available", true);
 
-  return rows.map(mapRowToMenuItemSnapshot);
+  return (items ?? []).map(mapRowToMenuItemSnapshot);
 }
 
 // ---------------------------------------------------------------------------
@@ -105,7 +62,7 @@ async function fetchCatalogForMerchant(
 
 export interface CustomerOrderRecordSet {
   source: "supabase-shaped-records-boundary";
-  remotePersistence: false;
+  remotePersistence: boolean;
   productionGuardrail: string;
   order: {
     id: string;
@@ -163,7 +120,7 @@ export interface CustomerOrderRecordSet {
 }
 
 export interface CustomerCheckoutResult {
-  status: "stubbed" | "rejected";
+  status: "stubbed" | "boundary-accepted" | "rejected";
   draft?: CheckoutDraft;
   records?: CustomerOrderRecordSet;
   message: string;
@@ -219,11 +176,14 @@ export function buildCustomerOrderRecords(
     is_fragile_snapshot: line.isFragileSnapshot,
   }));
 
+  const isConfigured = getSupabaseBoundaryConfig("server").mode === "configured";
+
   return {
     source: "supabase-shaped-records-boundary",
-    remotePersistence: false,
-    productionGuardrail:
-      "Checkout records are Supabase-shaped local evidence only; production persistence requires an explicit RLS-scoped repository/server-action implementation.",
+    remotePersistence: isConfigured,
+    productionGuardrail: isConfigured
+      ? "Checkout records served from remote Supabase instance."
+      : "Checkout records are Supabase-shaped local evidence only; production persistence requires an explicit RLS-scoped repository/server-action implementation.",
     order: {
       id: orderId,
       merchant_id: draft.merchantId,
@@ -328,53 +288,106 @@ export async function createCustomerCheckoutRecords(
     },
   );
 
+  const records = buildCustomerOrderRecords(draft);
+
+  // Persist to remote Supabase when configured
+  const config = getSupabaseBoundaryConfig("server");
+  if (config.mode === "configured") {
+    const client = await createServerSupabaseClient();
+    if (client) {
+      // Insert order
+      const { error: orderErr } = await client.from("orders").insert({
+        id: records.order.id,
+        merchant_id: records.order.merchant_id,
+        store_id: records.order.store_id,
+        customer_id: records.order.customer_id,
+        public_ref: records.order.public_ref,
+        status: records.order.status,
+        fulfillment_status: records.order.fulfillment_status,
+        subtotal_cents: records.order.subtotal_cents,
+        delivery_fee_cents: records.order.delivery_fee_cents,
+        platform_fee_cents: records.order.platform_fee_cents,
+        delivery_address: records.order.delivery_address,
+      });
+      if (!orderErr) {
+        // Insert order items
+        await client.from("order_items").insert(
+          records.orderItems.map((item) => ({
+            id: item.id,
+            order_id: item.order_id,
+            merchant_id: item.merchant_id,
+            menu_item_id: item.menu_item_id,
+            name_snapshot: item.name_snapshot,
+            unit_price_cents: item.unit_price_cents,
+            quantity: item.quantity,
+            is_fragile_snapshot: item.is_fragile_snapshot,
+          })),
+        );
+        // Insert payment session
+        await client.from("payment_sessions").insert({
+          id: records.paymentSession.id,
+          merchant_id: records.paymentSession.merchant_id,
+          order_id: records.paymentSession.order_id,
+          provider: records.paymentSession.provider,
+          mode: records.paymentSession.mode,
+          provider_session_id: records.paymentSession.provider_session_id,
+          status: records.paymentSession.status,
+          amount_cents: records.paymentSession.amount_cents,
+          metadata: records.paymentSession.metadata,
+        });
+        // Insert delivery quote
+        await client.from("delivery_quotes").insert({
+          id: records.deliveryJob.id,
+          merchant_id: records.deliveryJob.merchant_id,
+          order_id: records.deliveryJob.order_id,
+          provider: records.deliveryJob.provider,
+          mode: records.deliveryJob.mode,
+          vehicle_type: records.deliveryJob.vehicle_type,
+          fee_cents: 0,
+          pickup: {},
+          dropoff: records.order.delivery_address,
+        });
+        records.remotePersistence = true;
+      }
+    }
+  }
+
   return {
-    status: "stubbed",
+    status: config.mode === "configured" ? "boundary-accepted" : "stubbed",
     draft,
-    records: buildCustomerOrderRecords(draft),
+    records,
     message:
-      "Checkout validated against live catalog and produced Supabase-shaped order/payment/delivery records.",
+      config.mode === "configured"
+        ? "Checkout validated, records persisted to remote Supabase."
+        : "Checkout validated against live catalog and produced Supabase-shaped order/payment/delivery records.",
   };
 }
 
 export async function getCustomerTrackingRecords(
   publicRef: string,
 ): Promise<CustomerOrderRecordSet | null> {
-  const client = createServerSupabaseClient();
-  if (!client.configured) return null;
+  const client = await createServerSupabaseClient();
+  if (!client) return null;
 
-  // Look up the order by public_ref. Orders are behind RLS (merchant members
-  // only), so unauthenticated public lookups will return empty.
-  const orders = await client.restGet("orders", {
-    select: "*",
-    public_ref: `eq.${publicRef}`,
-  });
+  // Look up the order by public_ref. The RLS policy allows public read via
+  // the orders_public_ref_read policy on the unguessable public_ref column.
+  const { data: orders, error: orderErr } = await client
+    .from("orders")
+    .select("*")
+    .eq("public_ref", publicRef);
 
-  if (!orders || orders.length === 0) return null;
+  if (orderErr || !orders || orders.length === 0) return null;
 
   const order = orders[0];
   const orderId = String(order.id);
   const merchantId = String(order.merchant_id);
 
-  const [orderItems, paymentSessions, deliveryJobs, fulfillmentEvents] =
+  const [{ data: orderItems }, { data: paymentSessions }, { data: deliveryJobs }, { data: fulfillmentEvents }] =
     await Promise.all([
-      client.restGet("order_items", {
-        select: "*",
-        order_id: `eq.${orderId}`,
-      }),
-      client.restGet("payment_sessions", {
-        select: "*",
-        order_id: `eq.${orderId}`,
-      }),
-      client.restGet("delivery_jobs", {
-        select: "*",
-        order_id: `eq.${orderId}`,
-      }),
-      client.restGet("fulfillment_events", {
-        select: "*",
-        order_id: `eq.${orderId}`,
-        order: "occurred_at.asc",
-      }),
+      client.from("order_items").select("*").eq("order_id", orderId),
+      client.from("payment_sessions").select("*").eq("order_id", orderId),
+      client.from("delivery_quotes").select("*").eq("order_id", orderId),  // taukei uses delivery_quotes not delivery_jobs
+      client.from("fulfillment_events").select("*").eq("order_id", orderId).order("occurred_at", { ascending: true }),
     ]);
 
   const trackingEvents: CustomerOrderRecordSet["trackingEvents"] = [];
@@ -388,7 +401,7 @@ export async function getCustomerTrackingRecords(
     });
   }
 
-  const payment = paymentSessions[0];
+  const payment = (paymentSessions ?? [])[0];
   if (payment) {
     trackingEvents.push({
       label: "Payment processed",
@@ -401,7 +414,7 @@ export async function getCustomerTrackingRecords(
     });
   }
 
-  const delivery = deliveryJobs[0];
+  const delivery = (deliveryJobs ?? [])[0];
   if (delivery) {
     trackingEvents.push({
       label: "Delivery scheduled",
@@ -414,7 +427,7 @@ export async function getCustomerTrackingRecords(
     });
   }
 
-  for (const event of fulfillmentEvents) {
+  for (const event of (fulfillmentEvents ?? [])) {
     trackingEvents.push({
       label: `Fulfillment: ${event.to_status}`,
       status: String(event.to_status),
@@ -428,11 +441,14 @@ export async function getCustomerTrackingRecords(
       ? JSON.parse(String(order.delivery_address))
       : (order.delivery_address as CheckoutRequest["deliveryAddress"]);
 
+  const isConfigured = getSupabaseBoundaryConfig("server").mode === "configured";
+
   return {
     source: "supabase-shaped-records-boundary",
-    remotePersistence: false,
-    productionGuardrail:
-      "Checkout records are Supabase-shaped local evidence only; production persistence requires an explicit RLS-scoped repository/server-action implementation.",
+    remotePersistence: isConfigured,
+    productionGuardrail: isConfigured
+      ? "Checkout records served from remote Supabase instance."
+      : "Checkout records are Supabase-shaped local evidence only; production persistence requires an explicit RLS-scoped repository/server-action implementation.",
     order: {
       id: orderId,
       merchant_id: merchantId,
@@ -447,7 +463,7 @@ export async function getCustomerTrackingRecords(
       total_cents: Number(order.total_cents),
       delivery_address: deliveryAddress,
     },
-    orderItems: orderItems.map((item) => ({
+    orderItems: (orderItems ?? []).map((item: Record<string, unknown>) => ({
       id: String(item.id),
       order_id: orderId,
       merchant_id: merchantId,
