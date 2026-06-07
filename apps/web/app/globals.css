@@ -172,3 +172,10 @@ h1 {
   .store-hero, .checkout-layout, .menu-grid, .tracking-grid { grid-template-columns: 1fr; }
   .cart-card { position: static; }
 }
+
+.field-error {
+  margin-top: 4px;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.9rem;
+}

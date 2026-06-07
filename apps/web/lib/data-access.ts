@@ -7,6 +7,38 @@ import {
 } from "./supabase/session";
 
 // ---------------------------------------------------------------------------
+// Menu structure types (categories + modifiers for storefront grouping)
+
+export interface MenuCategory {
+  id: string;
+  name: string;
+  sortOrder: number;
+}
+
+export interface ModifierGroup {
+  id: string;
+  name: string;
+  description: string | null;
+  minSelections: number;
+  maxSelections: number;
+}
+
+export interface Modifier {
+  id: string;
+  modifierGroupId: string;
+  name: string;
+  priceDeltaCents: number;
+  isDefault: boolean;
+  isAvailable: boolean;
+}
+
+export interface ItemModifierLink {
+  menuItemId: string;
+  modifierGroupId: string;
+  isRequired: boolean;
+}
+
+// ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
@@ -16,7 +48,7 @@ export interface DataAccessEvidence {
   source: DataAccessSource;
   boundary: string;
   rlsScoped: boolean;
-  remotePersistence: false;
+  remotePersistence: boolean;
   productionGuardrail: string;
   tenantScope?: `merchant:${string}`;
   reason?: string;
@@ -93,16 +125,17 @@ function readEvidence(
   tenantScope?: `merchant:${string}`,
 ): DataAccessEvidence {
   const config = getSupabaseBoundaryConfig(runtime);
+  const isConfigured = config.mode === "configured";
   return {
-    source:
-      config.mode === "configured"
-        ? "rls-supabase-read-boundary"
-        : "supabase-unavailable",
+    source: isConfigured
+      ? "rls-supabase-read-boundary"
+      : "supabase-unavailable",
     boundary: `${runtime}-supabase-read`,
-    rlsScoped: config.mode === "configured",
-    remotePersistence: false,
-    productionGuardrail:
-      "Supabase RLS-scoped read boundary. Write persistence is tracked separately per operation.",
+    rlsScoped: isConfigured,
+    remotePersistence: isConfigured,
+    productionGuardrail: isConfigured
+      ? "Supabase RLS-scoped read boundary. Reads are served from the remote Supabase instance with RLS enforcement."
+      : "Supabase RLS-scoped read boundary. Write persistence is tracked separately per operation.",
     ...(tenantScope ? { tenantScope } : {}),
     ...(config.reason ? { reason: config.reason } : {}),
   };
@@ -134,12 +167,16 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<{
   evidence: DataAccessEvidence;
   merchant: StorefrontMerchant | null;
   catalog: MenuItemSnapshot[];
+  categories: MenuCategory[];
+  modifierGroups: ModifierGroup[];
+  modifiers: Modifier[];
+  itemModifierLinks: ItemModifierLink[];
 }> {
   const evidence = readEvidence("server");
   const client = await createServerSupabaseClient();
 
   if (!client) {
-    return { evidence, merchant: null, catalog: [] };
+    return { evidence, merchant: null, catalog: [], categories: [], modifierGroups: [], modifiers: [], itemModifierLinks: [] };
   }
 
   const { data: merchant, error: merchantErr } = await client
@@ -150,7 +187,7 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<{
     .single();
 
   if (merchantErr || !merchant) {
-    return { evidence, merchant: null, catalog: [] };
+    return { evidence, merchant: null, catalog: [], categories: [], modifierGroups: [], modifiers: [], itemModifierLinks: [] };
   }
 
   const { data: store } = await client
@@ -165,11 +202,37 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<{
   const { data: items } = await client
     .from("menu_items")
     .select(
-      "id, merchant_id, name, price_cents, currency, is_available, is_fragile, prep_buffer_minutes, sort_order",
+      "id, merchant_id, name, description, price_cents, currency, is_available, is_fragile, prep_buffer_minutes, sort_order, category_id, image_url",
     )
     .eq("merchant_id", merchant.id)
     .eq("is_available", true)
     .order("sort_order");
+
+  // Fetch categories for grouping
+  const { data: categories } = await client
+    .from("menu_categories")
+    .select("id, name, sort_order, is_active")
+    .eq("merchant_id", merchant.id)
+    .eq("is_active", true)
+    .order("sort_order");
+
+  // Fetch modifier groups for the storefront
+  const { data: modifierGroups } = await client
+    .from("modifier_groups")
+    .select("id, name, description, min_selections, max_selections, is_active")
+    .eq("merchant_id", merchant.id)
+    .eq("is_active", true);
+
+  const { data: modifiers } = await client
+    .from("modifiers")
+    .select("id, modifier_group_id, name, price_delta_cents, is_default, is_available")
+    .eq("merchant_id", merchant.id)
+    .eq("is_available", true);
+
+  const { data: menuItemModifierGroups } = await client
+    .from("menu_item_modifier_groups")
+    .select("menu_item_id, modifier_group_id, is_required")
+    .eq("merchant_id", merchant.id);
 
   const catalog: MenuItemSnapshot[] = (items ?? []).map((item) => ({
     id: item.id,
@@ -180,12 +243,52 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<{
     isAvailable: item.is_available,
     isFragile: item.is_fragile,
     prepBufferMinutes: item.prep_buffer_minutes ?? 0,
+    imageUrl: item.image_url ?? undefined,
+    categoryId: item.category_id ?? undefined,
+    description: item.description ?? undefined,
+  }));
+
+  // Map categories
+  const mappedCategories: MenuCategory[] = (categories ?? []).map((cat) => ({
+    id: cat.id,
+    name: cat.name,
+    sortOrder: cat.sort_order,
+  }));
+
+  // Map modifier groups
+  const mappedModifierGroups: ModifierGroup[] = (modifierGroups ?? []).map((mg) => ({
+    id: mg.id,
+    name: mg.name,
+    description: mg.description,
+    minSelections: mg.min_selections,
+    maxSelections: mg.max_selections,
+  }));
+
+  // Map modifiers
+  const mappedModifiers: Modifier[] = (modifiers ?? []).map((m) => ({
+    id: m.id,
+    modifierGroupId: m.modifier_group_id,
+    name: m.name,
+    priceDeltaCents: m.price_delta_cents,
+    isDefault: m.is_default,
+    isAvailable: m.is_available,
+  }));
+
+  // Map item-modifier links
+  const mappedLinks: ItemModifierLink[] = (menuItemModifierGroups ?? []).map((link) => ({
+    menuItemId: link.menu_item_id,
+    modifierGroupId: link.modifier_group_id,
+    isRequired: link.is_required,
   }));
 
   return {
     evidence,
     merchant: buildStorefrontMerchant(merchant, store),
     catalog,
+    categories: mappedCategories,
+    modifierGroups: mappedModifierGroups,
+    modifiers: mappedModifiers,
+    itemModifierLinks: mappedLinks,
   };
 }
 
