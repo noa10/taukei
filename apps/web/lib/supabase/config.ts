@@ -14,6 +14,8 @@ interface SupabaseRawEnv {
   NEXT_PUBLIC_SUPABASE_URL?: string;
   NEXT_PUBLIC_SUPABASE_ANON_KEY?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
+  NEXT_PUBLIC_SITE_URL?: string;
+  TAUKEI_SITE_URL?: string;
 }
 
 function readRawEnv(): SupabaseRawEnv {
@@ -53,4 +55,30 @@ export function assertSupabaseConfigured(config: SupabaseBoundaryConfig): void {
   if (config.mode === "stubbed") {
     throw new Error(config.reason ?? `Supabase ${config.runtime} boundary is not configured.`);
   }
+}
+
+/**
+ * Site URL used to build absolute redirect URLs (email verification, password
+ * recovery, OAuth callbacks). Taukei honors the public env var first, then
+ * the private fallback used by server-only code, and finally defaults to a
+ * localhost origin suitable for the bun dev server. The returned URL never
+ * ends with a trailing slash.
+ */
+export function getSiteUrl(raw: SupabaseRawEnv = readRawEnv()): string {
+  const candidate = raw.NEXT_PUBLIC_SITE_URL?.trim() || raw.TAUKEI_SITE_URL?.trim();
+  const fallback = "http://localhost:56778";
+  const url = (candidate && candidate.length > 0 ? candidate : fallback).replace(/\/+$/, "");
+  return url;
+}
+
+/**
+ * Joins the configured site URL with an internal path. The `next` argument
+ * MUST be an internal path (validated upstream by `nextPathSchema`); this
+ * helper does not escape external URLs and will refuse to construct them.
+ */
+export function buildSiteUrl(next?: string): string {
+  const base = getSiteUrl();
+  if (!next) return base;
+  if (!next.startsWith("/") || next.startsWith("//")) return base;
+  return `${base}${next}`;
 }

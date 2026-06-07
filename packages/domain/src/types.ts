@@ -12,6 +12,12 @@ export interface MenuItemSnapshot {
   isAvailable: boolean;
   isFragile: boolean;
   prepBufferMinutes: number;
+  /** Optional display image URL for the menu card. */
+  imageUrl?: string;
+  /** Optional category ID for grouping in the storefront. */
+  categoryId?: string;
+  /** Optional description. */
+  description?: string;
 }
 
 export interface CartLineInput {
