@@ -1,4 +1,4 @@
-import { Badge, SectionHeader, Card } from "../components/primitives";
+import { Badge, SectionHeader, Card, ButtonLink } from "../components/primitives";
 
 const features = [
   {
@@ -41,8 +41,8 @@ export default function Home() {
           Your customers order from you — not through a third-party app that takes a cut and owns your data.
         </p>
         <div className="actions" aria-label="Get started actions">
-          <a className="button primary" href="#signup">Get started</a>
-          <a className="button secondary" href="#how-it-works">See how it works</a>
+          <ButtonLink href="/signup" variant="primary">Get started</ButtonLink>
+          <ButtonLink href="/signup" variant="secondary">See how it works</ButtonLink>
         </div>
       </section>
 
@@ -86,7 +86,7 @@ export default function Home() {
           Join Malaysian food operators who are moving off marketplace apps and onto their own storefronts.
         </p>
         <div className="actions" style={{ justifyContent: "center", marginTop: 24 }}>
-          <a className="button primary" href="#signup">Sign up as a merchant</a>
+          <ButtonLink href="/signup" variant="primary">Sign up as a merchant</ButtonLink>
         </div>
       </section>
     </main>
