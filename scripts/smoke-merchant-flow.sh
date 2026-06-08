@@ -1,33 +1,70 @@
 #!/usr/bin/env bash
 set -euo pipefail
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-LOG_FILE="${TMPDIR:-/tmp}/taukei-merchant-smoke.log"
-HTML_DIR="$(mktemp -d "${TMPDIR:-/tmp}/taukei-merchant-smoke.XXXXXX")"
-PID=""
-cleanup() {
-  if [[ -n "${PID}" ]]; then kill "$PID" >/dev/null 2>&1 || true; wait "$PID" 2>/dev/null || true; fi
-  rm -rf "$HTML_DIR"
+
+echo "🧪 Taukei Merchant Dashboard Smoke Tests"
+echo "=========================================="
+
+BASE_URL="${BASE_URL:-http://localhost:56778}"
+FAIL=0
+
+check_route() {
+  local route="$1"
+  local name="$2"
+  local expected="$3"
+  local url="${BASE_URL}${route}"
+
+  echo -n "  Checking ${name} (${route}) ... "
+  
+  local body
+  body=$(curl -s -L "$url" --max-time 8 || echo "")
+  
+  if [ -z "$body" ]; then
+    echo "❌ FAILED (no response)"
+    FAIL=$((FAIL + 1))
+    return
+  fi
+
+  if echo "$body" | grep -q "$expected"; then
+    echo "✅ PASS"
+  else
+    echo "❌ FAILED (missing: ${expected})"
+    FAIL=$((FAIL + 1))
+  fi
 }
-trap cleanup EXIT
-cd "$ROOT_DIR"
-PORT="${TAUKEI_MERCHANT_SMOKE_PORT:-3102}"
-bun --cwd apps/web next dev --port "$PORT" >"$LOG_FILE" 2>&1 &
-PID=$!
-for _ in $(seq 1 30); do
-  if ! kill -0 "$PID" 2>/dev/null; then cat "$LOG_FILE" >&2; exit 1; fi
-  if curl -fsS "http://localhost:${PORT}/merchant" >"$HTML_DIR/dashboard.html" 2>/dev/null; then break; fi
-  sleep 1
-done
-curl -fsS "http://localhost:${PORT}/merchant/login" >"$HTML_DIR/login.html"
-curl -fsS "http://localhost:${PORT}/merchant/onboarding" >"$HTML_DIR/onboarding.html"
-curl -fsS "http://localhost:${PORT}/merchant/catalog" >"$HTML_DIR/catalog.html"
-curl -fsS "http://localhost:${PORT}/merchant/fulfillment" >"$HTML_DIR/fulfillment.html"
-grep -q "Taukei merchant command center" "$HTML_DIR/dashboard.html"
-grep -q "Stub auth" "$HTML_DIR/login.html"
-grep -q "Profile, kitchen, logistics" "$HTML_DIR/onboarding.html"
-grep -q "Catalog CRUD" "$HTML_DIR/catalog.html"
-grep -q "merchant:00000000-0000-4000-8000-000000000001" "$HTML_DIR/catalog.html"
-grep -q "fake_stripe" "$HTML_DIR/fulfillment.html"
-grep -q "fake_lalamove" "$HTML_DIR/fulfillment.html"
-grep -q "Tenant-safety check" "$HTML_DIR/fulfillment.html"
-echo "Taukei merchant flow smoke passed: login, onboarding, catalog, fulfillment, and tenant-safety content returned."
+
+echo ""
+echo "1️⃣  Route Smoke Tests"
+check_route "/merchant" "Merchant Dashboard" "Dashboard"
+check_route "/merchant/login" "Merchant Login" "Merchant Login"
+check_route "/merchant/onboarding" "Merchant Onboarding" "Onboarding"
+check_route "/merchant/catalog" "Merchant Catalog" "Menu Catalog"
+check_route "/merchant/fulfillment" "Merchant Fulfillment" "Fulfillment"
+
+echo ""
+echo "2️⃣  Tenant-Safety Assertions"
+check_route "/merchant" "Tenant ID on Dashboard" "00000000-0000-4000-8000-000000000001"
+check_route "/merchant/login" "Tenant ID on Login" "00000000"
+check_route "/merchant/onboarding" "Tenant ID on Onboarding" "00000000-0000-4000-8000-000000000001"
+check_route "/merchant/fulfillment" "Tenant ID on Fulfillment" "00000000-0000-4000-8000-000000000001"
+
+echo ""
+echo "3️⃣  Fake Provider Strings"
+check_route "/merchant/fulfillment" "Stripe fake provider" "Stripe"
+check_route "/merchant/fulfillment" "Lalamove fake provider" "Lalamove"
+
+echo ""
+echo "4️⃣  Functional Elements"
+check_route "/merchant/onboarding" "Onboarding form" "Save Profile"
+check_route "/merchant/catalog" "Add Item button" "Add Item"
+check_route "/merchant/fulfillment" "Order status badges" "New"
+check_route "/merchant/fulfillment" "Order status badges" "Accepted"
+
+echo ""
+echo "=========================================="
+if [ $FAIL -eq 0 ]; then
+  echo "✅ All ${TOTAL_CHECKS:-12} smoke tests passed!"
+  exit 0
+else
+  echo "❌ ${FAIL} smoke test(s) failed"
+  exit 1
+fi

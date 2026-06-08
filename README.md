@@ -77,7 +77,8 @@ Migration `002_auth_setup.sql` adds:
    - `http://localhost:56778` (local dev)
    - Your production URL (e.g. `https://taukei.my`)
 6. Under **Authorized redirect URIs**, add:
-   - `https://<project>.supabase.co/auth/v1/callback`
+   - `https://<project>.supabase.co/auth/v1/callback` (production Supabase project)
+   - `http://127.0.0.1:54321/auth/v1/callback` (local `supabase start` development)
 7. Copy the **Client ID** and **Client Secret**.
 8. In your Supabase dashboard, go to **Authentication → Providers → Google**:
    - Enable Google provider
