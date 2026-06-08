@@ -179,3 +179,588 @@ h1 {
   font-weight: 700;
   font-size: 0.9rem;
 }
+
+/* Navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--card);
+  border-bottom: 2px solid var(--outline);
+  box-shadow: 0 2px 0 rgba(20, 27, 43, 0.06);
+}
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(1040px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 12px 0;
+  gap: 16px;
+}
+.navbar-brand {
+  font-family: "Space Grotesk", Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+.navbar-brand:hover {
+  color: var(--primary);
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+.nav-link:hover {
+  background: var(--surface-container);
+}
+
+@media (max-width: 640px) {
+  .navbar-inner {
+    padding: 10px 0;
+  }
+  .nav-links {
+    gap: 8px;
+  }
+  .nav-link {
+    padding: 0 10px;
+    min-height: 36px;
+    font-size: 0.85rem;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   Merchant Dashboard Styles
+   ──────────────────────────────────────────────────────────────── */
+
+.merchant-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: var(--surface);
+}
+
+.merchant-sidebar {
+  background: var(--card);
+  border-right: 2px solid var(--outline);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.merchant-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--outline);
+  margin-bottom: 16px;
+}
+
+.merchant-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 2px solid var(--outline);
+}
+
+.merchant-brand-text {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--ink);
+}
+
+.merchant-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.merchant-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.15s ease;
+  border: 2px solid transparent;
+}
+
+.merchant-nav-link:hover {
+  background: var(--surface-container);
+  border-color: var(--outline);
+  transform: translateY(-1px);
+  box-shadow: 3px 3px 0 var(--outline);
+}
+
+.merchant-nav-link:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.merchant-nav-icon {
+  font-size: 1.2rem;
+  color: var(--primary);
+}
+
+.merchant-tenant-scope {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 2px solid var(--outline);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.75rem;
+}
+
+.tenant-label {
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tenant-id {
+  font-family: "Space Grotesk", monospace;
+  color: var(--primary);
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.merchant-main {
+  padding: 32px 40px;
+  overflow-y: auto;
+  max-width: 1200px;
+}
+
+.merchant-page-title {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.merchant-page-subtitle {
+  color: var(--muted);
+  font-size: 1rem;
+  margin-bottom: 32px;
+}
+
+/* ── Merchant Cards ─────────────────────────────────────────── */
+
+.merchant-card {
+  background: var(--card);
+  border: 2px solid var(--outline);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 4px 4px 0 var(--outline);
+  transition: all 0.15s ease;
+}
+
+.merchant-card:hover {
+  box-shadow: 6px 6px 0 var(--outline);
+  transform: translateY(-2px);
+}
+
+.merchant-card-title {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--ink);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.merchant-card-title .material-symbols-outlined {
+  color: var(--primary);
+}
+
+/* ── Merchant Forms ─────────────────────────────────────────── */
+
+.merchant-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 600px;
+}
+
+.merchant-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.merchant-form-label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.merchant-form-input,
+.merchant-form-select,
+.merchant-form-textarea {
+  padding: 12px 16px;
+  border: 2px solid var(--outline);
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--surface-container);
+  color: var(--ink);
+  transition: all 0.15s ease;
+}
+
+.merchant-form-input:focus,
+.merchant-form-select:focus,
+.merchant-form-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(181, 35, 48, 0.15);
+}
+
+.merchant-form-input::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.merchant-form-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.merchant-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: 2px solid var(--outline);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  font-family: inherit;
+}
+
+.merchant-btn-primary {
+  background: var(--primary);
+  color: white;
+  border-color: var(--outline);
+  box-shadow: 3px 3px 0 var(--outline);
+}
+
+.merchant-btn-primary:hover {
+  background: var(--primary-pop);
+  transform: translateY(-2px);
+  box-shadow: 5px 5px 0 var(--outline);
+}
+
+.merchant-btn-primary:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.merchant-btn-secondary {
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--outline);
+  box-shadow: 2px 2px 0 var(--outline);
+}
+
+.merchant-btn-secondary:hover {
+  background: var(--surface-container);
+  transform: translateY(-1px);
+  box-shadow: 3px 3px 0 var(--outline);
+}
+
+.merchant-btn-secondary:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.merchant-btn-danger {
+  background: var(--error);
+  color: white;
+  border-color: var(--outline);
+  box-shadow: 2px 2px 0 var(--outline);
+}
+
+.merchant-btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 3px 3px 0 var(--outline);
+}
+
+.merchant-btn-sm {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+}
+
+/* ── Merchant Tables / Lists ─────────────────────────────────── */
+
+.merchant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.merchant-list-item {
+  background: var(--card);
+  border: 2px solid var(--outline);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all 0.12s ease;
+  box-shadow: 2px 2px 0 var(--outline);
+}
+
+.merchant-list-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 3px 3px 0 var(--outline);
+}
+
+.merchant-list-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.merchant-list-item-title {
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.merchant-list-item-meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.merchant-list-item-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── Status Badges ──────────────────────────────────────────── */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 2px solid var(--outline);
+  white-space: nowrap;
+}
+
+.status-new { background: #e9edff; color: var(--ink); }
+.status-accepted { background: #fff8e1; color: #5a403f; }
+.status-preparing { background: #e8f5e9; color: #006d37; }
+.status-ready_for_pickup { background: var(--mint); color: var(--ink); }
+.status-out_for_delivery { background: #d3e5f1; color: #1e2e37; }
+.status-delivered { background: var(--secondary); color: white; }
+.status-cancelled { background: var(--error); color: white; }
+
+/* ── Stats Grid ─────────────────────────────────────────────── */
+
+.merchant-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.merchant-stat-card {
+  background: var(--card);
+  border: 2px solid var(--outline);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 3px 3px 0 var(--outline);
+  text-align: center;
+}
+
+.merchant-stat-value {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.merchant-stat-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ── Order Detail ───────────────────────────────────────────── */
+
+.order-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.order-detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order-detail-label {
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.order-detail-value {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.order-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--surface-container);
+  border-radius: 8px;
+  border: 1px solid var(--outline);
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .merchant-shell {
+    grid-template-columns: 1fr;
+  }
+  .merchant-sidebar {
+    display: none;
+  }
+  .merchant-main {
+    padding: 16px;
+  }
+  .order-detail-grid {
+    grid-template-columns: 1fr;
+  }
+  .merchant-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Login Page (standalone, no sidebar) ────────────────────── */
+
+.merchant-login-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 90, 95, 0.22), transparent 28rem),
+    linear-gradient(135deg, var(--surface), var(--surface-container));
+}
+
+.merchant-login-card {
+  background: var(--card);
+  border: 2px solid var(--outline);
+  border-radius: 24px;
+  padding: 40px 32px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.merchant-login-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  border: 2px solid var(--outline);
+  margin-bottom: 16px;
+  box-shadow: 3px 3px 0 var(--outline);
+}
+
+.merchant-login-title {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.merchant-login-subtitle {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-bottom: 32px;
+}
+
+.merchant-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.merchant-login-footer {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 2px solid var(--outline);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.merchant-login-link {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.merchant-login-link:hover {
+  text-decoration: underline;
+}
