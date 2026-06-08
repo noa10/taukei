@@ -672,8 +672,23 @@ h1 {
 
 /* ── Responsive ──────────────────────────────────────────────── */
 
+.merchant-shell-collapsed {
+  grid-template-columns: 72px 1fr;
+}
+
+.merchant-bottom-nav {
+  display: none;
+}
+
+.merchant-mobile-header {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .merchant-shell {
+    grid-template-columns: 1fr;
+  }
+  .merchant-shell-collapsed {
     grid-template-columns: 1fr;
   }
   .merchant-sidebar {
@@ -681,6 +696,13 @@ h1 {
   }
   .merchant-main {
     padding: 16px;
+    padding-bottom: calc(16px + 64px); /* space for bottom nav */
+  }
+  .merchant-bottom-nav {
+    display: flex;
+  }
+  .merchant-mobile-header {
+    display: flex;
   }
   .order-detail-grid {
     grid-template-columns: 1fr;
@@ -760,6 +782,252 @@ h1 {
 
 .merchant-login-link:hover {
   text-decoration: underline;
+}
+
+/* ── Merchant Sidebar ───────────────────────────────────────────── */
+
+.merchant-sidebar-collapsed {
+  width: 72px;
+  padding: 24px 8px;
+}
+
+.merchant-sidebar-collapsed .merchant-brand-text,
+.merchant-sidebar-collapsed .merchant-nav-link span,
+.merchant-sidebar-collapsed .tenant-label,
+.merchant-sidebar-collapsed .tenant-id,
+.merchant-sidebar-collapsed .merchant-sidebar-bottom span {
+  display: none;
+}
+
+.merchant-sidebar-collapsed .merchant-nav-link {
+  justify-content: center;
+  padding: 12px;
+}
+
+.merchant-sidebar-collapsed .merchant-brand {
+  justify-content: center;
+  padding-bottom: 16px;
+}
+
+.merchant-sidebar-collapsed .merchant-tenant-scope {
+  align-items: center;
+}
+
+/* ── Merchant Nav Link Active ─────────────────────────────────── */
+
+.merchant-nav-link-active {
+  background: var(--surface-container);
+  border-color: var(--primary);
+  box-shadow: 3px 3px 0 var(--outline);
+}
+
+.merchant-nav-link-active .merchant-nav-icon {
+  color: var(--primary-pop);
+}
+
+/* ── Sidebar Toggle ─────────────────────────────────────────── */
+
+.merchant-sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid var(--outline);
+  background: var(--surface-container);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  align-self: flex-end;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.merchant-sidebar-toggle:hover {
+  background: var(--mint);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 2px 2px 0 var(--outline);
+}
+
+.merchant-sidebar-toggle:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.merchant-sidebar-collapsed .merchant-sidebar-toggle {
+  align-self: center;
+}
+
+/* ── Sidebar Bottom (Back to Store) ─────────────────────────── */
+
+.merchant-sidebar-bottom {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 2px solid var(--outline);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.merchant-sidebar-collapsed .merchant-sidebar-bottom .merchant-nav-link {
+  justify-content: center;
+  padding: 12px;
+}
+
+/* ── Sidebar Mobile Overlay ─────────────────────────────────── */
+
+.merchant-sidebar-mobile-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(20, 27, 43, 0.4);
+}
+
+.merchant-sidebar-mobile-open {
+  display: flex !important;
+  position: fixed !important;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 45;
+  transform: translateX(0) !important;
+}
+
+/* ── Merchant Stat Card Icon ──────────────────────────────────── */
+
+.merchant-stat-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--surface-container);
+  border: 2px solid var(--outline);
+  color: var(--primary);
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+}
+
+/* ── Merchant Thumbnail ─────────────────────────────────────── */
+
+.merchant-thumbnail {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: 2px solid var(--outline);
+  object-fit: cover;
+  background: var(--surface-container);
+  flex-shrink: 0;
+}
+
+.merchant-thumbnail-placeholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: 2px solid var(--outline);
+  background: var(--surface-container);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* ── Merchant Bottom Nav (Mobile) ───────────────────────────── */
+
+.merchant-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: var(--card);
+  border-top: 2px solid var(--outline);
+  padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+  box-shadow: 0 -2px 0 rgba(20, 27, 43, 0.06);
+}
+
+.merchant-bottom-nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border: 2px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.merchant-bottom-nav-link:hover,
+.merchant-bottom-nav-link-active {
+  background: var(--surface-container);
+  border-color: var(--primary);
+}
+
+.merchant-bottom-nav-link .merchant-nav-icon {
+  font-size: 1.3rem;
+}
+
+/* ── Merchant Mobile Header ─────────────────────────────────── */
+
+.merchant-mobile-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--card);
+  border-bottom: 2px solid var(--outline);
+  box-shadow: 0 2px 0 rgba(20, 27, 43, 0.06);
+}
+
+.merchant-mobile-header-title {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--ink);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.merchant-mobile-header-hamburger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 2px solid var(--outline);
+  background: var(--surface-container);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.merchant-mobile-header-hamburger:hover {
+  background: var(--mint);
+  border-color: var(--primary);
+}
+
+.merchant-mobile-header-hamburger:active {
+  transform: translateY(1px);
 }
 
 /* Avatar menu */

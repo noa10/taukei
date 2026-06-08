@@ -1,25 +1,78 @@
-import type { ReactNode } from "react";
-import Link from "next/link";
-import { createServerSupabaseClient } from "../../lib/supabase/server";
-import { getServerSupabaseUser } from "../../lib/supabase/server";
+"use client";
 
-const NAV_ITEMS = [
+import { useState, useEffect, type ReactNode } from "react";
+import Image from "next/image";
+import { Menu } from "lucide-react";
+import { MerchantSidebar, type NavItem } from "../../components/merchant-sidebar";
+import { MerchantBottomNav } from "../../components/merchant-bottom-nav";
+import { createBrowserSupabaseClient } from "../../lib/supabase/client";
+
+const NAV_ITEMS: NavItem[] = [
   { href: "/merchant", label: "Dashboard", icon: "dashboard" },
-  { href: "/merchant/onboarding", label: "Onboarding", icon: "settings" },
-  { href: "/merchant/catalog", label: "Menu", icon: "restaurant_menu" },
-  { href: "/merchant/fulfillment", label: "Orders", icon: "local_shipping" },
+  { href: "/merchant/onboarding", label: "Onboarding", icon: "onboarding" },
+  { href: "/merchant/catalog", label: "Menu", icon: "menu" },
+  { href: "/merchant/fulfillment", label: "Orders", icon: "orders" },
 ];
 
-export default async function MerchantLayout({ children }: { children: ReactNode }) {
-  const { user } = await getServerSupabaseUser();
+interface MerchantData {
+  displayName: string;
+  merchantId: string;
+  tenantScope: string;
+  loading: boolean;
+}
 
-  let merchantDisplayName = "Merchant";
-  let merchantId = "";
-  let tenantScope = "";
+export default function MerchantLayout({ children }: { children: ReactNode }) {
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [merchantData, setMerchantData] = useState<MerchantData>({
+    displayName: "Merchant",
+    merchantId: "",
+    tenantScope: "",
+    loading: true,
+  });
 
-  if (user) {
-    const client = await createServerSupabaseClient();
-    if (client) {
+  // Read sidebar collapsed state from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("sidebar:merchant");
+      if (saved !== null) {
+        setCollapsed(saved === "true");
+      }
+    } catch {
+      // ignore localStorage errors
+    }
+  }, []);
+
+  // Write sidebar collapsed state to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem("sidebar:merchant", String(collapsed));
+    } catch {
+      // ignore localStorage errors
+    }
+  }, [collapsed]);
+
+  // Fetch merchant data client-side
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadMerchantData() {
+      const client = createBrowserSupabaseClient();
+      if (!client) {
+        if (!cancelled) {
+          setMerchantData((prev) => ({ ...prev, loading: false }));
+        }
+        return;
+      }
+
+      const { data: { user } } = await client.auth.getUser();
+      if (!user || cancelled) {
+        if (!cancelled) {
+          setMerchantData((prev) => ({ ...prev, loading: false }));
+        }
+        return;
+      }
+
       const { data: membership } = await client
         .from("merchant_memberships")
         .select("merchant_id, merchants(display_name)")
@@ -28,43 +81,65 @@ export default async function MerchantLayout({ children }: { children: ReactNode
         .limit(1)
         .maybeSingle();
 
+      if (cancelled) return;
+
       if (membership) {
-        merchantId = membership.merchant_id as string;
-        tenantScope = `merchant:${merchantId}`;
+        const merchantId = membership.merchant_id as string;
         const merchant = membership.merchants as unknown as { display_name: string } | null;
-        merchantDisplayName = merchant?.display_name ?? "Merchant";
+        setMerchantData({
+          displayName: merchant?.display_name ?? "Merchant",
+          merchantId,
+          tenantScope: `merchant:${merchantId}`,
+          loading: false,
+        });
+      } else {
+        setMerchantData((prev) => ({ ...prev, loading: false }));
       }
     }
-  }
+
+    loadMerchantData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleToggleCollapsed = () => setCollapsed((prev) => !prev);
+  const handleToggleMobile = () => setMobileOpen((prev) => !prev);
 
   return (
-    <div className="merchant-shell">
-      <aside className="merchant-sidebar">
-        <div className="merchant-brand">
-          <img src="/logo.png" alt="Taukei" className="merchant-logo" />
-          <span className="merchant-brand-text">{merchantDisplayName}</span>
-        </div>
+    <div className={`merchant-shell ${collapsed ? "merchant-shell-collapsed" : ""}`}>
+      {/* Mobile header */}
+      <header className="merchant-mobile-header">
+        <button
+          type="button"
+          className="merchant-mobile-header-hamburger"
+          onClick={handleToggleMobile}
+          aria-label="Toggle navigation"
+        >
+          <Menu size={20} />
+        </button>
+        <span className="merchant-mobile-header-title">
+          {merchantData.loading ? "…" : merchantData.displayName}
+        </span>
+        <Image src="/logo.png" alt="Taukei" width={32} height={32} style={{ borderRadius: 8 }} />
+      </header>
 
-        <nav className="merchant-nav">
-          {NAV_ITEMS.map((item) => (
-            <Link key={item.href} href={item.href} className="merchant-nav-link">
-              <span className="material-symbols-outlined merchant-nav-icon">{item.icon}</span>
-              <span className="merchant-nav-label">{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-
-        <div className="merchant-tenant-scope">
-          <span className="tenant-label">Tenant</span>
-          <span className="tenant-id" title={tenantScope}>
-            {merchantId ? `${merchantId.slice(0, 8)}…` : "—"}
-          </span>
-        </div>
-      </aside>
+      <MerchantSidebar
+        navItems={NAV_ITEMS}
+        brandName={merchantData.displayName}
+        merchantId={merchantData.merchantId}
+        collapsed={collapsed}
+        onToggleCollapsed={handleToggleCollapsed}
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
+      />
 
       <main className="merchant-main">
         {children}
       </main>
+
+      <MerchantBottomNav />
     </div>
   );
 }
