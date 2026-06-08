@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { signInWithPassword } from "../../../lib/supabase/auth";
 import type { VoidActionResult } from "../../../lib/supabase/auth";
 
-export default function MerchantLoginPage() {
+function LoginForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/merchant";
 
@@ -119,5 +119,25 @@ export default function MerchantLoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function LoadingLogin() {
+  return (
+    <div className="merchant-login-shell">
+      <div className="merchant-login-card" style={{ textAlign: "center" }}>
+        <img src="/logo.png" alt="Taukei" className="merchant-login-logo" />
+        <h1 className="merchant-login-title">Merchant Login</h1>
+        <p style={{ color: "var(--muted)" }}>Loading...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function MerchantLoginPage() {
+  return (
+    <Suspense fallback={<LoadingLogin />}>
+      <LoginForm />
+    </Suspense>
   );
 }
