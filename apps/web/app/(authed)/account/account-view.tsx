@@ -25,6 +25,38 @@ export function AccountView({ profile: initial }: { profile: ProfileSnapshot }) 
       <p><strong>Full name:</strong> {profile.fullName ?? "—"}</p>
       <p><strong>Email verified:</strong> {profile.emailConfirmed ? "Yes" : "No"}</p>
 
+      {/* Merchant dashboard link */}
+      {profile.defaultMerchantId && (
+        <div style={{
+          marginTop: 16,
+          padding: 16,
+          borderRadius: 12,
+          background: "var(--surface-container, #e9edff)",
+          border: "2px solid var(--outline)",
+        }}>
+          <p style={{ fontWeight: 700, margin: "0 0 8px" }}>🏪 Merchant Dashboard</p>
+          <p style={{ margin: 0, fontSize: "0.94rem", color: "var(--muted)" }}>
+            You have a merchant store. Manage your menu, orders, and settings.
+          </p>
+          <a
+            href="/merchant"
+            style={{
+              display: "inline-block",
+              marginTop: 12,
+              padding: "10px 20px",
+              borderRadius: 999,
+              background: "var(--primary)",
+              color: "#fff",
+              fontWeight: 700,
+              textDecoration: "none",
+              fontSize: "0.94rem",
+            }}
+          >
+            Go to merchant dashboard →
+          </a>
+        </div>
+      )}
+
       <hr style={{ margin: "20px 0", border: "none", borderTop: "2px solid var(--outline)" }} />
 
       {result && result.status !== "ok" && result.status !== "redirect" && (
