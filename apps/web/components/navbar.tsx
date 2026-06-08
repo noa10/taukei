@@ -1,17 +1,33 @@
+import Image from "next/image";
 import Link from "next/link";
-import { ButtonLink } from "./primitives";
+import { getServerSupabaseUser } from "../lib/supabase/server";
+import { AvatarMenu } from "./avatar-menu";
 
-export function Navbar() {
+export async function Navbar() {
+  const { user } = await getServerSupabaseUser();
+
   return (
     <header className="navbar">
       <div className="navbar-inner">
-        <Link href="/" className="navbar-brand">
-          Taukei
+        <Link href="/" className="navbar-brand" aria-label="Taukei home">
+          <Image
+            src="/logo.png"
+            alt="Taukei"
+            width={36}
+            height={36}
+            priority
+            style={{ display: "block", borderRadius: 8 }}
+          />
         </Link>
         <nav className="nav-links" aria-label="Main navigation">
-          <Link href="/login" className="nav-link">Sign in</Link>
-          <ButtonLink href="/signup" variant="primary">Sign up</ButtonLink>
-          <Link href="/account" className="nav-link">Account</Link>
+          {user ? (
+            <AvatarMenu email={user.email} displayName={null} />
+          ) : (
+            <>
+              <Link href="/login" className="nav-link">Sign in</Link>
+              <Link href="/signup" className="button primary">Sign up</Link>
+            </>
+          )}
         </nav>
       </div>
     </header>
