@@ -1,28 +1,4 @@
-// Minimal Supabase client interface — satisfies @supabase/supabase-js when wired in.
-// Defined inline to avoid adding @supabase/supabase-js as a dependency prematurely.
-interface SupabaseAuthClient {
-  getUser(): Promise<{
-    data: { user: { id: string; email?: string } | null };
-    error: Error | null;
-  }>;
-}
-
-interface SupabaseQueryBuilder {
-  select(columns: string): SupabaseFilterBuilder;
-}
-
-interface SupabaseFilterBuilder {
-  eq(field: string, value: string): SupabaseFilterBuilder;
-  single(): Promise<{
-    data: Record<string, unknown> | null;
-    error: Error | null;
-  }>;
-}
-
-export interface SupabaseClient {
-  auth: SupabaseAuthClient;
-  from(table: string): SupabaseQueryBuilder;
-}
+import type { SupabaseClient as RealSupabaseClient } from "@supabase/supabase-js";
 
 export type MerchantRole = "owner" | "admin" | "staff";
 export type MerchantAuthMode = "supabase-rls";
@@ -42,8 +18,13 @@ export interface TenantGuardResult {
   reason?: string;
 }
 
+/**
+ * Resolve the merchant session for the currently authenticated user.
+ * Uses the real SupabaseClient from @supabase/ssr (returned by createServerSupabaseClient).
+ * Returns null if the user is not authenticated or has no active merchant membership.
+ */
 export async function getMerchantSession(
-  supabase: SupabaseClient,
+  supabase: RealSupabaseClient,
 ): Promise<MerchantSession | null> {
   const {
     data: { user },
@@ -59,7 +40,8 @@ export async function getMerchantSession(
     .select("merchant_id, role")
     .eq("user_id", user.id)
     .eq("status", "active")
-    .single();
+    .limit(1)
+    .maybeSingle();
 
   if (membershipError || !membership) {
     return null;

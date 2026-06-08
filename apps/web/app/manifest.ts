@@ -11,7 +11,7 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#b52330",
     icons: [
       {
-        src: "/taukelogo.png",
+        src: "/logo.png",
         sizes: "1024x1024",
         type: "image/png"
       }

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { Navbar } from "../components/navbar";
 
 export const metadata: Metadata = {
   applicationName: "Taukei",
@@ -12,6 +13,10 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "Taukei"
+  },
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png"
   }
 };
 
@@ -24,7 +29,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en-MY">
-      <body>{children}</body>
+      <body>
+        <Navbar />
+        {children}
+      </body>
     </html>
   );
 }

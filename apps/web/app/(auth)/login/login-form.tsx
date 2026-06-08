@@ -7,14 +7,25 @@ import { useSearchParams } from "next/navigation";
 
 export function LoginForm() {
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/account";
+  const next = searchParams.get("next") ?? undefined;
 
   const [result, submitAction, isPending] = useActionState(
     async (_prev: VoidActionResult | null, formData: FormData) => {
       const res = await signInWithPassword(Object.fromEntries(formData));
       if (res.status === "ok") {
-        // Redirect to the next page after successful sign-in
-        window.location.href = next.startsWith("/") && !next.startsWith("//") ? next : "/account";
+        // If an explicit next path was provided, use it.
+        // Otherwise the server action will have set a smart redirect.
+        // For now, redirect to the next param or let the auth callback
+        // handle smart routing via /account.
+        const nextParam = next;
+        if (nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")) {
+          window.location.href = nextParam;
+        } else {
+          // Default: go to account page; account page will show merchant link
+          // if user has a membership, and the auth callback handles smart
+          // redirect for email/OAuth flows.
+          window.location.href = "/account";
+        }
       }
       return res;
     },
@@ -22,7 +33,7 @@ export function LoginForm() {
   );
 
   async function handleGoogle() {
-    const nextParam = next.startsWith("/") && !next.startsWith("//") ? next : undefined;
+    const nextParam = next && next.startsWith("/") && !next.startsWith("//") ? next : undefined;
     const res: VoidActionResult = await signInWithGoogle({ next: nextParam });
     if (res.redirectTo) window.location.href = res.redirectTo;
   }
@@ -62,6 +73,9 @@ export function LoginForm() {
       </p>
       <p className="small">
         <a href="/forgot-password">Forgot your password?</a>
+      </p>
+      <p className="small" style={{ marginTop: 8 }}>
+        <a href="/merchant/login">Merchant login →</a>
       </p>
     </div>
   );

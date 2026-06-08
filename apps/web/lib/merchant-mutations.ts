@@ -4,68 +4,25 @@ import {
   assertMerchantTenantScope,
   type MerchantSession,
 } from "./supabase/session";
+import {
+  type MerchantMutationStatus,
+  
+  type MerchantMutationResult,
+  type MerchantProfileDefaultsInput,
+  type CatalogItemMutationInput,
+  type FulfillmentTransitionInput,
+} from "./merchant-types";
 
-export type MerchantMutationStatus =
-  | "boundary-accepted"
-  | "stubbed"
-  | "rejected";
-export type FulfillmentStatus =
-  | "new"
-  | "accepted"
-  | "preparing"
-  | "ready_for_pickup"
-  | "out_for_delivery"
-  | "delivered"
-  | "cancelled";
-
-export interface MerchantMutationResult<TPayload = unknown> {
-  status: MerchantMutationStatus;
-  merchantId: string;
-  tenantScope: `merchant:${string}`;
-  table: string;
-  operation: "upsert" | "insert" | "update";
-  payload?: TPayload;
-  message: string;
-  remotePersistence: boolean;
-  productionGuardrail: string;
-}
-
-export interface MerchantProfileDefaultsInput {
-  merchantId: string;
-  storeName: string;
-  city: string;
-  kitchenPrepBufferMinutes: number;
-  defaultVehicleType: "MOTORCYCLE" | "CAR";
-  publicOrderingEnabled: boolean;
-}
-
-export interface CatalogItemMutationInput {
-  merchantId: string;
-  itemId: string;
-  name?: string;
-  priceCents?: number;
-  isAvailable?: boolean;
-  categoryName?: string;
-}
-
-export interface FulfillmentTransitionInput {
-  merchantId: string;
-  publicRef: string;
-  nextStatus: FulfillmentStatus;
-}
-
-const legalFulfillmentTransitions: Record<
+export type {
+  MerchantMutationStatus,
   FulfillmentStatus,
-  FulfillmentStatus[]
-> = {
-  new: ["accepted", "cancelled"],
-  accepted: ["preparing", "cancelled"],
-  preparing: ["ready_for_pickup", "cancelled"],
-  ready_for_pickup: ["out_for_delivery"],
-  out_for_delivery: ["delivered", "cancelled"],
-  delivered: [],
-  cancelled: [],
-};
+  MerchantMutationResult,
+  MerchantProfileDefaultsInput,
+  CatalogItemMutationInput,
+  FulfillmentTransitionInput,
+} from "./merchant-types";
+
+export { legalFulfillmentNextStatuses } from "./merchant-types";
 
 function reject<TPayload>(
   session: MerchantSession,
@@ -140,7 +97,6 @@ export async function upsertMerchantProfileDefaults(
 
   const remotePersistence = getSupabaseBoundaryConfig("server").mode === "configured";
 
-  // Persist to remote Supabase when configured
   if (remotePersistence) {
     const client = await createServerSupabaseClient();
     if (client) {
@@ -207,7 +163,6 @@ export async function upsertCatalogItem(
 
   const remotePersistence = getSupabaseBoundaryConfig("server").mode === "configured";
 
-  // Persist to remote Supabase when configured
   if (remotePersistence) {
     const client = await createServerSupabaseClient();
     if (client) {
@@ -264,11 +219,9 @@ export async function transitionFulfillmentStatus(
 
   const remotePersistence = getSupabaseBoundaryConfig("server").mode === "configured";
 
-  // Persist fulfillment transition
   if (remotePersistence) {
     const client = await createServerSupabaseClient();
     if (client) {
-      // Update order fulfillment_status
       await client
         .from("orders")
         .update({ fulfillment_status: input.nextStatus })
@@ -289,10 +242,4 @@ export async function transitionFulfillmentStatus(
     remotePersistence,
     productionGuardrail: mutationGuardrail(),
   };
-}
-
-export function legalFulfillmentNextStatuses(
-  status: FulfillmentStatus,
-): FulfillmentStatus[] {
-  return [...(legalFulfillmentTransitions[status] ?? [])];
 }

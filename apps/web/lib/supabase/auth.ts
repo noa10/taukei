@@ -52,6 +52,7 @@ export interface ProfileSnapshot {
   displayName: string | null;
   avatarUrl: string | null;
   emailConfirmed: boolean;
+  defaultMerchantId: string | null;
 }
 
 export interface ProfileActionResult extends AuthActionBase {
@@ -98,7 +99,8 @@ function userToProfile(user: User): ProfileSnapshot {
     fullName: typeof meta.full_name === "string" ? (meta.full_name as string) : null,
     displayName: typeof meta.display_name === "string" ? (meta.display_name as string) : null,
     avatarUrl: typeof meta.avatar_url === "string" ? (meta.avatar_url as string) : null,
-    emailConfirmed: Boolean(user.email_confirmed_at)
+    emailConfirmed: Boolean(user.email_confirmed_at),
+    defaultMerchantId: null
   };
 }
 
@@ -113,7 +115,8 @@ function profileToSnapshot(
     fullName: (row.full_name as string | null) ?? null,
     displayName: (row.display_name as string | null) ?? null,
     avatarUrl: (row.avatar_url as string | null) ?? null,
-    emailConfirmed: Boolean(user.email_confirmed_at)
+    defaultMerchantId: (row.default_merchant_id as string | null) ?? null,
+    emailConfirmed: Boolean(user.email_confirmed_at),
   };
 }
 
@@ -335,7 +338,7 @@ export async function getCurrentProfile(): Promise<ProfileActionResult> {
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("id, email, username, full_name, display_name, avatar_url")
+    .select("id, email, username, full_name, display_name, avatar_url, default_merchant_id")
     .eq("id", userData.user.id)
     .maybeSingle();
 
@@ -386,7 +389,7 @@ export async function updateOwnProfile(raw: unknown): Promise<ProfileActionResul
     .from("profiles")
     .update(updates)
     .eq("id", userData.user.id)
-    .select("id, email, username, full_name, display_name, avatar_url")
+    .select("id, email, username, full_name, display_name, avatar_url, default_merchant_id")
     .single();
 
   if (updateError) return mapAuthError(updateError.message);
@@ -397,4 +400,57 @@ export async function updateOwnProfile(raw: unknown): Promise<ProfileActionResul
     message: "Profile updated.",
     profile: profileToSnapshot(updated as Record<string, unknown>, userData.user)
   };
+}
+
+// ---------------------------------------------------------------------------
+// Merchant session resolution for post-auth redirect
+//
+// After login/signup, we need to know whether the user has a merchant
+// membership so we can redirect to /merchant instead of /account.
+// ---------------------------------------------------------------------------
+
+import type { MerchantSession } from "./session";
+
+export interface MerchantSessionResult {
+  session: MerchantSession | null;
+  hasMembership: boolean;
+}
+
+export async function getCurrentMerchantSession(): Promise<MerchantSessionResult> {
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return { session: null, hasMembership: false };
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user?.email) return { session: null, hasMembership: false };
+
+  const { data: membership } = await supabase
+    .from("merchant_memberships")
+    .select("merchant_id, role")
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .limit(1)
+    .maybeSingle();
+
+  if (!membership) return { session: null, hasMembership: false };
+
+  const session: MerchantSession = {
+    userId: user.id,
+    merchantId: membership.merchant_id as string,
+    role: membership.role as MerchantSession["role"],
+    email: user.email,
+    tenantScope: `merchant:${membership.merchant_id}`,
+    authMode: "supabase-rls",
+  };
+
+  return { session, hasMembership: true };
+}
+
+/**
+ * Determine the post-auth redirect path for the current user.
+ * Returns /merchant if the user has an active merchant membership,
+ * otherwise /account.
+ */
+export async function getPostAuthRedirectPath(): Promise<string> {
+  const { hasMembership } = await getCurrentMerchantSession();
+  return hasMembership ? "/merchant" : "/account";
 }

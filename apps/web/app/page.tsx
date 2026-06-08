@@ -1,3 +1,4 @@
+import { getServerSupabaseUser } from "../lib/supabase/server";
 import { Badge, SectionHeader, Card } from "../components/primitives";
 
 const features = [
@@ -29,7 +30,11 @@ const howItWorks = [
   { step: "3", title: "Go live", body: "Share your storefront link. Orders come straight to you." }
 ];
 
-export default function Home() {
+export default async function Home() {
+  const { user } = await getServerSupabaseUser();
+  const isLoggedIn = !!user;
+  const ctaHref = isLoggedIn ? "/merchant" : "/signup";
+
   return (
     <main className="shell">
       {/* Hero */}
@@ -41,8 +46,12 @@ export default function Home() {
           Your customers order from you — not through a third-party app that takes a cut and owns your data.
         </p>
         <div className="actions" aria-label="Get started actions">
-          <a className="button primary" href="#signup">Get started</a>
-          <a className="button secondary" href="#how-it-works">See how it works</a>
+          <a className="button primary" href={ctaHref}>
+            {isLoggedIn ? "Get started" : "Get started"}
+          </a>
+          <a className="button secondary" href="#how-it-works">
+            See how it works
+          </a>
         </div>
       </section>
 
@@ -86,7 +95,9 @@ export default function Home() {
           Join Malaysian food operators who are moving off marketplace apps and onto their own storefronts.
         </p>
         <div className="actions" style={{ justifyContent: "center", marginTop: 24 }}>
-          <a className="button primary" href="#signup">Sign up as a merchant</a>
+          <a className="button primary" href={ctaHref}>
+            {isLoggedIn ? "Go to dashboard" : "Sign up as a merchant"}
+          </a>
         </div>
       </section>
     </main>
