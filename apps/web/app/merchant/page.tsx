@@ -169,25 +169,61 @@ export default async function MerchantDashboardPage() {
           </div>
         </div>
 
-        <div className="merchant-card">
-          <div className="merchant-card-title">
-            <span className="material-symbols-outlined">bolt</span>
-            Quick Actions
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div className="merchant-card">
+            <div className="merchant-card-title">
+              <span className="material-symbols-outlined">bolt</span>
+              Quick Actions
+            </div>
+            <div className="merchant-list">
+              {quickActions.map((action) => (
+                <Link
+                  key={action.href}
+                  href={action.href}
+                  className="merchant-list-item"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <div className="merchant-list-item-info">
+                    <div className="merchant-list-item-title">{action.label}</div>
+                  </div>
+                  <ArrowRight size={18} style={{ color: "var(--primary)", flexShrink: 0 }} />
+                </Link>
+              ))}
+            </div>
           </div>
-          <div className="merchant-list">
-            {quickActions.map((action) => (
-              <Link
-                key={action.href}
-                href={action.href}
-                className="merchant-list-item"
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <div className="merchant-list-item-info">
-                  <div className="merchant-list-item-title">{action.label}</div>
-                </div>
-                <ArrowRight size={18} style={{ color: "var(--primary)", flexShrink: 0 }} />
-              </Link>
-            ))}
+
+          <div className="merchant-card">
+            <div className="merchant-card-title">
+              <span className="material-symbols-outlined">restaurant_menu</span>
+              Menu Quick View
+            </div>
+            <div className="merchant-list">
+              {catalog.length === 0 ? (
+                <p style={{ color: "var(--muted)", padding: 16, textAlign: "center" }}>
+                  No menu items. Add items in the Menu section.
+                </p>
+              ) : (
+                catalog.slice(0, 5).map((item) => (
+                  <div key={item.id} className="merchant-list-item">
+                    <div className="merchant-list-item-info">
+                      <div className="merchant-list-item-title">{item.name}</div>
+                      <div className="merchant-list-item-meta">
+                        {item.displayPrice} • {item.isAvailable ? "Available" : "Unavailable"}
+                      </div>
+                    </div>
+                    <span
+                      className="status-badge"
+                      style={{
+                        background: item.isAvailable ? "var(--mint)" : "var(--error-container)",
+                        color: item.isAvailable ? "var(--ink)" : "var(--error)",
+                      }}
+                    >
+                      {item.isAvailable ? "On" : "Off"}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       </div>

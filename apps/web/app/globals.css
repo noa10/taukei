@@ -691,6 +691,7 @@ h1 {
   .merchant-shell-collapsed {
     grid-template-columns: 1fr;
   }
+
   .merchant-sidebar {
     display: none;
   }
@@ -1029,6 +1030,7 @@ h1 {
 .merchant-mobile-header-hamburger:active {
   transform: translateY(1px);
 }
+
 
 /* Avatar menu */
 .avatar-menu {

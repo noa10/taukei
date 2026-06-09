@@ -36,6 +36,7 @@ export default function CatalogEditor({ initialItems, initialCategories }: Catal
   const [form, setForm] = useState(emptyForm);
 
   const refresh = () => {
+    // Full page refresh to get fresh data from Supabase
     window.location.reload();
   };
 
@@ -145,6 +146,7 @@ export default function CatalogEditor({ initialItems, initialCategories }: Catal
       if (!result.ok) {
         alert(result.message);
       } else {
+        // Optimistic update
         setItems((prev) =>
           prev.map((item) =>
             item.id === id ? { ...item, isAvailable: !current } : item
@@ -167,6 +169,7 @@ export default function CatalogEditor({ initialItems, initialCategories }: Catal
     items: items.filter((item) => item.categoryName === cat),
   }));
 
+  // Also show uncategorized items
   const uncategorized = items.filter((item) => !item.categoryName || item.categoryName === "Uncategorized");
   if (uncategorized.length > 0 && !categories.includes("Uncategorized")) {
     itemsByCategory.push({ category: "Uncategorized", items: uncategorized });
