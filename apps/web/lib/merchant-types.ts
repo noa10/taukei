@@ -42,6 +42,8 @@ export interface CatalogItemMutationInput {
   priceCents?: number;
   isAvailable?: boolean;
   categoryName?: string;
+  description?: string;
+  imageUrl?: string;
 }
 
 export interface FulfillmentTransitionInput {

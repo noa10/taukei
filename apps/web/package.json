@@ -18,7 +18,8 @@
     "@taukei/env": "workspace:*",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "lucide-react": "latest"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

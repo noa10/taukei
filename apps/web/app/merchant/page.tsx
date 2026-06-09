@@ -2,6 +2,14 @@ import { createServerSupabaseClient } from "../../lib/supabase/server";
 import { getServerSupabaseUser } from "../../lib/supabase/server";
 import { getMerchantOperationsContext } from "../../lib/data-access";
 import { getMerchantSession } from "../../lib/supabase/session";
+import {
+  ClipboardList,
+  UtensilsCrossed,
+  CheckCircle,
+  DollarSign,
+  ArrowRight,
+} from "lucide-react";
+import Link from "next/link";
 
 function money(cents: number): string {
   return new Intl.NumberFormat("en-MY", {
@@ -66,10 +74,44 @@ export default async function MerchantDashboardPage() {
     }, 0);
 
   const stats = [
-    { label: "Active Orders", value: activeOrders.length },
-    { label: "Menu Items", value: catalog.length },
-    { label: "Delivered", value: fulfillment.filter((o) => o.status === "delivered").length },
-    { label: "Revenue", value: money(totalRevenue) },
+    {
+      label: "Active Orders",
+      value: activeOrders.length,
+      icon: <ClipboardList size={20} />,
+      color: "#f59e0b",
+      bg: "#fff7ed",
+      border: "#fbbf24",
+    },
+    {
+      label: "Menu Items",
+      value: catalog.length,
+      icon: <UtensilsCrossed size={20} />,
+      color: "#10b981",
+      bg: "#ecfdf5",
+      border: "#6bfe9c",
+    },
+    {
+      label: "Delivered",
+      value: fulfillment.filter((o) => o.status === "delivered").length,
+      icon: <CheckCircle size={20} />,
+      color: "#006d37",
+      bg: "#d1fae5",
+      border: "#006d37",
+    },
+    {
+      label: "Revenue",
+      value: money(totalRevenue),
+      icon: <DollarSign size={20} />,
+      color: "#b52330",
+      bg: "#fef2f2",
+      border: "#b52330",
+    },
+  ];
+
+  const quickActions = [
+    { href: "/merchant/catalog", label: "Manage Menu" },
+    { href: "/merchant/fulfillment", label: "View Orders" },
+    { href: "/merchant/onboarding", label: "Settings" },
   ];
 
   return (
@@ -82,6 +124,16 @@ export default async function MerchantDashboardPage() {
       <div className="merchant-stats">
         {stats.map((stat) => (
           <div key={stat.label} className="merchant-stat-card">
+            <div
+              className="merchant-stat-card-icon"
+              style={{
+                background: stat.bg,
+                borderColor: stat.border,
+                color: stat.color,
+              }}
+            >
+              {stat.icon}
+            </div>
             <div className="merchant-stat-value">{stat.value}</div>
             <div className="merchant-stat-label">{stat.label}</div>
           </div>
@@ -117,37 +169,61 @@ export default async function MerchantDashboardPage() {
           </div>
         </div>
 
-        <div className="merchant-card">
-          <div className="merchant-card-title">
-            <span className="material-symbols-outlined">restaurant_menu</span>
-            Menu Quick View
-          </div>
-          <div className="merchant-list">
-            {catalog.length === 0 ? (
-              <p style={{ color: "var(--muted)", padding: 16, textAlign: "center" }}>
-                No menu items. Add items in the Menu section.
-              </p>
-            ) : (
-              catalog.slice(0, 5).map((item) => (
-                <div key={item.id} className="merchant-list-item">
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div className="merchant-card">
+            <div className="merchant-card-title">
+              <span className="material-symbols-outlined">bolt</span>
+              Quick Actions
+            </div>
+            <div className="merchant-list">
+              {quickActions.map((action) => (
+                <Link
+                  key={action.href}
+                  href={action.href}
+                  className="merchant-list-item"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
                   <div className="merchant-list-item-info">
-                    <div className="merchant-list-item-title">{item.name}</div>
-                    <div className="merchant-list-item-meta">
-                      {item.displayPrice} • {item.isAvailable ? "Available" : "Unavailable"}
-                    </div>
+                    <div className="merchant-list-item-title">{action.label}</div>
                   </div>
-                  <span
-                    className="status-badge"
-                    style={{
-                      background: item.isAvailable ? "var(--mint)" : "var(--error-container)",
-                      color: item.isAvailable ? "var(--ink)" : "var(--error)",
-                    }}
-                  >
-                    {item.isAvailable ? "On" : "Off"}
-                  </span>
-                </div>
-              ))
-            )}
+                  <ArrowRight size={18} style={{ color: "var(--primary)", flexShrink: 0 }} />
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="merchant-card">
+            <div className="merchant-card-title">
+              <span className="material-symbols-outlined">restaurant_menu</span>
+              Menu Quick View
+            </div>
+            <div className="merchant-list">
+              {catalog.length === 0 ? (
+                <p style={{ color: "var(--muted)", padding: 16, textAlign: "center" }}>
+                  No menu items. Add items in the Menu section.
+                </p>
+              ) : (
+                catalog.slice(0, 5).map((item) => (
+                  <div key={item.id} className="merchant-list-item">
+                    <div className="merchant-list-item-info">
+                      <div className="merchant-list-item-title">{item.name}</div>
+                      <div className="merchant-list-item-meta">
+                        {item.displayPrice} • {item.isAvailable ? "Available" : "Unavailable"}
+                      </div>
+                    </div>
+                    <span
+                      className="status-badge"
+                      style={{
+                        background: item.isAvailable ? "var(--mint)" : "var(--error-container)",
+                        color: item.isAvailable ? "var(--ink)" : "var(--error)",
+                      }}
+                    >
+                      {item.isAvailable ? "On" : "Off"}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       </div>
