@@ -17,6 +17,11 @@ export function getBrowserSupabaseBoundary(): BrowserSupabaseBoundary {
   };
 }
 
+// Module-level singleton: the browser client is stateless regarding
+// server-side rendering (it uses document.cookie) and re-creating it
+// on every call is wasteful.
+let _browserClient: SupabaseClient | null | undefined;
+
 /**
  * Returns a configured Supabase browser client when the boundary is
  * configured (NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY are
@@ -29,9 +34,17 @@ export function getBrowserSupabaseBoundary(): BrowserSupabaseBoundary {
  * navigation.
  */
 export function createBrowserSupabaseClient(): SupabaseClient | null {
+  if (_browserClient !== undefined) return _browserClient;
   const config = getSupabaseBoundaryConfig("browser");
-  if (config.mode !== "configured" || !config.url) return null;
+  if (config.mode !== "configured" || !config.url) {
+    _browserClient = null;
+    return _browserClient;
+  }
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
-  if (!anonKey) return null;
-  return createSsrBrowserClient(config.url, anonKey);
+  if (!anonKey) {
+    _browserClient = null;
+    return _browserClient;
+  }
+  _browserClient = createSsrBrowserClient(config.url, anonKey);
+  return _browserClient;
 }

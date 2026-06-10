@@ -6,9 +6,9 @@ export type MembershipStatus = "invited" | "active" | "disabled";
 export type StoreStatus = "draft" | "open" | "paused" | "closed";
 export type OrderStatus = "draft" | "pending_payment" | "confirmed" | "cancelled" | "completed";
 export type FulfillmentStatus = "new" | "accepted" | "preparing" | "ready_for_pickup" | "out_for_delivery" | "delivered" | "cancelled";
-export type PaymentStatus = "requires_payment" | "stubbed" | "paid" | "failed" | "refunded";
+export type PaymentStatus = "requires_payment" | "paid" | "failed" | "refunded";
 export type DeliveryStatus = "quoted" | "scheduled" | "assigning_driver" | "driver_assigned" | "picked_up" | "delivered" | "cancelled" | "failed";
-export type IntegrationMode = "fake" | "sandbox" | "live";
+export type IntegrationMode = "sandbox" | "live";
 export type VehicleType = "MOTORCYCLE" | "CAR";
 
 export interface Database {
@@ -194,6 +194,8 @@ export interface Database {
           currency: string;
           delivery_address: Json;
           customer_notes: string | null;
+          stripe_session_id: string | null;
+          stripe_payment_intent_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -211,6 +213,8 @@ export interface Database {
           currency?: string;
           delivery_address: Json;
           customer_notes?: string | null;
+          stripe_session_id?: string | null;
+          stripe_payment_intent_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -227,13 +231,64 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["payment_sessions"]["Insert"]>;
       };
       delivery_quotes: {
-        Row: { id: string; merchant_id: string; order_id: string | null; provider: string; mode: IntegrationMode; quote_ref: string | null; vehicle_type: VehicleType; fee_cents: number; currency: string; pickup: Json; dropoff: Json; expires_at: string | null; metadata: Json; created_at: string };
-        Insert: { id?: string; merchant_id: string; order_id?: string | null; provider?: string; mode?: IntegrationMode; quote_ref?: string | null; vehicle_type: VehicleType; fee_cents: number; currency?: string; pickup: Json; dropoff: Json; expires_at?: string | null; metadata?: Json; created_at?: string };
+        Row: {
+          id: string;
+          merchant_id: string;
+          order_id: string | null;
+          provider: string;
+          mode: IntegrationMode;
+          quote_ref: string | null;
+          vehicle_type: VehicleType;
+          fee_cents: number;
+          currency: string;
+          pickup: Json;
+          dropoff: Json;
+          expires_at: string | null;
+          quotation_id: string | null;
+          stop_ids: Json | null;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string; merchant_id: string; order_id?: string | null; provider?: string; mode?: IntegrationMode;
+          quote_ref?: string | null; vehicle_type: VehicleType; fee_cents: number; currency?: string;
+          pickup: Json; dropoff: Json; expires_at?: string | null; quotation_id?: string | null;
+          stop_ids?: Json | null; metadata?: Json; created_at?: string;
+        };
         Update: Partial<Database["public"]["Tables"]["delivery_quotes"]["Insert"]>;
       };
       delivery_jobs: {
-        Row: { id: string; merchant_id: string; order_id: string; delivery_quote_id: string | null; provider: string; mode: IntegrationMode; provider_job_id: string | null; status: DeliveryStatus; vehicle_type: VehicleType; scheduled_dispatch_at: string | null; metadata: Json; created_at: string; updated_at: string };
-        Insert: { id?: string; merchant_id: string; order_id: string; delivery_quote_id?: string | null; provider?: string; mode?: IntegrationMode; provider_job_id?: string | null; status?: DeliveryStatus; vehicle_type: VehicleType; scheduled_dispatch_at?: string | null; metadata?: Json; created_at?: string; updated_at?: string };
+        Row: {
+          id: string;
+          merchant_id: string;
+          order_id: string;
+          delivery_quote_id: string | null;
+          provider: string;
+          mode: IntegrationMode;
+          provider_job_id: string | null;
+          status: DeliveryStatus;
+          vehicle_type: VehicleType;
+          scheduled_dispatch_at: string | null;
+          driver_name: string | null;
+          driver_phone: string | null;
+          driver_plate: string | null;
+          driver_photo_url: string | null;
+          driver_latitude: number | null;
+          driver_longitude: number | null;
+          driver_location_updated_at: string | null;
+          metadata: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string; merchant_id: string; order_id: string; delivery_quote_id?: string | null;
+          provider?: string; mode?: IntegrationMode; provider_job_id?: string | null; status?: DeliveryStatus;
+          vehicle_type: VehicleType; scheduled_dispatch_at?: string | null;
+          driver_name?: string | null; driver_phone?: string | null; driver_plate?: string | null;
+          driver_photo_url?: string | null; driver_latitude?: number | null; driver_longitude?: number | null;
+          driver_location_updated_at?: string | null;
+          metadata?: Json; created_at?: string; updated_at?: string;
+        };
         Update: Partial<Database["public"]["Tables"]["delivery_jobs"]["Insert"]>;
       };
       delivery_events: {
@@ -281,108 +336,20 @@ export interface Database {
         Insert: { id?: string; merchant_id: string; order_id: string; from_status?: FulfillmentStatus | null; to_status: FulfillmentStatus; note?: string | null; actor_user_id?: string | null; occurred_at?: string };
         Update: Partial<Database["public"]["Tables"]["fulfillment_events"]["Insert"]>;
       };
-
       modifier_groups: {
-        Row: {
-          id: string;
-          merchant_id: string;
-          name: string;
-          description: string | null;
-          min_selections: number;
-          max_selections: number;
-          sort_order: number;
-          is_active: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          merchant_id: string;
-          name: string;
-          description?: string | null;
-          min_selections?: number;
-          max_selections?: number;
-          sort_order?: number;
-          is_active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          merchant_id?: string;
-          name?: string;
-          description?: string | null;
-          min_selections?: number;
-          max_selections?: number;
-          sort_order?: number;
-          is_active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
+        Row: { id: string; merchant_id: string; name: string; description: string | null; min_selections: number; max_selections: number; sort_order: number; is_active: boolean; created_at: string; updated_at: string };
+        Insert: { id?: string; merchant_id: string; name: string; description?: string | null; min_selections?: number; max_selections?: number; sort_order?: number; is_active?: boolean; created_at?: string; updated_at?: string };
+        Update: Partial<Database["public"]["Tables"]["modifier_groups"]["Insert"]>;
       };
       modifiers: {
-        Row: {
-          id: string;
-          merchant_id: string;
-          modifier_group_id: string;
-          name: string;
-          price_delta_cents: number;
-          is_default: boolean;
-          is_available: boolean;
-          sort_order: number;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          merchant_id: string;
-          modifier_group_id: string;
-          name: string;
-          price_delta_cents?: number;
-          is_default?: boolean;
-          is_available?: boolean;
-          sort_order?: number;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          merchant_id?: string;
-          modifier_group_id?: string;
-          name?: string;
-          price_delta_cents?: number;
-          is_default?: boolean;
-          is_available?: boolean;
-          sort_order?: number;
-          created_at?: string;
-          updated_at?: string;
-        };
+        Row: { id: string; merchant_id: string; modifier_group_id: string; name: string; price_delta_cents: number; is_default: boolean; is_available: boolean; sort_order: number; created_at: string; updated_at: string };
+        Insert: { id?: string; merchant_id: string; modifier_group_id: string; name: string; price_delta_cents?: number; is_default?: boolean; is_available?: boolean; sort_order?: number; created_at?: string; updated_at?: string };
+        Update: Partial<Database["public"]["Tables"]["modifiers"]["Insert"]>;
       };
       menu_item_modifier_groups: {
-        Row: {
-          id: string;
-          merchant_id: string;
-          menu_item_id: string;
-          modifier_group_id: string;
-          is_required: boolean;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          merchant_id: string;
-          menu_item_id: string;
-          modifier_group_id: string;
-          is_required?: boolean;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          merchant_id?: string;
-          menu_item_id?: string;
-          modifier_group_id?: string;
-          is_required?: boolean;
-          created_at?: string;
-        };
+        Row: { id: string; merchant_id: string; menu_item_id: string; modifier_group_id: string; is_required: boolean; created_at: string };
+        Insert: { id?: string; merchant_id: string; menu_item_id: string; modifier_group_id: string; is_required?: boolean; created_at?: string };
+        Update: Partial<Database["public"]["Tables"]["menu_item_modifier_groups"]["Insert"]>;
       };
     };
     Enums: {

@@ -16,6 +16,8 @@
     "zod": "^3.23.8",
     "@taukei/domain": "workspace:*",
     "@taukei/env": "workspace:*",
+    "@taukei/stripe": "workspace:*",
+    "@taukei/lalamove": "workspace:*",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
@@ -30,7 +32,6 @@
     "eslint": "latest",
     "eslint-config-next": "latest",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.60.1",
-    "vitest": "latest"
+    "typescript-eslint": "^8.60.1"
   }
 }

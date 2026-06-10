@@ -1,122 +1,143 @@
-import { afterEach, describe, expect, it } from "bun:test";
+import { expect, test, describe } from "bun:test";
 import {
+  processStripeWebhook,
+  verifyStripeSignature,
   createStripeTestSignature,
-  processDeterministicStripeWebhook,
-  resetStripeWebhookIdempotencyForTests,
+  parseStripeEvent,
 } from "./stripe";
 
-const event = {
-  id: "evt_test_checkout_completed",
-  type: "checkout.session.completed",
-  livemode: false,
-  data: {
-    object: {
-      id: "cs_fake_taukei_tk_test_001",
-      payment_intent: "pi_test_1001",
-      payment_status: "paid",
-      amount_total: 3300,
-      currency: "myr",
-      metadata: { orderRef: "TK-TEST-001" },
-    },
-  },
-} as const;
-
-const payload = JSON.stringify(event);
-
-afterEach(() => {
-  resetStripeWebhookIdempotencyForTests();
-});
-
-describe("deterministic Stripe webhook processing", () => {
-  it("verifies configured signatures and reconciles the test payment session without live side effects", async () => {
-    const signature = createStripeTestSignature(payload, "whsec_test_taukei");
-    const result = await processDeterministicStripeWebhook(payload, signature, {
+describe("Stripe webhook processing", () => {
+  test("rejects without webhook secret configured", async () => {
+    const result = await processStripeWebhook("{}", null, {
       TAUKEI_STRIPE_MODE: "sandbox",
-      STRIPE_WEBHOOK_SECRET: "whsec_test_taukei",
+      STRIPE_SECRET_KEY: "sk_test_x",
+    });
+    expect(result.accepted).toBe(false);
+    expect(result.reason).toContain("STRIPE_WEBHOOK_SECRET");
+  });
+
+  test("rejects without stripe-signature header", async () => {
+    const result = await processStripeWebhook("{}", null, {
+      TAUKEI_STRIPE_MODE: "sandbox",
+      STRIPE_SECRET_KEY: "sk_test_x",
+      STRIPE_WEBHOOK_SECRET: "whsec_test",
+    });
+    expect(result.accepted).toBe(false);
+    expect(result.reason).toContain("signature");
+  });
+
+  test("verifies and parses a valid Stripe event", async () => {
+    const secret = "whsec_test_secret";
+    const eventPayload = JSON.stringify({
+      id: "evt_test_123",
+      type: "checkout.session.completed",
+      data: {
+        object: {
+          id: "cs_test_123",
+          payment_status: "paid",
+          metadata: {
+            orderRef: "TK-TEST-1",
+            merchantId: "merchant-1",
+          },
+        },
+      },
+    });
+
+    const signature = createStripeTestSignature(eventPayload, secret);
+
+    const result = await processStripeWebhook(eventPayload, signature, {
+      TAUKEI_STRIPE_MODE: "sandbox",
+      STRIPE_SECRET_KEY: "sk_test_x",
+      STRIPE_WEBHOOK_SECRET: secret,
     });
 
     expect(result.accepted).toBe(true);
     expect(result.status).toBe("processed");
-    expect(result.mode).toBe("sandbox");
-    expect(result.webhookEvent).toEqual(
-      expect.objectContaining({
-        event_id: event.id,
-        duplicate: false,
-        no_live_side_effect: true,
-      }),
-    );
-    expect(result.reconciliation).toEqual(
-      expect.objectContaining({
-        order_ref: "TK-TEST-001",
-        provider_session_id: "cs_fake_taukei_tk_test_001",
-        provider_payment_intent_id: "pi_test_1001",
-        previous_status: "stubbed",
-        next_status: "paid",
-        amount_cents: 3300,
-        currency: "MYR",
-        no_live_payment: true,
-      }),
-    );
-    expect(result.noLiveSideEffect).toBe(true);
-    expect(result.productionGuardrail).toEqual(
-      expect.objectContaining({
-        idempotencyScope: "process-local-foundation-only",
-        remotePersistence: false,
-        productionReady: false,
-        requiresAtomicWebhookEvents: true,
-      }),
-    );
+    expect(result.orderId).toBe("TK-TEST-1");
+    expect(result.merchantId).toBe("merchant-1");
+    expect(result.orderStatus).toBe("confirmed");
+    expect(result.fulfillmentStatus).toBe("preparing");
   });
 
-  it("rejects bad configured signatures before event processing", async () => {
-    const result = await processDeterministicStripeWebhook(
-      payload,
-      "t=1780000000,v1=bad",
-      {
-        TAUKEI_STRIPE_MODE: "sandbox",
-        STRIPE_WEBHOOK_SECRET: "whsec_test_taukei",
-      },
-    );
-
-    expect(result.accepted).toBe(false);
-    expect(result.status).toBe("rejected");
-    expect(result.reason).toContain("signature");
-  });
-
-  it("handles duplicate Stripe events idempotently", async () => {
-    const first = await processDeterministicStripeWebhook(
-      payload,
-      "deterministic-test-signature",
-      { TAUKEI_STRIPE_MODE: "fake" },
-    );
-    const duplicate = await processDeterministicStripeWebhook(
-      payload,
-      "deterministic-test-signature",
-      { TAUKEI_STRIPE_MODE: "fake" },
-    );
-
-    expect(first.status).toBe("processed");
-    expect(duplicate.status).toBe("duplicate");
-    expect(duplicate.idempotencyKey).toBe(first.idempotencyKey);
-    expect(duplicate.webhookEvent?.duplicate).toBe(true);
-    expect(duplicate.reconciliation).toEqual(first.reconciliation);
-  });
-
-  it("fails closed for live Stripe event payloads", async () => {
-    const livePayload = JSON.stringify({
-      ...event,
-      id: "evt_live_rejected",
-      livemode: true,
+  test("rejects invalid signature", async () => {
+    const eventPayload = JSON.stringify({
+      id: "evt_test_bad",
+      type: "checkout.session.completed",
+      data: { object: { id: "cs_bad" } },
     });
-    const result = await processDeterministicStripeWebhook(
-      livePayload,
-      "deterministic-test-signature",
-      { TAUKEI_STRIPE_MODE: "fake" },
-    );
+
+    const result = await processStripeWebhook(eventPayload, "t=0,v1=bad", {
+      TAUKEI_STRIPE_MODE: "sandbox",
+      STRIPE_SECRET_KEY: "sk_test_x",
+      STRIPE_WEBHOOK_SECRET: "whsec_test",
+    });
 
     expect(result.accepted).toBe(false);
     expect(result.status).toBe("rejected");
-    expect(result.noLiveSideEffect).toBe(true);
-    expect(result.reason).toContain("Live Stripe event payload rejected");
+  });
+
+  test("handles async payment failure", async () => {
+    const secret = "whsec_test_fail";
+    const eventPayload = JSON.stringify({
+      id: "evt_fail_1",
+      type: "checkout.session.async_payment_failed",
+      data: {
+        object: {
+          id: "cs_fail_1",
+          metadata: { orderRef: "TK-FAIL-1", merchantId: "merchant-1" },
+        },
+      },
+    });
+
+    const signature = createStripeTestSignature(eventPayload, secret);
+    const result = await processStripeWebhook(eventPayload, signature, {
+      TAUKEI_STRIPE_MODE: "sandbox",
+      STRIPE_SECRET_KEY: "sk_test_x",
+      STRIPE_WEBHOOK_SECRET: secret,
+    });
+
+    expect(result.accepted).toBe(true);
+    expect(result.orderStatus).toBe("cancelled");
+  });
+});
+
+describe("verifyStripeSignature", () => {
+  test("validates correctly signed payloads", () => {
+    const secret = "whsec_test";
+    const payload = '{"test":true}';
+    const signature = createStripeTestSignature(payload, secret);
+    expect(verifyStripeSignature(payload, signature, secret)).toBe(true);
+  });
+
+  test("rejects tampered payloads", () => {
+    const secret = "whsec_test";
+    const payload = '{"test":true}';
+    const signature = createStripeTestSignature(payload, secret);
+    expect(verifyStripeSignature('{"test":false}', signature, secret)).toBe(false);
+  });
+});
+
+describe("parseStripeEvent", () => {
+  test("parses valid checkout.session.completed", () => {
+    const event = parseStripeEvent(
+      JSON.stringify({
+        id: "evt_1",
+        type: "checkout.session.completed",
+        data: { object: { id: "cs_1", payment_status: "paid" } },
+      }),
+    );
+    expect(event?.id).toBe("evt_1");
+    expect(event?.type).toBe("checkout.session.completed");
+  });
+
+  test("returns null for unsupported event types", () => {
+    const event = parseStripeEvent(
+      JSON.stringify({
+        id: "evt_2",
+        type: "invoice.paid",
+        data: { object: { id: "in_1" } },
+      }),
+    );
+    expect(event).toBeNull();
   });
 });

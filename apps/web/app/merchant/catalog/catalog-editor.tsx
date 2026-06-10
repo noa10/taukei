@@ -289,12 +289,14 @@ export default function CatalogEditor({ initialItems, initialCategories }: Catal
                 {items.length} item{items.length !== 1 ? "s" : ""}
               </span>
             </div>
-            {items.map((item) => (
+            {items.map((item) => {
+              const resolvedImageUrl = item.imageUrl ? getMenuItemImageUrl(item.imageUrl) : "";
+              return (
               <div key={item.id} className="merchant-list-item">
                 <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-                  {item.imageUrl ? (
+                  {resolvedImageUrl ? (
                     <img
-                      src={getMenuItemImageUrl(item.imageUrl)}
+                      src={resolvedImageUrl}
                       alt={item.name}
                       width={48}
                       height={48}
@@ -345,7 +347,7 @@ export default function CatalogEditor({ initialItems, initialCategories }: Catal
                   </button>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         ))}
       </div>
