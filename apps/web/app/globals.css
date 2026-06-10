@@ -254,6 +254,9 @@ h1 {
 }
 
 .merchant-sidebar {
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
   background: var(--card);
   border-right: 2px solid var(--outline);
   display: flex;
@@ -353,6 +356,7 @@ h1 {
   padding: 32px 40px;
   overflow-y: auto;
   max-width: 1200px;
+  min-width: 0;
 }
 
 .merchant-page-title {
@@ -695,6 +699,9 @@ h1 {
   .merchant-sidebar {
     display: none;
   }
+  .merchant-sidebar-toggle {
+    display: none;
+  }
   .merchant-main {
     padding: 16px;
     padding-bottom: calc(16px + 64px); /* space for bottom nav */
@@ -789,6 +796,7 @@ h1 {
 
 .merchant-sidebar-collapsed {
   width: 72px;
+  box-sizing: border-box;
   padding: 24px 8px;
 }
 
@@ -857,6 +865,10 @@ h1 {
   box-shadow: none;
 }
 
+.merchant-sidebar-mobile-open .merchant-sidebar-toggle {
+  display: none;
+}
+
 .merchant-sidebar-collapsed .merchant-sidebar-toggle {
   align-self: center;
 }
@@ -892,6 +904,7 @@ h1 {
   left: 0;
   top: 0;
   bottom: 0;
+  width: 280px !important;
   z-index: 45;
   transform: translateX(0) !important;
 }
