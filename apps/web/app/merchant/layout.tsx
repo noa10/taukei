@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, type ReactNode } from "react";
-import Image from "next/image";
-import { Menu } from "lucide-react";
 import { MerchantSidebar, type NavItem } from "../../components/merchant-sidebar";
 import { MerchantBottomNav } from "../../components/merchant-bottom-nav";
 import { createBrowserSupabaseClient } from "../../lib/supabase/client";
@@ -109,22 +107,6 @@ export default function MerchantLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className={`merchant-shell ${collapsed ? "merchant-shell-collapsed" : ""}`}>
-      {/* Mobile header */}
-      <header className="merchant-mobile-header">
-        <button
-          type="button"
-          className="merchant-mobile-header-hamburger"
-          onClick={handleToggleMobile}
-          aria-label="Toggle navigation"
-        >
-          <Menu size={20} />
-        </button>
-        <span className="merchant-mobile-header-title">
-          {merchantData.loading ? "…" : merchantData.displayName}
-        </span>
-        <Image src="/logo.png" alt="Taukei" width={32} height={32} style={{ borderRadius: 8 }} />
-      </header>
-
       <MerchantSidebar
         navItems={NAV_ITEMS}
         brandName={merchantData.displayName}

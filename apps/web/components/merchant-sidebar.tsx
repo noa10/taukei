@@ -7,8 +7,6 @@ import {
   Store,
   UtensilsCrossed,
   Truck,
-  PanelLeftClose,
-  PanelLeftOpen,
 } from "lucide-react";
 
 export type NavIconKey = "dashboard" | "onboarding" | "menu" | "orders";
@@ -67,17 +65,6 @@ export function MerchantSidebar({
         }`}
         aria-label="Merchant navigation"
       >
-        {/* Collapse toggle */}
-        <button
-          type="button"
-          onClick={onToggleCollapsed}
-          className="merchant-sidebar-toggle"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          title={collapsed ? "Expand" : "Collapse"}
-        >
-          {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
-        </button>
-
         {/* Brand */}
         <div className="merchant-brand">
           <img src="/logo.png" alt="Taukei" className="merchant-logo" />

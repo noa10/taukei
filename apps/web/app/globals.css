@@ -702,9 +702,6 @@ h1 {
     transform: translateX(-100%);
     transition: transform 0.25s ease;
   }
-  .merchant-sidebar-toggle {
-    display: none;
-  }
   .merchant-sidebar-mobile-open {
     display: flex !important;
     transform: translateX(0);
@@ -841,39 +838,6 @@ h1 {
 
 /* ── Sidebar Toggle ─────────────────────────────────────────── */
 
-.merchant-sidebar-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: 2px solid var(--outline);
-  background: var(--surface-container);
-  color: var(--ink);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  align-self: flex-end;
-  margin-bottom: 12px;
-  flex-shrink: 0;
-}
-
-.merchant-sidebar-toggle:hover {
-  background: var(--mint);
-  border-color: var(--primary);
-  transform: translateY(-1px);
-  box-shadow: 2px 2px 0 var(--outline);
-}
-
-.merchant-sidebar-toggle:active {
-  transform: translateY(1px);
-  box-shadow: none;
-}
-
-.merchant-sidebar-collapsed .merchant-sidebar-toggle {
-  align-self: center;
-}
-
 /* ── Sidebar Bottom (Back to Store) ─────────────────────────── */
 
 .merchant-sidebar-bottom {
@@ -1006,41 +970,6 @@ h1 {
   background: var(--card);
   border-bottom: 2px solid var(--outline);
   box-shadow: 0 2px 0 rgba(20, 27, 43, 0.06);
-}
-
-.merchant-mobile-header-title {
-  font-family: "Space Grotesk", sans-serif;
-  font-weight: 700;
-  font-size: 1.15rem;
-  color: var(--ink);
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.merchant-mobile-header-hamburger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  border: 2px solid var(--outline);
-  background: var(--surface-container);
-  color: var(--ink);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.merchant-mobile-header-hamburger:hover {
-  background: var(--mint);
-  border-color: var(--primary);
-}
-
-.merchant-mobile-header-hamburger:active {
-  transform: translateY(1px);
 }
 
 
