@@ -43,10 +43,6 @@ export function isValidDeliveryStatusTransition(
     return false;
   }
 
-  if (from === "failed" && to === "assigning_driver") {
-    return true;
-  }
-
   if (["failed", "cancelled"].includes(to)) {
     return true;
   }

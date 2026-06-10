@@ -43,10 +43,8 @@ export class StripeClient {
       metadata = {},
     } = params;
 
-    const sessionParams: Parameters<
-      typeof this.stripe.checkout.sessions.create
-    >[0] = {
-      payment_method_types: ["fpx", "grabpay", "card"],
+    const sessionParams = {
+      payment_method_types: ["fpx", "grabpay", "card"] as string[],
       line_items: [
         {
           price_data: {
@@ -59,17 +57,14 @@ export class StripeClient {
           quantity: 1,
         },
       ],
-      mode: "payment",
+      mode: "payment" as const,
       success_url: successUrl,
       cancel_url: cancelUrl,
       metadata,
+      ...(customerEmail ? { customer_email: customerEmail } : {}),
     };
 
-    if (customerEmail) {
-      sessionParams.customer_email = customerEmail;
-    }
-
-    return this.stripe.checkout.sessions.create(sessionParams);
+    return this.stripe.checkout.sessions.create(sessionParams as Stripe.Checkout.SessionCreateParams);
   }
 
   verifyWebhookSignature(

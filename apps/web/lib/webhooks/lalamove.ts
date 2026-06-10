@@ -142,8 +142,9 @@ export async function processLalamoveWebhook(
     };
   }
 
-  const lalamoveOrderId =
-    event.data.order?.orderId ?? event.data.orderId ?? "";
+  const lalamoveOrderId = String(
+    event.data.order?.orderId ?? event.data.orderId ?? "",
+  );
   const eventId =
     event.eventId ?? `lm-${lalamoveOrderId}-${Date.now()}`;
   const idempotencyKey = buildWebhookIdempotencyKey("lalamove", eventId);
