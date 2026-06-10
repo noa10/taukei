@@ -12,18 +12,14 @@ export interface MenuItemSnapshot {
   isAvailable: boolean;
   isFragile: boolean;
   prepBufferMinutes: number;
-  /** Optional display image URL for the menu card. */
   imageUrl?: string;
-  /** Optional category ID for grouping in the storefront. */
   categoryId?: string;
-  /** Optional description. */
   description?: string;
 }
 
 export interface CartLineInput {
   menuItemId: string;
   quantity: number;
-  /** Ignored by pricing services; present only to prove client totals are not trusted. */
   clientUnitPriceCents?: number;
 }
 
@@ -51,6 +47,11 @@ export interface DeliveryAddress {
   postcode?: string;
   latitude?: number;
   longitude?: number;
+  storeName?: string;
+  storePhone?: string;
+  recipientName?: string;
+  recipientPhone?: string;
+  recipientNotes?: string;
 }
 
 export interface CheckoutCustomerInput {
@@ -89,11 +90,21 @@ export interface DeliveryQuote {
   metadata: Record<string, string | number | boolean>;
 }
 
+export type DeliveryStatus =
+  | "quoted"
+  | "scheduled"
+  | "assigning_driver"
+  | "driver_assigned"
+  | "picked_up"
+  | "delivered"
+  | "cancelled"
+  | "failed";
+
 export interface DeliveryJob {
   id: string;
   provider: string;
   mode: IntegrationMode;
-  status: "scheduled" | "assigning_driver" | "cancelled";
+  status: DeliveryStatus;
   vehicleType: VehicleType;
   scheduledDispatchAt: string;
   noLiveBooking: boolean;
@@ -108,13 +119,17 @@ export interface PaymentSessionRequest {
   platformFeeCents: number;
   successUrl: string;
   cancelUrl: string;
+  merchantName?: string;
+  customerEmail?: string;
 }
+
+export type PaymentStatus = "requires_payment" | "paid" | "failed" | "refunded";
 
 export interface PaymentSession {
   id: string;
   provider: string;
   mode: IntegrationMode;
-  status: "stubbed" | "requires_payment";
+  status: PaymentStatus;
   amountCents: number;
   currency: Currency;
   checkoutUrl: string;
@@ -145,4 +160,5 @@ export interface CheckoutDraft {
   paymentSession: PaymentSession;
   deliveryQuote: DeliveryQuote;
   deliveryJob: DeliveryJob;
+  stripeCheckoutUrl: string;
 }

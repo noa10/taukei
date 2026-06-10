@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import type { User } from "@supabase/supabase-js";
 import { getSupabaseBoundaryConfig, type SupabaseBoundaryConfig } from "./config";
 
@@ -17,7 +18,7 @@ export function getServerSupabaseBoundary(): ServerSupabaseBoundary {
   };
 }
 
-export async function createServerSupabaseClient() {
+const _createServerSupabaseClient = cache(async function createServerSupabaseClientInner() {
   const config = getSupabaseBoundaryConfig("server");
   if (config.mode !== "configured" || !config.url) return null;
 
@@ -38,7 +39,9 @@ export async function createServerSupabaseClient() {
       },
     }
   );
-}
+});
+
+export { _createServerSupabaseClient as createServerSupabaseClient };
 
 // ---------------------------------------------------------------------------
 // User lookups
@@ -78,7 +81,7 @@ export async function getServerSupabaseUser(): Promise<ServerSupabaseUserResult>
       }
     };
   }
-  const supabase = await createServerSupabaseClient();
+  const supabase = await _createServerSupabaseClient();
   if (!supabase) {
     return {
       user: null,

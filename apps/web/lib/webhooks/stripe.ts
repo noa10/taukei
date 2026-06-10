@@ -2,23 +2,15 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { loadTaukeiEnv, type RawEnv } from "@taukei/env";
 import type { PaymentSession } from "@taukei/domain";
 import { buildWebhookIdempotencyKey } from "./idempotency";
-import {
-  buildWebhookProductionGuardrail,
-  type WebhookProductionGuardrail,
-} from "./production-guardrails";
 
-export type StripeDeterministicEventType =
+export type StripeEventType =
   | "checkout.session.completed"
-  | "payment_intent.succeeded"
-  | "payment_intent.payment_failed";
+  | "checkout.session.async_payment_succeeded"
+  | "checkout.session.async_payment_failed";
 
-export interface StripeWebhookRawEnv extends RawEnv {
-  STRIPE_WEBHOOK_SECRET?: string;
-}
-
-export interface StripeDeterministicEvent {
+export interface StripeEvent {
   id: string;
-  type: StripeDeterministicEventType;
+  type: StripeEventType;
   livemode?: boolean;
   created?: number;
   data: {
@@ -34,72 +26,19 @@ export interface StripeDeterministicEvent {
   };
 }
 
-export interface StripeWebhookRecord {
-  id: string;
-  provider: "stripe";
-  event_id: string;
-  event_type: StripeDeterministicEventType;
-  idempotency_key: string;
-  duplicate: boolean;
-  mode: "fake" | "sandbox";
-  no_live_side_effect: true;
-}
-
-export interface StripePaymentReconciliation {
-  order_ref: string;
-  provider_session_id: string;
-  provider_payment_intent_id?: string;
-  previous_status: string;
-  next_status: "paid" | "failed" | "requires_payment_method";
-  amount_cents: number;
-  currency: string;
-  no_live_payment: true;
-}
-
 export interface StripeWebhookProcessingResult {
   accepted: boolean;
   provider: "stripe";
   eventId: string;
-  eventType?: StripeDeterministicEventType;
+  eventType?: StripeEventType;
   idempotencyKey: string;
   status: "processed" | "duplicate" | "rejected";
-  mode: "fake" | "sandbox";
-  serviceRoleBoundary: "service-role-supabase-boundary";
-  noLiveSideEffect: true;
-  productionGuardrail: WebhookProductionGuardrail;
-  webhookEvent?: StripeWebhookRecord;
-  reconciliation?: StripePaymentReconciliation;
+  mode: "sandbox" | "live";
+  orderId?: string;
+  merchantId?: string;
+  orderStatus?: string;
+  fulfillmentStatus?: string;
   reason: string;
-}
-
-// Foundation-only idempotency cache: deterministic local tests/demo evidence only.
-// Production or horizontally scaled webhook handling must replace this with an atomic
-// Supabase `webhook_events` insert/upsert using provider/event and idempotency-key uniqueness.
-const processedStripeEvents = new Map<string, StripeWebhookProcessingResult>();
-
-function rawProcessEnv(): RawEnv {
-  return process.env as RawEnv;
-}
-
-function getWebhookSecret(raw: StripeWebhookRawEnv): string | undefined {
-  return raw.STRIPE_WEBHOOK_SECRET?.trim() || undefined;
-}
-
-function parseStripeSignature(signature: string): {
-  timestamp?: string;
-  signatures: string[];
-} {
-  return signature
-    .split(",")
-    .reduce<{ timestamp?: string; signatures: string[] }>(
-      (acc, part) => {
-        const [key, value] = part.split("=", 2);
-        if (key === "t") acc.timestamp = value;
-        if (key === "v1" && value) acc.signatures.push(value);
-        return acc;
-      },
-      { signatures: [] },
-    );
 }
 
 export function createStripeTestSignature(
@@ -113,152 +52,107 @@ export function createStripeTestSignature(
   return `t=${timestamp},v1=${digest}`;
 }
 
-export function verifyStripeSignatureWhenConfigured(
+export function verifyStripeSignature(
   payload: string,
-  signature: string | null,
-  raw: StripeWebhookRawEnv = rawProcessEnv(),
-):
-  | { ok: true; configured: boolean }
-  | { ok: false; configured: boolean; reason: string } {
-  const secret = getWebhookSecret(raw);
-  if (!secret) {
-    return signature
-      ? { ok: true, configured: false }
-      : {
-          ok: false,
-          configured: false,
-          reason:
-            "Missing stripe-signature header for deterministic Stripe adapter.",
-        };
-  }
-  if (!signature)
-    return {
-      ok: false,
-      configured: true,
-      reason:
-        "Missing stripe-signature header while STRIPE_WEBHOOK_SECRET is configured.",
-    };
+  signature: string,
+  secret: string,
+): boolean {
+  const parsed = signature.split(",").reduce<{
+    timestamp?: string;
+    signatures: string[];
+  }>(
+    (acc, part) => {
+      const [key, value] = part.split("=", 2);
+      if (key === "t") acc.timestamp = value;
+      if (key === "v1" && value) acc.signatures.push(value);
+      return acc;
+    },
+    { signatures: [] },
+  );
 
-  const parsed = parseStripeSignature(signature);
-  if (!parsed.timestamp || parsed.signatures.length === 0)
-    return {
-      ok: false,
-      configured: true,
-      reason: "Invalid stripe-signature format.",
-    };
+  if (!parsed.timestamp || parsed.signatures.length === 0) return false;
 
   const expected = createHmac("sha256", secret)
     .update(`${parsed.timestamp}.${payload}`)
     .digest();
-  const matched = parsed.signatures.some((candidate) => {
+
+  return parsed.signatures.some((candidate) => {
     try {
       const actual = Buffer.from(candidate, "hex");
       return (
-        actual.length === expected.length && timingSafeEqual(actual, expected)
+        actual.length === expected.length &&
+        timingSafeEqual(actual, expected)
       );
     } catch {
       return false;
     }
   });
-
-  return matched
-    ? { ok: true, configured: true }
-    : {
-        ok: false,
-        configured: true,
-        reason: "Stripe signature verification failed.",
-      };
 }
 
-function parseStripeEvent(payload: string): StripeDeterministicEvent | null {
+export function parseStripeEvent(payload: string): StripeEvent | null {
   try {
-    const parsed = JSON.parse(payload) as Partial<StripeDeterministicEvent>;
+    const parsed = JSON.parse(payload) as Partial<StripeEvent>;
     if (!parsed.id || !parsed.type || !parsed.data?.object?.id) return null;
     if (
       ![
         "checkout.session.completed",
-        "payment_intent.succeeded",
-        "payment_intent.payment_failed",
+        "checkout.session.async_payment_succeeded",
+        "checkout.session.async_payment_failed",
       ].includes(parsed.type)
     )
       return null;
-    return parsed as StripeDeterministicEvent;
+    return parsed as StripeEvent;
   } catch {
     return null;
   }
 }
 
-function buildMinimalPaymentSession(): PaymentSession {
-  return {
-    id: crypto.randomUUID(),
-    provider: "stripe",
-    mode: "fake",
-    status: "stubbed",
-    amountCents: 0,
-    currency: "MYR",
-    checkoutUrl: "",
-    noLivePayment: true,
-    metadata: {},
-  };
-}
-
-function nextPaymentStatus(
-  event: StripeDeterministicEvent,
-): StripePaymentReconciliation["next_status"] {
-  if (event.type === "payment_intent.payment_failed") return "failed";
-  if (
-    event.data.object.payment_status === "paid" ||
-    event.type === "payment_intent.succeeded"
-  )
-    return "paid";
-  return "requires_payment_method";
-}
-
-export async function processDeterministicStripeWebhook(
+export async function processStripeWebhook(
   payload: string,
   signature: string | null,
-  raw: StripeWebhookRawEnv = rawProcessEnv(),
+  raw: RawEnv = process.env as RawEnv,
 ): Promise<StripeWebhookProcessingResult> {
   const env = loadTaukeiEnv(raw);
-  if (env.stripeMode === "live") {
+
+  if (!env.stripeWebhookSecret) {
     return {
       accepted: false,
       provider: "stripe",
-      eventId: "stripe-live-rejected",
-      idempotencyKey: buildWebhookIdempotencyKey(
-        "stripe",
-        "stripe-live-rejected",
-      ),
+      eventId: "stripe-no-secret",
+      idempotencyKey: buildWebhookIdempotencyKey("stripe", "no-secret"),
       status: "rejected",
-      mode: "sandbox",
-      serviceRoleBoundary: "service-role-supabase-boundary",
-      noLiveSideEffect: true,
-      productionGuardrail: buildWebhookProductionGuardrail("stripe"),
-      reason:
-        "Live Stripe webhook side effects are disabled in the Taukei foundation.",
+      mode: env.stripeMode,
+      reason: "STRIPE_WEBHOOK_SECRET is not configured.",
     };
   }
 
-  const signatureResult = verifyStripeSignatureWhenConfigured(
-    payload,
-    signature,
-    raw,
-  );
-  if (!signatureResult.ok) {
+  if (!signature) {
     return {
       accepted: false,
       provider: "stripe",
-      eventId: "stripe-signature-rejected",
-      idempotencyKey: buildWebhookIdempotencyKey(
-        "stripe",
-        "stripe-signature-rejected",
-      ),
+      eventId: "stripe-no-signature",
+      idempotencyKey: buildWebhookIdempotencyKey("stripe", "no-signature"),
       status: "rejected",
       mode: env.stripeMode,
-      serviceRoleBoundary: "service-role-supabase-boundary",
-      noLiveSideEffect: true,
-      productionGuardrail: buildWebhookProductionGuardrail("stripe"),
-      reason: signatureResult.reason,
+      reason: "Missing stripe-signature header.",
+    };
+  }
+
+  const verified = verifyStripeSignature(
+    payload,
+    signature,
+    env.stripeWebhookSecret,
+  );
+
+  if (!verified) {
+    return {
+      accepted: false,
+      provider: "stripe",
+      eventId: "stripe-invalid-sig",
+      idempotencyKey: buildWebhookIdempotencyKey("stripe", "invalid-sig"),
+      status: "rejected",
+      mode: env.stripeMode,
+      reason: "Stripe signature verification failed.",
     };
   }
 
@@ -268,58 +162,19 @@ export async function processDeterministicStripeWebhook(
       accepted: false,
       provider: "stripe",
       eventId: "stripe-invalid-event",
-      idempotencyKey: buildWebhookIdempotencyKey(
-        "stripe",
-        "stripe-invalid-event",
-      ),
+      idempotencyKey: buildWebhookIdempotencyKey("stripe", "invalid-event"),
       status: "rejected",
       mode: env.stripeMode,
-      serviceRoleBoundary: "service-role-supabase-boundary",
-      noLiveSideEffect: true,
-      productionGuardrail: buildWebhookProductionGuardrail("stripe"),
-      reason:
-        "Stripe event payload must include id, supported type, and data.object.id.",
-    };
-  }
-  if (event.livemode) {
-    return {
-      accepted: false,
-      provider: "stripe",
-      eventId: event.id,
-      eventType: event.type,
-      idempotencyKey: buildWebhookIdempotencyKey("stripe", event.id),
-      status: "rejected",
-      mode: env.stripeMode,
-      serviceRoleBoundary: "service-role-supabase-boundary",
-      noLiveSideEffect: true,
-      productionGuardrail: buildWebhookProductionGuardrail("stripe"),
-      reason:
-        "Live Stripe event payload rejected by no-live-side-effect guard.",
+      reason: "Invalid Stripe event payload.",
     };
   }
 
   const idempotencyKey = buildWebhookIdempotencyKey("stripe", event.id);
-  const previous = processedStripeEvents.get(idempotencyKey);
-  if (previous) {
-    return {
-      ...previous,
-      accepted: true,
-      status: "duplicate",
-      webhookEvent: previous.webhookEvent
-        ? { ...previous.webhookEvent, duplicate: true }
-        : undefined,
-      reason: `Duplicate Stripe event ${event.id} ignored after first reconciliation.`,
-    };
-  }
+  const metadata = event.data.object.metadata;
+  const orderId = metadata?.orderRef ?? metadata?.order_id;
+  const merchantId = metadata?.merchantId ?? metadata?.merchant_id;
 
-  const paymentSession = buildMinimalPaymentSession();
-  const amount = event.data.object.amount_total ?? paymentSession.amountCents;
-  const currency = (event.data.object.currency ?? "myr").toUpperCase();
-  const orderRef =
-    event.data.object.metadata?.orderRef ??
-    event.data.object.metadata?.order_ref ??
-    event.data.object.id;
-  const result: StripeWebhookProcessingResult = {
+  return {
     accepted: true,
     provider: "stripe",
     eventId: event.id,
@@ -327,37 +182,20 @@ export async function processDeterministicStripeWebhook(
     idempotencyKey,
     status: "processed",
     mode: env.stripeMode,
-    serviceRoleBoundary: "service-role-supabase-boundary",
-    noLiveSideEffect: true,
-    productionGuardrail: buildWebhookProductionGuardrail("stripe"),
-    webhookEvent: {
-      id: `webhook_${idempotencyKey.replace(/[^a-z0-9]+/gi, "_")}`,
-      provider: "stripe",
-      event_id: event.id,
-      event_type: event.type,
-      idempotency_key: idempotencyKey,
-      duplicate: false,
-      mode: env.stripeMode,
-      no_live_side_effect: true,
-    },
-    reconciliation: {
-      order_ref: orderRef,
-      provider_session_id: event.data.object.id,
-      ...(event.data.object.payment_intent
-        ? { provider_payment_intent_id: event.data.object.payment_intent }
-        : {}),
-      previous_status: paymentSession.status,
-      next_status: nextPaymentStatus(event),
-      amount_cents: amount,
-      currency,
-      no_live_payment: true,
-    },
-    reason: `Stripe ${event.type} reconciled deterministically without network calls or payment capture.`,
+    orderId,
+    merchantId,
+    orderStatus:
+      event.type === "checkout.session.async_payment_failed"
+        ? "cancelled"
+        : "confirmed",
+    fulfillmentStatus:
+      event.type === "checkout.session.async_payment_failed"
+        ? undefined
+        : "preparing",
+    reason: `Stripe ${event.type} processed.`,
   };
-  processedStripeEvents.set(idempotencyKey, result);
-  return result;
 }
 
 export function resetStripeWebhookIdempotencyForTests(): void {
-  processedStripeEvents.clear();
+  // No-op: DB-based idempotency doesn't need process-local reset
 }

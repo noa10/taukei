@@ -22,15 +22,27 @@ function readRawEnv(): SupabaseRawEnv {
   return process.env as SupabaseRawEnv;
 }
 
-export function getSupabaseBoundaryConfig(runtime: SupabaseRuntime, raw: SupabaseRawEnv = readRawEnv()): SupabaseBoundaryConfig {
-  const url = raw.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const anonKey = raw.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
-  const serviceRoleKey = raw.SUPABASE_SERVICE_ROLE_KEY?.trim();
+// Memoized per runtime: env vars don't change at runtime, so parse once.
+// Only cached when using the default process.env source (no custom `raw`).
+const _configCache = new Map<SupabaseRuntime, SupabaseBoundaryConfig>();
+
+export function getSupabaseBoundaryConfig(runtime: SupabaseRuntime, raw?: SupabaseRawEnv): SupabaseBoundaryConfig {
+  const useProcessEnv = raw === undefined;
+  if (useProcessEnv) {
+    const cached = _configCache.get(runtime);
+    if (cached) return cached;
+  }
+
+  const env = raw ?? readRawEnv();
+  const url = env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const anonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   const needsServiceRole = runtime === "service-role";
   const hasRequiredKey = needsServiceRole ? Boolean(serviceRoleKey) : Boolean(anonKey);
 
+  let config: SupabaseBoundaryConfig;
   if (!url || !hasRequiredKey) {
-    return {
+    config = {
       runtime,
       mode: "stubbed",
       ...(url ? { url } : {}),
@@ -40,15 +52,18 @@ export function getSupabaseBoundaryConfig(runtime: SupabaseRuntime, raw: Supabas
         ? "SUPABASE_SERVICE_ROLE_KEY and NEXT_PUBLIC_SUPABASE_URL are required before service-role mutations are wired."
         : "NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required before Supabase reads are wired."
     };
+  } else {
+    config = {
+      runtime,
+      mode: "configured",
+      url,
+      hasAnonKey: Boolean(anonKey),
+      hasServiceRoleKey: Boolean(serviceRoleKey)
+    };
   }
 
-  return {
-    runtime,
-    mode: "configured",
-    url,
-    hasAnonKey: Boolean(anonKey),
-    hasServiceRoleKey: Boolean(serviceRoleKey)
-  };
+  if (useProcessEnv) _configCache.set(runtime, config);
+  return config;
 }
 
 export function assertSupabaseConfigured(config: SupabaseBoundaryConfig): void {
@@ -64,10 +79,19 @@ export function assertSupabaseConfigured(config: SupabaseBoundaryConfig): void {
  * localhost origin suitable for the bun dev server. The returned URL never
  * ends with a trailing slash.
  */
-export function getSiteUrl(raw: SupabaseRawEnv = readRawEnv()): string {
-  const candidate = raw.NEXT_PUBLIC_SITE_URL?.trim() || raw.TAUKEI_SITE_URL?.trim();
+// Only cached when using the default process.env source (no custom `raw`).
+let _cachedSiteUrl: string | null = null;
+
+export function getSiteUrl(raw?: SupabaseRawEnv): string {
+  const useProcessEnv = raw === undefined;
+  if (useProcessEnv && _cachedSiteUrl) return _cachedSiteUrl;
+
+  const env = raw ?? readRawEnv();
+  const candidate = env.NEXT_PUBLIC_SITE_URL?.trim() || env.TAUKEI_SITE_URL?.trim();
   const fallback = "http://localhost:56778";
   const url = (candidate && candidate.length > 0 ? candidate : fallback).replace(/\/+$/, "");
+
+  if (useProcessEnv) _cachedSiteUrl = url;
   return url;
 }
 

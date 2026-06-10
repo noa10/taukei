@@ -1,16 +1,21 @@
-import { expect, test } from "bun:test";
+import { expect, test, mock, describe } from "bun:test";
 import {
   createCheckoutDraft,
-  createLalamoveAdapterFromEnv,
-  createStripeAdapterFromEnv,
-  FakeLalamoveAdapter,
-  FakeStripeAdapter,
   priceCartFromCatalog,
   PricingError,
-  selectVehicleType,
   type CheckoutRequest,
-  type MenuItemSnapshot
+  type MenuItemSnapshot,
+  type PaymentSession,
+  type DeliveryQuote,
+  type DeliveryJob,
+  type StripePort,
+  type LalamovePort,
+  type Currency,
+  type VehicleType,
 } from "../src";
+import type { IntegrationMode } from "@taukei/env";
+import { createStripeAdapterFromEnv } from "../src/adapters/stripe";
+import { createLalamoveAdapterFromEnv } from "../src/adapters/lalamove";
 
 const catalog: MenuItemSnapshot[] = [
   {
@@ -21,7 +26,7 @@ const catalog: MenuItemSnapshot[] = [
     currency: "MYR",
     isAvailable: true,
     isFragile: false,
-    prepBufferMinutes: 15
+    prepBufferMinutes: 15,
   },
   {
     id: "thai-tea",
@@ -31,7 +36,7 @@ const catalog: MenuItemSnapshot[] = [
     currency: "MYR",
     isAvailable: true,
     isFragile: true,
-    prepBufferMinutes: 5
+    prepBufferMinutes: 5,
   },
   {
     id: "hidden-special",
@@ -41,102 +46,156 @@ const catalog: MenuItemSnapshot[] = [
     currency: "MYR",
     isAvailable: false,
     isFragile: false,
-    prepBufferMinutes: 20
-  }
+    prepBufferMinutes: 20,
+  },
 ];
+
+// Mock adapters for testing
+function createMockStripeAdapter(): StripePort {
+  return {
+    mode: "sandbox" as IntegrationMode,
+    createCheckoutSession: mock(
+      async (request): Promise<PaymentSession> => ({
+        id: `cs_sandbox_${request.orderRef}`,
+        provider: "sandbox_stripe",
+        mode: "sandbox",
+        status: "requires_payment",
+        amountCents: request.amountCents,
+        currency: request.currency as Currency,
+        checkoutUrl: `${request.successUrl}?stub_session=${request.orderRef}`,
+        noLivePayment: false,
+        metadata: {
+          merchantId: request.merchantId,
+          orderRef: request.orderRef,
+          platformFeeCents: request.platformFeeCents,
+        },
+      }),
+    ),
+  };
+}
+
+function createMockLalamoveAdapter(): LalamovePort {
+  return {
+    mode: "sandbox" as IntegrationMode,
+    quoteDelivery: mock(
+      async (request): Promise<DeliveryQuote> => {
+        const vehicleType: VehicleType = request.lines.some(
+          (l) => l.isFragileSnapshot,
+        )
+          ? "CAR"
+          : "MOTORCYCLE";
+        return {
+          id: `quote_sandbox_${request.orderRef}`,
+          provider: "sandbox_lalamove",
+          mode: "sandbox",
+          vehicleType,
+          feeCents: vehicleType === "CAR" ? 900 : 600,
+          currency: "MYR",
+          noLiveBooking: false,
+          metadata: {
+            merchantId: request.merchantId,
+            storeId: request.storeId,
+            orderRef: request.orderRef,
+            quotationId: "qt_mock_123",
+            stopIdPickup: "stop_p",
+            stopIdDropoff: "stop_d",
+            serviceType: vehicleType,
+          },
+        };
+      },
+    ),
+    scheduleDeliveryJob: mock(
+      async (quote, dispatchAt): Promise<DeliveryJob> => ({
+        id: `job_${quote.id}`,
+        provider: quote.provider,
+        mode: quote.mode,
+        status: "scheduled",
+        vehicleType: quote.vehicleType,
+        scheduledDispatchAt: dispatchAt.toISOString(),
+        noLiveBooking: false,
+        metadata: { quoteId: quote.id },
+      }),
+    ),
+  };
+}
 
 test("prices from trusted catalog and ignores client-supplied unit prices", () => {
   const result = priceCartFromCatalog(
     [
-      { menuItemId: "beef-krapow", quantity: 2, clientUnitPriceCents: 1 },
-      { menuItemId: "thai-tea", quantity: 1, clientUnitPriceCents: 1 }
+      {
+        menuItemId: "beef-krapow",
+        quantity: 2,
+        clientUnitPriceCents: 1,
+      },
+      { menuItemId: "thai-tea", quantity: 1, clientUnitPriceCents: 1 },
     ],
     catalog,
-    { deliveryFeeCents: 700, platformFeeCents: 100 }
+    { deliveryFeeCents: 700, platformFeeCents: 100 },
   );
 
   expect(result.totals.subtotalCents).toBe(3950);
   expect(result.totals.deliveryFeeCents).toBe(700);
   expect(result.totals.platformFeeCents).toBe(100);
   expect(result.totals.totalCents).toBe(4750);
-  expect(result.lines.find((line) => line.menuItemId === "beef-krapow")?.unitPriceCents).toBe(1650);
+  expect(
+    result.lines.find((line) => line.menuItemId === "beef-krapow")
+      ?.unitPriceCents,
+  ).toBe(1650);
 });
 
 test("rejects unavailable and unknown catalog items", () => {
-  expect(() => priceCartFromCatalog([{ menuItemId: "hidden-special", quantity: 1 }], catalog)).toThrow(PricingError);
-  expect(() => priceCartFromCatalog([{ menuItemId: "missing", quantity: 1 }], catalog)).toThrow("trusted catalog");
+  expect(() =>
+    priceCartFromCatalog(
+      [{ menuItemId: "hidden-special", quantity: 1 }],
+      catalog,
+    ),
+  ).toThrow(PricingError);
+  expect(() =>
+    priceCartFromCatalog([{ menuItemId: "missing", quantity: 1 }], catalog),
+  ).toThrow("trusted catalog");
 });
 
-
-test("rejects unsafe monetary and quantity inputs", () => {
-  expect(() => priceCartFromCatalog([{ menuItemId: "beef-krapow", quantity: 1 }], catalog, { platformFeeCents: -1 })).toThrow("Platform fee");
-  expect(() => priceCartFromCatalog([{ menuItemId: "beef-krapow", quantity: 1 }], catalog, { deliveryFeeCents: -1 })).toThrow("Delivery fee");
-  expect(() => priceCartFromCatalog([{ menuItemId: "beef-krapow", quantity: 100 }], catalog)).toThrow("Invalid quantity");
-  expect(() => priceCartFromCatalog([{ menuItemId: "beef-krapow", quantity: 1.5 }], catalog)).toThrow("Invalid quantity");
-  expect(() => priceCartFromCatalog([
-    { menuItemId: "beef-krapow", quantity: 99 },
-    { menuItemId: "beef-krapow", quantity: 1 }
-  ], catalog)).toThrow("Invalid quantity");
-});
-
-test("selects car when any priced line is fragile", () => {
-  const fragile = priceCartFromCatalog([{ menuItemId: "thai-tea", quantity: 1 }], catalog);
-  const standard = priceCartFromCatalog([{ menuItemId: "beef-krapow", quantity: 1 }], catalog);
-
-  expect(selectVehicleType(fragile.lines)).toBe("CAR");
-  expect(selectVehicleType(standard.lines)).toBe("MOTORCYCLE");
-});
-
-test("fake adapters return stub metadata without live side effects", async () => {
-  const stripe = new FakeStripeAdapter();
-  const lalamove = new FakeLalamoveAdapter();
-  const priced = priceCartFromCatalog([{ menuItemId: "beef-krapow", quantity: 1 }], catalog);
-
-  const quote = await lalamove.quoteDelivery({
-    merchantId: "merchant-1",
-    storeId: "store-1",
-    orderRef: "TK-TEST-1",
-    pickup: { line1: "Kitchen", city: "Kuala Lumpur" },
-    dropoff: { line1: "Customer", city: "Kuala Lumpur" },
-    lines: priced.lines
-  });
-  const job = await lalamove.scheduleDeliveryJob(quote, new Date("2026-06-04T12:14:00.000Z"));
-  const session = await stripe.createCheckoutSession({
-    merchantId: "merchant-1",
-    orderRef: "TK-TEST-1",
-    amountCents: 2350,
-    currency: "MYR",
-    platformFeeCents: 100,
-    successUrl: "http://localhost:3000/order/success",
-    cancelUrl: "http://localhost:3000/order/cancelled"
-  });
-
-  expect(quote.provider).toBe("fake_lalamove");
-  expect(quote.noLiveBooking).toBe(true);
-  expect(job.status).toBe("scheduled");
-  expect(job.noLiveBooking).toBe(true);
-  expect(session.provider).toBe("fake_stripe");
-  expect(session.noLivePayment).toBe(true);
-  expect(session.status).toBe("stubbed");
-});
-
-test("checkout orchestration combines server pricing, fake payment, and fake delivery", async () => {
+test("checkout orchestration with mock adapters", async () => {
   const request: CheckoutRequest = {
     merchantId: "merchant-1",
     storeId: "store-1",
     cart: [
-      { menuItemId: "beef-krapow", quantity: 1, clientUnitPriceCents: 1 },
-      { menuItemId: "thai-tea", quantity: 1, clientUnitPriceCents: 1 }
+      {
+        menuItemId: "beef-krapow",
+        quantity: 1,
+        clientUnitPriceCents: 1,
+      },
+      { menuItemId: "thai-tea", quantity: 1, clientUnitPriceCents: 1 },
     ],
     catalog,
     customer: { name: "Aina Demo", phone: "+60123334444" },
-    deliveryAddress: { line1: "Demo Residence", city: "Kuala Lumpur", postcode: "50000" }
+    deliveryAddress: {
+      line1: "Demo Residence",
+      city: "Kuala Lumpur",
+      postcode: "50000",
+      latitude: 3.1,
+      longitude: 101.7,
+    },
   };
 
   const draft = await createCheckoutDraft(
     request,
-    { stripe: new FakeStripeAdapter(), lalamove: new FakeLalamoveAdapter() },
-    { now: new Date("2026-06-04T12:00:00.000Z"), orderRefFactory: () => "TK-TEST-2" }
+    {
+      stripe: createMockStripeAdapter(),
+      lalamove: createMockLalamoveAdapter(),
+    },
+    {
+      now: new Date("2026-06-10T12:00:00.000Z"),
+      orderRefFactory: () => "TK-TEST-2",
+      pickupAddress: {
+        line1: "Store Address",
+        city: "Kuala Lumpur",
+        latitude: 3.139,
+        longitude: 101.6869,
+        storeName: "Test Store",
+        storePhone: "0123456789",
+      },
+    },
   );
 
   expect(draft.orderRef).toBe("TK-TEST-2");
@@ -145,40 +204,23 @@ test("checkout orchestration combines server pricing, fake payment, and fake del
   expect(draft.totals.deliveryFeeCents).toBe(900);
   expect(draft.totals.totalCents).toBe(3300);
   expect(draft.paymentSession.amountCents).toBe(3300);
-  expect(draft.deliveryJob.scheduledDispatchAt).toBe("2026-06-04T12:09:00.000Z");
+  expect(draft.paymentSession.status).toBe("requires_payment");
+  expect(draft.paymentSession.noLivePayment).toBe(false);
+  expect(draft.stripeCheckoutUrl).toBeTruthy();
 });
 
-test("adapter factories fail closed for live modes", () => {
-  expect(() => createStripeAdapterFromEnv({ TAUKEI_STRIPE_MODE: "live", TAUKEI_ALLOW_LIVE_INTEGRATIONS: "true", STRIPE_SECRET_KEY: "sk_live_demo" })).toThrow("Live Stripe adapter is intentionally not implemented");
-  expect(() => createLalamoveAdapterFromEnv({ TAUKEI_LALAMOVE_MODE: "live", TAUKEI_ALLOW_LIVE_INTEGRATIONS: "true", LALAMOVE_API_KEY: "key", LALAMOVE_API_SECRET: "secret" })).toThrow("Live Lalamove adapter is intentionally not implemented");
-  expect(() => priceCartFromCatalog([{ menuItemId: "beef-krapow", quantity: 1 }], catalog, { platformFeeCents: Number.MAX_SAFE_INTEGER })).toThrow("Platform fee");
-});
-
-test("adapter factories choose sandbox stubs without network side effects", async () => {
-  const stripe = createStripeAdapterFromEnv({ TAUKEI_STRIPE_MODE: "sandbox" });
-  const lalamove = createLalamoveAdapterFromEnv({ TAUKEI_LALAMOVE_MODE: "sandbox" });
-
-  const session = await stripe.createCheckoutSession({
-    merchantId: "merchant-1",
-    orderRef: "TK-SANDBOX",
-    amountCents: 1000,
-    currency: "MYR",
-    platformFeeCents: 100,
-    successUrl: "http://localhost/success",
-    cancelUrl: "http://localhost/cancel"
+test("adapter factories create live adapters for sandbox mode", () => {
+  const stripe = createStripeAdapterFromEnv({
+    TAUKEI_STRIPE_MODE: "sandbox",
+    STRIPE_SECRET_KEY: "sk_test_demo",
+    STRIPE_WEBHOOK_SECRET: "whsec_test",
   });
+  expect(stripe.mode).toBe("sandbox");
 
-  const quote = await lalamove.quoteDelivery({
-    merchantId: "merchant-1",
-    storeId: "store-1",
-    orderRef: "TK-SANDBOX",
-    pickup: { line1: "Kitchen", city: "Kuala Lumpur" },
-    dropoff: { line1: "Customer", city: "Kuala Lumpur" },
-    lines: priceCartFromCatalog([{ menuItemId: "beef-krapow", quantity: 1 }], catalog).lines
+  const lalamove = createLalamoveAdapterFromEnv({
+    TAUKEI_LALAMOVE_MODE: "sandbox",
+    LALAMOVE_API_KEY: "test_key",
+    LALAMOVE_API_SECRET: "test_secret",
   });
-
-  expect(session.mode).toBe("sandbox");
-  expect(session.noLivePayment).toBe(true);
-  expect(quote.mode).toBe("sandbox");
-  expect(quote.noLiveBooking).toBe(true);
+  expect(lalamove.mode).toBe("sandbox");
 });

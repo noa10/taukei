@@ -14,5 +14,5 @@ export default async function CheckoutPage({ params }: PageProps) {
     notFound();
   }
 
-  return <CheckoutView merchant={merchant} catalog={catalog} />;
+  return <CheckoutView merchant={merchant} catalog={catalog} storeId={merchant.storeId} />;
 }

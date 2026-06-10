@@ -1,11 +1,18 @@
-export type IntegrationMode = "fake" | "sandbox" | "live";
+export type IntegrationMode = "sandbox" | "live";
 
 export interface TaukeiEnv {
   appName: string;
   siteUrl: string;
   stripeMode: IntegrationMode;
   lalamoveMode: IntegrationMode;
-  liveIntegrationsAllowed: boolean;
+  stripeWebhookSecret: string;
+  lalamoveWebhookSecret: string;
+  lalamoveMarket: string;
+  lalamoveBaseUrl: string;
+  lalamoveDefaultServiceType: string;
+  stripeSecretKey: string;
+  lalamoveApiKey: string;
+  lalamoveApiSecret: string;
 }
 
 export interface RawEnv {
@@ -13,62 +20,71 @@ export interface RawEnv {
   NEXT_PUBLIC_SITE_URL?: string;
   TAUKEI_STRIPE_MODE?: string;
   TAUKEI_LALAMOVE_MODE?: string;
-  TAUKEI_ALLOW_LIVE_INTEGRATIONS?: string;
   STRIPE_SECRET_KEY?: string;
+  STRIPE_WEBHOOK_SECRET?: string;
   LALAMOVE_API_KEY?: string;
   LALAMOVE_API_SECRET?: string;
+  LALAMOVE_WEBHOOK_SECRET?: string;
+  LALAMOVE_MARKET?: string;
+  LALAMOVE_BASE_URL?: string;
+  LALAMOVE_DEFAULT_SERVICE_TYPE?: string;
 }
 
-const MODES = new Set<IntegrationMode>(["fake", "sandbox", "live"]);
+const MODES = new Set<IntegrationMode>(["sandbox", "live"]);
 
 function readMode(value: string | undefined, name: string): IntegrationMode {
-  const normalized = (value ?? "fake").toLowerCase();
+  const normalized = (value ?? "sandbox").toLowerCase();
   if (!MODES.has(normalized as IntegrationMode)) {
-    throw new Error(`${name} must be one of: fake, sandbox, live`);
+    throw new Error(`${name} must be one of: sandbox, live`);
   }
   return normalized as IntegrationMode;
 }
 
-function isTruthy(value: string | undefined): boolean {
-  return ["1", "true", "yes", "on"].includes((value ?? "").toLowerCase());
-}
+// Memoized when using default process.env: env vars don't change at runtime,
+// so parse once and reuse. When a custom `raw` is passed (tests), skip cache.
+let _cachedEnv: TaukeiEnv | null = null;
 
-function requireLiveGuard(raw: RawEnv, service: "Stripe" | "Lalamove", mode: IntegrationMode): void {
-  if (mode !== "live") return;
+export function loadTaukeiEnv(raw?: RawEnv): TaukeiEnv {
+  const useProcessEnv = raw === undefined;
+  if (useProcessEnv && _cachedEnv) return _cachedEnv;
 
-  if (!isTruthy(raw.TAUKEI_ALLOW_LIVE_INTEGRATIONS)) {
-    throw new Error(`${service} live mode is disabled. Set TAUKEI_ALLOW_LIVE_INTEGRATIONS=true only in an explicit production integration phase.`);
+  const env = raw ?? (process.env as RawEnv);
+  const stripeMode = readMode(env.TAUKEI_STRIPE_MODE, "TAUKEI_STRIPE_MODE");
+  const lalamoveMode = readMode(env.TAUKEI_LALAMOVE_MODE, "TAUKEI_LALAMOVE_MODE");
+
+  // Validate Stripe key only if key is provided (stripe adapter will validate at runtime)
+  if (env.STRIPE_SECRET_KEY) {
+    if (stripeMode === "live" && !env.STRIPE_SECRET_KEY.startsWith("sk_live_")) {
+      throw new Error("Stripe live mode requires STRIPE_SECRET_KEY with an sk_live_ prefix.");
+    }
+    if (stripeMode === "sandbox" && !env.STRIPE_SECRET_KEY.startsWith("sk_test_")) {
+      throw new Error("Stripe sandbox mode requires STRIPE_SECRET_KEY with an sk_test_ prefix.");
+    }
   }
 
-  if (service === "Stripe" && !raw.STRIPE_SECRET_KEY?.startsWith("sk_live_")) {
-    throw new Error("Stripe live mode requires STRIPE_SECRET_KEY with an sk_live_ prefix.");
-  }
-
-  if (service === "Lalamove" && (!raw.LALAMOVE_API_KEY || !raw.LALAMOVE_API_SECRET)) {
-    throw new Error("Lalamove live mode requires LALAMOVE_API_KEY and LALAMOVE_API_SECRET.");
-  }
-}
-
-export function loadTaukeiEnv(raw: RawEnv = process.env as RawEnv): TaukeiEnv {
-  const stripeMode = readMode(raw.TAUKEI_STRIPE_MODE, "TAUKEI_STRIPE_MODE");
-  const lalamoveMode = readMode(raw.TAUKEI_LALAMOVE_MODE, "TAUKEI_LALAMOVE_MODE");
-
-  requireLiveGuard(raw, "Stripe", stripeMode);
-  requireLiveGuard(raw, "Lalamove", lalamoveMode);
-
-  return {
-    appName: raw.NEXT_PUBLIC_APP_NAME?.trim() || "Taukei",
-    siteUrl: raw.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000",
+  const result: TaukeiEnv = {
+    appName: env.NEXT_PUBLIC_APP_NAME?.trim() || "Taukei",
+    siteUrl: env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000",
     stripeMode,
     lalamoveMode,
-    liveIntegrationsAllowed: isTruthy(raw.TAUKEI_ALLOW_LIVE_INTEGRATIONS)
+    stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET?.trim() || "",
+    lalamoveWebhookSecret: env.LALAMOVE_WEBHOOK_SECRET?.trim() || env.LALAMOVE_API_SECRET?.trim() || "",
+    lalamoveMarket: env.LALAMOVE_MARKET?.trim() || "MY",
+    lalamoveBaseUrl: env.LALAMOVE_BASE_URL?.trim() || "",
+    lalamoveDefaultServiceType: env.LALAMOVE_DEFAULT_SERVICE_TYPE?.trim() || "MOTORCYCLE",
+    stripeSecretKey: env.STRIPE_SECRET_KEY?.trim() || "",
+    lalamoveApiKey: env.LALAMOVE_API_KEY?.trim() || "",
+    lalamoveApiSecret: env.LALAMOVE_API_SECRET?.trim() || "",
   };
+
+  if (useProcessEnv) _cachedEnv = result;
+  return result;
 }
 
 export function describeIntegrationSafety(env: TaukeiEnv): string {
   const modes = `Stripe=${env.stripeMode}, Lalamove=${env.lalamoveMode}`;
   if (env.stripeMode === "live" || env.lalamoveMode === "live") {
-    return `${modes}. Live integrations explicitly enabled; verify credentials and production authorization.`;
+    return `${modes}. Live integrations active; verify credentials and production authorization.`;
   }
-  return `${modes}. Safe local foundation: no real payment capture and no rider booking.`;
+  return `${modes}. Sandbox mode: test API calls, no real payment capture or rider booking.`;
 }
