@@ -19,8 +19,12 @@ const BOTTOM_NAV_ITEMS = [
 export function MerchantBottomNav() {
   const pathname = usePathname();
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(href + "/");
+  const isActive = (href: string) => {
+    if (href === "/merchant") {
+      return pathname === "/merchant";
+    }
+    return pathname === href || pathname.startsWith(href + "/");
+  };
 
   return (
     <nav className="merchant-bottom-nav" aria-label="Mobile merchant navigation">

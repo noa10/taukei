@@ -45,8 +45,12 @@ export function MerchantSidebar({
 }: MerchantSidebarProps) {
   const pathname = usePathname();
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(href + "/");
+  const isActive = (href: string) => {
+    if (href === "/merchant") {
+      return pathname === "/merchant";
+    }
+    return pathname === href || pathname.startsWith(href + "/");
+  };
 
   return (
     <>
