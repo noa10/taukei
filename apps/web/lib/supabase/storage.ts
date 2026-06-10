@@ -57,18 +57,18 @@ export async function uploadMenuItemImage(
 
 /**
  * Get the public URL for a menu item image stored in Supabase Storage.
- * Returns a fallback data URL if the client is unavailable or the path is empty.
+ * Constructs the URL deterministically from the public Supabase URL so that
+ * server and client produce the same output (eliminates hydration mismatch).
  */
 export function getMenuItemImageUrl(
   path: string | null | undefined
 ): string {
   if (!path) return "";
 
-  const client = createBrowserSupabaseClient();
-  if (!client) return "";
+  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  if (!baseUrl) return "";
 
-  const { data } = client.storage.from(MENU_IMAGES_BUCKET).getPublicUrl(path);
-  return data?.publicUrl ?? "";
+  return `${baseUrl.replace(/\/$/, "")}/storage/v1/object/public/${MENU_IMAGES_BUCKET}/${encodeURIComponent(path)}`;
 }
 
 /**
