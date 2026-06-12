@@ -7,7 +7,7 @@ import { createBrowserSupabaseClient } from "../../lib/supabase/client";
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/merchant", label: "Dashboard", icon: "dashboard" },
-  { href: "/merchant/onboarding", label: "Onboarding", icon: "onboarding" },
+  { href: "/merchant/onboarding", label: "Store Profile", icon: "onboarding" },
   { href: "/merchant/catalog", label: "Menu", icon: "menu" },
   { href: "/merchant/fulfillment", label: "Orders", icon: "orders" },
 ];
@@ -107,6 +107,22 @@ export default function MerchantLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className={`merchant-shell ${collapsed ? "merchant-shell-collapsed" : ""}`}>
+      {/* Mobile header with hamburger menu */}
+      <header className="merchant-mobile-header">
+        <button
+          className="merchant-btn merchant-btn-secondary"
+          style={{ padding: "8px 12px", minHeight: "40px" }}
+          onClick={handleToggleMobile}
+          aria-label="Toggle menu"
+        >
+          <span className="material-symbols-outlined">menu</span>
+        </button>
+        <span className="merchant-brand-text" style={{ fontSize: "1.1rem" }}>
+          {merchantData.displayName}
+        </span>
+        <div style={{ width: 40 }} /> {/* Spacer for balance */}
+      </header>
+
       <MerchantSidebar
         navItems={NAV_ITEMS}
         brandName={merchantData.displayName}

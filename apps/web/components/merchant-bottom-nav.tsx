@@ -11,7 +11,7 @@ import {
 
 const BOTTOM_NAV_ITEMS = [
   { href: "/merchant", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/merchant/onboarding", label: "Onboarding", icon: Store },
+  { href: "/merchant/onboarding", label: "Store Profile", icon: Store },
   { href: "/merchant/catalog", label: "Menu", icon: UtensilsCrossed },
   { href: "/merchant/fulfillment", label: "Orders", icon: Truck },
 ];

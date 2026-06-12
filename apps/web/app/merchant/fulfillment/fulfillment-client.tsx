@@ -113,7 +113,7 @@ export default function FulfillmentClient({ initialOrders }: FulfillmentClientPr
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 24 }}>
+      <div className="merchant-grid-2-1">
         <div className="merchant-list">
           {filteredOrders.length === 0 ? (
             <div className="merchant-card" style={{ textAlign: "center", padding: 48 }}>

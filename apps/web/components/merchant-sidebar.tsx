@@ -7,6 +7,8 @@ import {
   Store,
   UtensilsCrossed,
   Truck,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 export type NavIconKey = "dashboard" | "onboarding" | "menu" | "orders";
@@ -95,6 +97,21 @@ export function MerchantSidebar({
             );
           })}
         </nav>
+
+        {/* Sidebar toggle button (desktop only) */}
+        <button
+          className="merchant-nav-link"
+          onClick={onToggleCollapsed}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          style={{ marginTop: "8px", border: "2px dashed var(--outline)" }}
+        >
+          {collapsed ? (
+            <ChevronRight className="merchant-nav-icon" size={20} />
+          ) : (
+            <ChevronLeft className="merchant-nav-icon" size={20} />
+          )}
+          <span>{collapsed ? "Expand" : "Collapse"}</span>
+        </button>
 
         {/* Bottom section: Back to Store */}
         <div className="merchant-sidebar-bottom">

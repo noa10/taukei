@@ -140,7 +140,7 @@ export default async function MerchantDashboardPage() {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+      <div className="merchant-grid-2">
         <div className="merchant-card">
           <div className="merchant-card-title">
             <span className="material-symbols-outlined">receipt_long</span>
