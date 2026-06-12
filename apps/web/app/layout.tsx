@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { Navbar } from "../components/navbar";
+import { ConditionalNavbar } from "../components/conditional-navbar";
 
 export const metadata: Metadata = {
   applicationName: "Taukei",
@@ -30,7 +30,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en-MY">
       <body>
-        <Navbar />
+        <ConditionalNavbar />
         {children}
       </body>
     </html>
