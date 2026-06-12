@@ -24,9 +24,39 @@ export default async function MerchantOnboardingPage() {
     onboardingComplete: false,
   };
 
+  // Account data to merge
+  let accountData: {
+    fullName: string;
+    username: string;
+    avatarUrl: string;
+    email: string;
+    emailConfirmed: boolean;
+  } = {
+    fullName: "",
+    username: "",
+    avatarUrl: "",
+    email: "",
+    emailConfirmed: false,
+  };
+
   if (user) {
     const client = await createServerSupabaseClient();
     if (client) {
+      // Fetch user profile for account section
+      const { data: userProfile } = await client
+        .from("profiles")
+        .select("full_name, username, avatar_url, email_confirmed")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      accountData = {
+        fullName: userProfile?.full_name ?? "",
+        username: userProfile?.username ?? "",
+        avatarUrl: userProfile?.avatar_url ?? "",
+        email: user.email ?? "",
+        emailConfirmed: userProfile?.email_confirmed ?? false,
+      };
+
       const { data: membership } = await client
         .from("merchant_memberships")
         .select("merchant_id")
@@ -66,10 +96,10 @@ export default async function MerchantOnboardingPage() {
 
   return (
     <>
-      <h1 className="merchant-page-title">Onboarding</h1>
+      <h1 className="merchant-page-title">Store Profile</h1>
       <p className="merchant-page-subtitle">
         {hasMembership
-          ? "Set up your store profile, kitchen settings, and logistics defaults"
+          ? "Manage your store settings, kitchen configuration, and account details"
           : "Create your merchant store to start taking orders"
         }
       </p>
@@ -79,10 +109,14 @@ export default async function MerchantOnboardingPage() {
           <span className="material-symbols-outlined">store</span>
           {hasMembership ? "Store Profile" : "Create Your Store"}
         </div>
-        <OnboardingForm initialProfile={profile} hasMembership={hasMembership} />
+        <OnboardingForm 
+          initialProfile={profile} 
+          hasMembership={hasMembership} 
+          accountData={accountData}
+        />
       </div>
 
-      {hasMembership && (
+      {hasMembership && profile.slug && (
         <div className="merchant-card" style={{ maxWidth: 640, marginTop: 24 }}>
           <div className="merchant-card-title">
             <span className="material-symbols-outlined">info</span>
