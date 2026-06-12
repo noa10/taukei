@@ -1,13 +1,29 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { ImageOff } from "lucide-react";
+import { ImageOff, Pencil, Trash2, Power } from "lucide-react";
 import { saveCatalogItem, deleteCatalogItemAction, toggleCatalogItemAvailability } from "./actions";
 import type { CatalogItem } from "../../../lib/merchant-types";
 import { uploadMenuItemImage, getMenuItemImageUrl, deleteMenuItemImage } from "../../../lib/supabase/storage";
 
 function formatCents(cents: number): string {
   return `RM ${(cents / 100).toFixed(2)}`;
+}
+
+function getInitials(name: string): string {
+  return name.charAt(0).toUpperCase();
+}
+
+function getColorForString(str: string): string {
+  const colors = [
+    "#b52330", "#006d37", "#1e3a8a", "#7c3aed", "#c2410c",
+    "#047857", "#be123c", "#4338ca", "#0f766e", "#a21caf",
+  ];
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
 }
 
 interface CatalogEditorProps {
@@ -36,7 +52,6 @@ export default function CatalogEditor({ initialItems, initialCategories }: Catal
   const [form, setForm] = useState(emptyForm);
 
   const refresh = () => {
-    // Full page refresh to get fresh data from Supabase
     window.location.reload();
   };
 
@@ -83,20 +98,34 @@ export default function CatalogEditor({ initialItems, initialCategories }: Catal
     }
   };
 
+  const validateForm = (): string | null => {
+    if (!form.name.trim()) return "Item name is required.";
+    if (form.priceCents <= 0) return "Price must be greater than 0.";
+    if (!form.categoryName.trim()) return "Category is required.";
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    
     setSaving(true);
     setError(null);
 
     try {
       const result = await saveCatalogItem({
         itemId: editingId || crypto.randomUUID(),
-        name: form.name,
+        name: form.name.trim(),
         priceCents: form.priceCents,
         isAvailable: form.isAvailable,
-        categoryName: form.categoryName,
-        description: form.description,
-        imageUrl: form.imageUrl,
+        categoryName: form.categoryName.trim(),
+        description: form.description.trim(),
+        imageUrl: form.imageUrl.trim() || undefined,
       });
 
       if (result.status === "rejected") {
@@ -124,6 +153,7 @@ export default function CatalogEditor({ initialItems, initialCategories }: Catal
     });
     setEditingId(item.id);
     setShowForm(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDelete = async (id: string) => {
@@ -146,7 +176,6 @@ export default function CatalogEditor({ initialItems, initialCategories }: Catal
       if (!result.ok) {
         alert(result.message);
       } else {
-        // Optimistic update
         setItems((prev) =>
           prev.map((item) =>
             item.id === id ? { ...item, isAvailable: !current } : item
@@ -169,13 +198,55 @@ export default function CatalogEditor({ initialItems, initialCategories }: Catal
     items: items.filter((item) => item.categoryName === cat),
   }));
 
-  // Also show uncategorized items
   const uncategorized = items.filter((item) => !item.categoryName || item.categoryName === "Uncategorized");
   if (uncategorized.length > 0 && !categories.includes("Uncategorized")) {
     itemsByCategory.push({ category: "Uncategorized", items: uncategorized });
   }
 
   const previewUrl = form.imageUrl ? getMenuItemImageUrl(form.imageUrl) : "";
+
+  // Image component with fallback
+  const MenuItemImage = ({ item, size = 48 }: { item: CatalogItem; size?: number }) => {
+    const [imgError, setImgError] = useState(false);
+    const resolvedUrl = item.imageUrl ? getMenuItemImageUrl(item.imageUrl) : "";
+    const initial = getInitials(item.name);
+    const bgColor = getColorForString(item.name);
+
+    if (!resolvedUrl || imgError) {
+      return (
+        <div
+          style={{
+            width: size,
+            height: size,
+            borderRadius: 8,
+            background: bgColor,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            border: "2px solid var(--outline)",
+            color: "#fff",
+            fontWeight: 700,
+            fontSize: size > 40 ? "1.2rem" : "0.9rem",
+            fontFamily: "'Space Grotesk', sans-serif",
+          }}
+        >
+          {initial}
+        </div>
+      );
+    }
+
+    return (
+      <img
+        src={resolvedUrl}
+        alt={item.name}
+        width={size}
+        height={size}
+        style={{ borderRadius: 8, objectFit: "cover", flexShrink: 0, border: "2px solid var(--outline)" }}
+        onError={() => setImgError(true)}
+      />
+    );
+  };
 
   return (
     <>
@@ -203,7 +274,7 @@ export default function CatalogEditor({ initialItems, initialCategories }: Catal
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <div className="merchant-form-group">
                 <label className="merchant-form-label">Price (cents)</label>
-                <input name="priceCents" type="number" min={0} className="merchant-form-input" value={form.priceCents} onChange={handleChange} required placeholder="e.g., 1650" />
+                <input name="priceCents" type="number" min={1} className="merchant-form-input" value={form.priceCents || ""} onChange={handleChange} required placeholder="e.g., 1650" />
                 <p className="merchant-form-hint">Enter price in cents (e.g., 1650 = RM 16.50)</p>
               </div>
               <div className="merchant-form-group">
@@ -228,6 +299,9 @@ export default function CatalogEditor({ initialItems, initialCategories }: Catal
                       src={previewUrl}
                       alt="Preview"
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
                     />
                   </div>
                   <button
@@ -289,44 +363,18 @@ export default function CatalogEditor({ initialItems, initialCategories }: Catal
                 {items.length} item{items.length !== 1 ? "s" : ""}
               </span>
             </div>
-            {items.map((item) => {
-              const resolvedImageUrl = item.imageUrl ? getMenuItemImageUrl(item.imageUrl) : "";
-              return (
+            {items.map((item) => (
               <div key={item.id} className="merchant-list-item">
-                <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-                  {resolvedImageUrl ? (
-                    <img
-                      src={resolvedImageUrl}
-                      alt={item.name}
-                      width={48}
-                      height={48}
-                      style={{ borderRadius: 8, objectFit: "cover", flexShrink: 0 }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: 8,
-                        background: "var(--surface-container)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                        border: "1px solid var(--outline)",
-                      }}
-                    >
-                      <ImageOff size={20} style={{ color: "var(--muted)" }} />
-                    </div>
-                  )}
-                  <div className="merchant-list-item-info">
+                <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0, minWidth: 0 }}>
+                  <MenuItemImage item={item} size={48} />
+                  <div className="merchant-list-item-info" style={{ minWidth: 0 }}>
                     <div className="merchant-list-item-title">{item.name}</div>
                     <div className="merchant-list-item-meta">
                       {formatCents(item.priceCents)} • {item.description || "No description"}
                     </div>
                   </div>
                 </div>
-                <div className="merchant-list-item-actions">
+                <div className="merchant-list-item-actions" style={{ flexShrink: 0 }}>
                   <button
                     className="status-badge"
                     style={{
@@ -336,18 +384,30 @@ export default function CatalogEditor({ initialItems, initialCategories }: Catal
                       border: "none",
                     }}
                     onClick={() => handleToggleAvailability(item.id, item.isAvailable)}
+                    title={item.isAvailable ? "Available - click to disable" : "Unavailable - click to enable"}
                   >
-                    {item.isAvailable ? "On" : "Off"}
+                    <span className="material-symbols-outlined" style={{ fontSize: "1rem" }}>
+                      {item.isAvailable ? "power" : "power_off"}
+                    </span>
+                    <span className="desktop-only">{item.isAvailable ? "On" : "Off"}</span>
                   </button>
-                  <button className="merchant-btn merchant-btn-sm merchant-btn-secondary" onClick={() => startEdit(item)}>
-                    <span className="material-symbols-outlined" style={{ fontSize: "1rem" }}>edit</span>
+                  <button
+                    className="merchant-btn merchant-btn-sm merchant-btn-secondary btn-icon-only"
+                    onClick={() => startEdit(item)}
+                    title="Edit item"
+                  >
+                    <Pencil size={16} />
                   </button>
-                  <button className="merchant-btn merchant-btn-sm merchant-btn-danger" onClick={() => handleDelete(item.id)}>
-                    <span className="material-symbols-outlined" style={{ fontSize: "1rem" }}>delete</span>
+                  <button
+                    className="merchant-btn merchant-btn-sm merchant-btn-danger btn-icon-only"
+                    onClick={() => handleDelete(item.id)}
+                    title="Delete item"
+                  >
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>
-            )})}
+            ))}
           </div>
         ))}
       </div>

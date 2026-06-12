@@ -160,7 +160,7 @@ export async function upsertCatalogItem(
     is_available: input.isAvailable ?? true,
     category_name: input.categoryName?.trim() || "",
     description: input.description?.trim() ?? null,
-    image_url: input.imageUrl?.trim() ?? null,
+    image_url: input.imageUrl?.trim() ? input.imageUrl.trim() : null,
   };
 
   const remotePersistence = getSupabaseBoundaryConfig("server").mode === "configured";
@@ -178,7 +178,7 @@ export async function upsertCatalogItem(
           is_available: input.isAvailable ?? true,
           category_name: input.categoryName?.trim() || "",
           description: input.description?.trim() ?? null,
-          image_url: input.imageUrl?.trim() ?? null,
+          image_url: input.imageUrl?.trim() ? input.imageUrl.trim() : null,
         });
     }
   }
